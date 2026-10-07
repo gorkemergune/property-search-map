@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Property Search Research</title>
+<style>
+:root{--paper:#f4f1ea;--card:#fbf9f4;--ink:#1b1b18;--mute:#7d796d;--line:#d6d0c1;--acc:#d4491f;--ok:#2f6b4f;--warn:#a86f0c}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#16160f;overflow:hidden}
+body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
+.mono,.kick,.sub,th,.btn,.chip,.pin,#bar{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;background:var(--paper);overflow:hidden;transform-origin:center center}
+.slide{position:absolute;inset:0 0 48px 0;padding:44px 64px 18px;display:none;flex-direction:column}
+.slide.on{display:flex}
+.kick{font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--acc);margin-bottom:10px}
+h1,h2{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-weight:700;letter-spacing:-.01em;line-height:1.05}
+h2{font-size:38px;max-width:960px}
+.sub{font-size:13px;color:var(--mute);margin-top:10px;line-height:1.5}
+.body{flex:1;min-height:0;display:flex;gap:28px;margin-top:22px}
+.col{display:flex;flex-direction:column;gap:12px}
+.mute{color:var(--mute)}
+
+/* buttons */
+.btn{font-weight:600;font-size:13px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);padding:8px 14px;cursor:pointer;border-radius:3px;transition:background .15s,color .15s}
+.btn:hover,.btn.on{background:var(--ink);color:var(--paper)}
+.btn.acc{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.acc:hover{background:#b33a14;border-color:#b33a14}
+.btn:focus-visible,.chip:focus-visible,.pin:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.seg{display:inline-flex}
+.seg .btn{border-radius:0;margin-left:-1.5px}
+.seg .btn:first-child{border-radius:3px 0 0 3px;margin-left:0}
+.seg .btn:last-child{border-radius:0 3px 3px 0}
+
+/* footer */
+#bar{position:absolute;left:0;right:0;bottom:0;height:48px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 64px;font-size:12px;color:var(--mute);background:var(--paper)}
+#dots{display:flex;gap:8px}
+#dots button{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--ink);background:transparent;padding:0;cursor:pointer}
+#dots button.on{background:var(--acc);border-color:var(--acc)}
+#bar .nav{display:flex;gap:8px;align-items:center}
+#bar .btn{padding:4px 10px;font-size:12px}
+
+/* tables */
+table{border-collapse:collapse;width:100%;font-size:18px}
+th{font-weight:600;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);text-align:left;padding:0 14px 10px;border-bottom:2px solid var(--ink)}
+td{padding:11px 14px;border-bottom:1px solid var(--line);transition:opacity .2s}
+tr.dim td{opacity:.25}
+tr.pick td{background:#efe6d6}
+.tag{display:inline-block;font:600 12px ui-monospace,Menlo,monospace;padding:3px 8px;border-radius:2px;border:1.5px solid var(--ink)}
+.tag.g{background:var(--ink);color:var(--paper)}
+.tag.l{background:var(--acc);border-color:var(--acc);color:#fff}
+.tag.u{border-style:dashed;color:var(--mute);border-color:var(--mute)}
+.tag.w{border-color:var(--warn);color:var(--warn)}
+
+/* map mock */
+.map{position:relative;overflow:hidden;border:1.5px solid var(--ink);background:#e9ece3;border-radius:4px}
+.map .bg{position:absolute;left:-10%;top:-10%;width:120%;height:120%}
+.map .layer{position:absolute;inset:0}
+.map .bg,.map .layer{transform:translate(var(--px,0),var(--py,0));transition:transform .55s ease}
+.attr{position:absolute;right:0;bottom:0;background:rgba(255,255,255,.85);font:10px ui-monospace,Menlo,monospace;padding:2px 6px;color:#333}
+
+/* pins */
+.pin{position:absolute;transform:translate(-50%,-100%);background:#fff;color:var(--ink);border:1.5px solid var(--ink);padding:3px 8px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;border-radius:3px;transition:background .12s,color .12s,transform .12s;--tri:var(--ink)}
+.pin::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-5px;border:5px solid transparent;border-top-color:var(--tri);border-bottom:0}
+.pin:hover,.pin.hov{background:var(--ink);color:#fff;z-index:4}
+.pin.vis{background:#e5e0d2;color:var(--mute);border-color:#a8a293;--tri:#a8a293}
+.pin.vis:hover,.pin.vis.hov{background:var(--ink);color:#fff;border-color:var(--ink);--tri:var(--ink)}
+.pin.sel{background:var(--acc);border-color:var(--acc);color:#fff;z-index:5;transform:translate(-50%,-100%) scale(1.12);--tri:var(--acc)}
+.pin.st{position:relative;transform:none;display:inline-block;margin-bottom:10px;cursor:default}
+.pin.st.sel{transform:none}
+.search-btn{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:8;box-shadow:0 2px 0 var(--ink)}
+.hidden{display:none!important}
+
+/* gallery */
+.shots{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;flex:1;min-height:0;margin-top:20px}
+.shot{position:relative;border:1.5px dashed var(--mute);border-radius:4px;overflow:hidden;background:var(--card);cursor:zoom-in}
+.shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;z-index:2;background:#fff}
+.shot .ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font:12px ui-monospace,Menlo,monospace;color:var(--mute);text-align:center}
+.shot .ph b{font-size:18px;color:var(--ink);font-family:"Iowan Old Style",Georgia,serif}
+.shot .lab{position:absolute;left:0;bottom:0;z-index:3;background:var(--ink);color:var(--paper);font:600 11px ui-monospace,Menlo,monospace;padding:4px 9px}
+#lightbox{position:absolute;inset:0;background:rgba(22,22,15,.92);z-index:50;display:none;align-items:center;justify-content:center;cursor:zoom-out}
+#lightbox.on{display:flex}
+#lightbox img{max-width:92%;max-height:92%;border:2px solid var(--paper)}
+
+/* price demo */
+.panel{background:var(--card);border:1.5px solid var(--ink);border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:18px}
+.fld{display:flex;flex-direction:column;gap:6px;flex:1}
+.fld label{font:600 11px ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+select{font:600 15px ui-monospace,Menlo,monospace;padding:10px 12px;border:1.5px solid var(--ink);background:#fff;border-radius:3px;color:var(--ink);width:100%}
+select option:disabled{color:#b9b4a6}
+.readout{font:600 14px ui-monospace,Menlo,monospace;background:var(--ink);color:var(--paper);padding:12px 14px;border-radius:3px;min-height:44px}
+.mode{border:1.5px solid var(--line);border-radius:4px;padding:16px 18px;transition:border-color .2s,background .2s,opacity .2s;opacity:.55}
+.mode.on{border-color:var(--ink);background:var(--card);opacity:1}
+.mode h3{font:700 22px "Iowan Old Style",Georgia,serif}
+.mode p{font:13px ui-monospace,Menlo,monospace;color:var(--mute);margin-top:4px;line-height:1.5}
+
+/* POC */
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-weight:600;font-size:12px;border:1.5px solid var(--ink);background:transparent;padding:5px 9px;border-radius:3px;cursor:pointer;color:var(--ink)}
+.chip:hover{background:#e8e2d2}
+.chip.on{background:var(--ink);color:var(--paper)}
+.fgrid{display:grid;grid-template-columns:1.3fr 1fr;gap:10px 14px}
+.fgrid .g>span{display:block;font:600 10px ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:5px}
+.active{display:flex;gap:6px;align-items:center;flex-wrap:wrap;min-height:30px;font:12px ui-monospace,Menlo,monospace;color:var(--mute)}
+.active .chip{background:var(--acc);border-color:var(--acc);color:#fff}
+.list{display:flex;flex-direction:column;gap:6px;overflow:auto;flex:1;min-height:0;padding-right:4px}
+.row{display:flex;gap:12px;align-items:center;text-align:left;border:1.5px solid var(--line);background:var(--card);padding:6px 10px 6px 6px;border-radius:4px;cursor:pointer;font-family:inherit;color:inherit}
+.row:hover{border-color:var(--ink)}
+.row.sel{border-color:var(--acc);box-shadow:inset 4px 0 0 var(--acc)}
+.sw{width:50px;height:42px;border-radius:2px;flex:none;position:relative;overflow:hidden}
+.sw::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:20px;background:rgba(0,0,0,.18);clip-path:polygon(0 40%,50% 0,100% 40%,100% 100%,0 100%)}
+.row .p{font:700 15px ui-monospace,Menlo,monospace}
+.row .a{font-size:14px}
+.row .m{font:11px ui-monospace,Menlo,monospace;color:var(--mute)}
+.stat{margin-left:auto;font:600 10px ui-monospace,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border:1.5px solid var(--ink);border-radius:2px;white-space:nowrap}
+.stat.Sold{border-color:var(--mute);color:var(--mute)}
+.stat.Under{background:#f1deb2;border-color:var(--warn);color:var(--warn)}
+.empty{border:1.5px dashed var(--mute);border-radius:4px;padding:34px 20px;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center;font-size:16px}
+.empty b{font:700 22px "Iowan Old Style",Georgia,serif}
+
+/* matrix + questions */
+.cell{display:inline-flex;align-items:center;gap:8px;font:600 13px ui-monospace,Menlo,monospace;background:none;border:0;color:inherit;padding:0}
+.cell i{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.cell.ok i{background:var(--ok)}.cell.no i{background:transparent;border:1.5px solid var(--mute)}.cell.bl i{background:var(--acc)}
+.cell.me i{background:var(--warn)}
+button.cell{cursor:pointer}button.cell:hover{text-decoration:underline}
+.q{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer;font-size:19px;line-height:1.35}
+.q input{position:absolute;opacity:0}
+.q .box{width:22px;height:22px;border:1.5px solid var(--ink);border-radius:3px;flex:none;margin-top:2px;position:relative;background:#fff}
+.q input:focus-visible+.box{outline:2px solid var(--acc);outline-offset:2px}
+.q input:checked+.box{background:var(--ink)}
+.q input:checked+.box::after{content:"";position:absolute;left:6px;top:2px;width:6px;height:11px;border:solid var(--paper);border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.q input:checked~.t{color:var(--mute);text-decoration:line-through}
+.q small{display:block;font:12px ui-monospace,Menlo,monospace;color:var(--mute);margin-top:3px;text-decoration:none}
+.flag{border:1.5px solid var(--ink);border-left-width:6px;border-left-color:var(--warn);border-radius:4px;padding:14px 16px;background:var(--card)}
+.flag b{font:700 20px "Iowan Old Style",Georgia,serif;display:block}
+.flag span{font:12px ui-monospace,Menlo,monospace;color:var(--mute)}
+.bar{display:flex;height:34px;border:1.5px solid var(--ink);border-radius:3px;overflow:hidden;font:600 12px ui-monospace,Menlo,monospace}
+.bar div{display:flex;align-items:center;padding:0 10px;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- 01 -->
+<section class="slide on" id="s1">
+  <div style="display:flex;gap:48px;flex:1;align-items:center">
+    <div style="flex:1">
+      <div class="kick">Iceberg X R&amp;D · Frontend mission</div>
+      <h1 style="font-size:62px;max-width:600px">How property sites do search and map</h1>
+      <p class="sub" style="margin-top:22px">Property Search With Map &amp; Filters<br>Research summary · 7 Oct 2026</p>
+      <div style="margin-top:34px;display:flex;gap:12px">
+        <button class="btn acc" data-next>Start</button>
+        <button class="btn" data-go="9">Questions for the mentor</button>
+      </div>
+    </div>
+    <div class="map" style="width:520px;height:440px">
+      <div class="layer">
+        <span class="pin st" style="left:24%;top:34%;position:absolute;transform:translate(-50%,-100%)">£240k</span>
+        <span class="pin st sel" style="left:52%;top:46%;position:absolute;transform:translate(-50%,-100%) scale(1.12)">£385k</span>
+        <span class="pin st vis" style="left:70%;top:30%;position:absolute;transform:translate(-50%,-100%)">£295k</span>
+        <span class="pin st" style="left:36%;top:72%;position:absolute;transform:translate(-50%,-100%)">£510k</span>
+        <span class="pin st" style="left:78%;top:76%;position:absolute;transform:translate(-50%,-100%)">£650k</span>
+      </div>
+      <div class="attr">mock data</div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="slide" id="s2">
+  <div class="kick">02 · Map technology</div>
+  <h2>Most use Google Maps. OpenRent shows Leaflet works.</h2>
+  <div class="body">
+    <div style="flex:1">
+      <table id="mapTable">
+        <thead><tr><th>Site</th><th>Map</th><th>Markers</th></tr></thead>
+        <tbody>
+          <tr data-m="g"><td>Rightmove</td><td><span class="tag g">Google Maps</span></td><td>Price pins</td></tr>
+          <tr data-m="g"><td>OnTheMarket</td><td><span class="tag g">Google Maps</span></td><td>Plain pins, no price</td></tr>
+          <tr data-m="g"><td>Zillow</td><td><span class="tag g">Google Maps</span></td><td class="mute">— (bot check)</td></tr>
+          <tr data-m="g"><td>Airbnb</td><td><span class="tag g">Google Maps</span></td><td>Price pills</td></tr>
+          <tr data-m="l"><td>OpenRent</td><td><span class="tag l">Leaflet 1.5.1</span></td><td>Clustered · MapTiler tiles</td></tr>
+          <tr data-m="g"><td>Zoopla</td><td><span class="tag g">Google Maps</span></td><td class="mute">—</td></tr>
+          <tr data-m="u"><td>Sahibinden</td><td><span class="tag u">blocked · 403</span></td><td class="mute">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col" style="width:300px">
+      <div class="sub" style="margin:0 0 2px">FILTER</div>
+      <div class="seg" id="mapFilter" style="flex-wrap:wrap">
+        <button class="btn on" data-f="all">All</button><button class="btn" data-f="g">Google</button><button class="btn" data-f="l">Leaflet</button><button class="btn" data-f="u">Unknown</button>
+      </div>
+      <div class="sub" style="margin:18px 0 2px">7 SITES</div>
+      <div class="bar">
+        <div style="flex:5;background:var(--ink);color:var(--paper)">5 Google</div>
+        <div style="flex:1;background:var(--acc);color:#fff">1</div>
+        <div style="flex:1;background:var(--card);color:var(--mute)">1 ?</div>
+      </div>
+      <p class="sub" style="margin-top:14px">Libraries read from page source, JS bundles and live pages (Playwright, 7 Oct 2026).</p>
+    </div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section class="slide" id="s3">
+  <div class="kick">03 · Reference screens</div>
+  <h2>What we looked at</h2>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:10px">
+    <p class="sub" style="margin:0">Playwright screenshots in <b>shots/</b>, emulated viewports. Click one to enlarge.<br>Zillow showed a bot check, so Emlakjet (TR, MapLibre) is shown instead.</p>
+    <div class="seg" id="viewSeg"><button class="btn on" data-v="">Desktop</button><button class="btn" data-v="-m">Phone</button><button class="btn" data-v="-t">Tablet</button></div>
+  </div>
+  <div class="shots" id="shots" style="margin-top:14px"></div>
+</section>
+
+<!-- 04 -->
+<section class="slide" id="s4">
+  <div class="kick">04 · Marker states</div>
+  <h2>Rightmove-style pins have four states</h2>
+  <div class="body">
+    <div class="map" id="pinMap" style="flex:1">
+      <div class="layer" id="pinLayer"></div>
+      <button class="btn acc search-btn hidden" id="searchBtn">Search this area</button>
+      <div class="attr">mock data</div>
+    </div>
+    <div class="col" style="width:250px">
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
+        <div><span class="pin st">£240k</span> <span class="sub" style="margin-left:8px">default</span></div>
+        <div><span class="pin st hov">£240k</span> <span class="sub" style="margin-left:8px">hover</span></div>
+        <div><span class="pin st sel">£240k</span> <span class="sub" style="margin-left:8px">selected</span></div>
+        <div><span class="pin st vis">£240k</span> <span class="sub" style="margin-left:8px">visited</span></div>
+      </div>
+      <div class="sub" style="margin-top:8px">TRY IT</div>
+      <div style="display:flex;gap:8px"><button class="btn" id="panBtn">Pan map</button><button class="btn" id="resetPins">Reset</button></div>
+      <p class="sub">Click pins one after another. Pan to see the area-search button.</p>
+      <p class="sub">States and “Search this area” are from Rightmove’s JS bundle.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 05 -->
+<section class="slide" id="s5">
+  <div class="kick">05 · Price filter</div>
+  <h2>The price range depends on the listing mode</h2>
+  <div class="body">
+    <div class="col" style="width:520px">
+      <div class="seg" id="modeSeg"><button class="btn on" data-mode="sale">Sale</button><button class="btn" data-mode="rent">Rent</button><button class="btn" data-mode="stay">Stay</button></div>
+      <div class="panel">
+        <div style="display:flex;gap:14px">
+          <div class="fld"><label for="minSel">Min</label><select id="minSel"></select></div>
+          <div class="fld"><label for="maxSel">Max</label><select id="maxSel"></select></div>
+        </div>
+        <div class="readout" id="readout"></div>
+      </div>
+      <p class="sub">Options that would make min higher than max are disabled. Try it. Sale and rent steps are demo values; Stay uses Airbnb’s observed range.</p>
+    </div>
+    <div class="col" style="flex:1;gap:14px">
+      <div class="mode on" data-for="sale"><h3>Sale</h3><p>Total price. Preset steps.</p></div>
+      <div class="mode" data-for="rent"><h3>Rent</h3><p>Per month. OpenRent can switch to per week.</p></div>
+      <div class="mode" data-for="stay"><h3>Stay</h3><p>Total for N nights (Airbnb).</p></div>
+      <p class="sub">Zillow also has a monthly-payment mode. Our currency is still an open question.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 06 -->
+<section class="slide" id="s6">
+  <div class="kick">06 · Target behaviour</div>
+  <h2>Filters, list and map move together</h2>
+  <div class="body" style="margin-top:16px">
+    <div class="col" style="width:600px;gap:10px;min-height:0">
+      <div class="fgrid" id="filters"></div>
+      <div class="active" id="active"></div>
+      <div class="list" id="list"></div>
+    </div>
+    <div class="map" style="flex:1"><div class="layer" id="pocLayer"></div><div class="attr">mock data</div></div>
+  </div>
+</section>
+
+<!-- 07 -->
+<section class="slide" id="s7">
+  <div class="kick">07 · Map libraries</div>
+  <h2>Four options for our POC</h2>
+  <div class="body" style="flex-direction:column;gap:18px">
+    <div class="seg"><button class="btn on" data-lib="all">All</button><button class="btn" data-lib="nokey">No API key</button></div>
+    <table id="libTable">
+      <thead><tr><th>Library</th><th>API key</th><th>Cost</th><th>Clustering</th><th></th></tr></thead>
+      <tbody>
+        <tr class="pick" data-key="0"><td><b>Leaflet + react-leaflet</b></td><td>No</td><td>Free</td><td>Plugin</td><td><span class="tag l">our pick</span></td></tr>
+        <tr data-key="0"><td>MapLibre GL</td><td>No, needs a tile source</td><td>Free</td><td>Built in</td><td><span class="tag u">alternative</span></td></tr>
+        <tr data-key="1"><td>Mapbox GL</td><td>Token</td><td>50k loads/mo free, then paid</td><td>Built in</td><td></td></tr>
+        <tr data-key="1"><td>Google Maps</td><td>Key; billing for production</td><td>10k events/mo free, then paid</td><td>Separate library</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 08 -->
+<section class="slide" id="s8">
+  <div class="kick">08 · Tiles and licences</div>
+  <h2>Tiles are easy. Three things need a yes from the mentor.</h2>
+  <div class="body">
+    <div class="col" style="flex:1;gap:16px">
+      <div class="map" style="height:150px"><div class="attr">Leaflet | © OpenStreetMap contributors</div></div>
+      <div class="mode on"><h3>OpenStreetMap tiles</h3><p>Free. Fine for a POC. Credit must stay visible.</p></div>
+      <div class="mode on"><h3>CARTO basemaps</h3><p>Free API key now needed. Credit: © OpenStreetMap contributors, © CARTO.</p></div>
+    </div>
+    <div class="col" style="width:420px;gap:14px">
+      <div class="flag"><b>react-leaflet 5 needs React 19</b><span>Check our stack</span></div>
+      <div class="flag"><b>Hippocratic-2.1 licence</b><span>Not a standard open-source licence</span></div>
+      <div class="flag"><b>Leaflet 2.0 is still alpha</b><span>We stay on 1.9.4</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 -->
+<section class="slide" id="s9">
+  <div class="kick">09 · Evidence</div>
+  <h2>What we could not verify</h2>
+  <p class="sub">Green = verified · orange = blocked · open = not verified (click after you check it yourself).<br>Emulated viewports (phone 390×844, tablet 820×1180) in headless Chromium, Firefox, WebKit via Playwright. Not real devices. A site was not retried after a block.</p>
+  <div class="body" style="margin-top:14px">
+    <table id="matrix">
+      <thead><tr><th>Site</th><th>Map tech</th><th>Phone</th><th>Tablet</th><th>Other browsers</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="slide" id="s10">
+  <div class="kick">10 · For the mentor</div>
+  <h2>Questions for the mentor</h2>
+  <div class="body" style="display:block;margin-top:12px">
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Which market: a chosen country (₺, $ or £), or the UK (£) like most examples?<small>Decides the sample listings, the currency and how prices are shown.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">English only, or can users choose the language?<small>One language keeps it simple. We suggest one language.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Pick a location by typing a city, by moving the map, or both?<small>Typing is quick to build; map-area search is extra work. We suggest typing first.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">“Listing status”: for sale / for rent, or available / under offer / sold?<small>Sale vs. rent changes the price (total vs. monthly); availability is a tag on the card.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">A few dozen sample listings, or hundreds?<small>Hundreds need grouped map markers. We suggest 30–50.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">How important are phones compared with computers?<small>We suggest computer first, with a simple list/map switch on phones.</small></span></label>
+  </div>
+</section>
+
+<div id="bar">
+  <span>Property Search · Research</span>
+  <div id="dots"></div>
+  <div class="nav"><span id="count"></span><button class="btn" id="prev" aria-label="Previous">←</button><button class="btn" id="next" aria-label="Next">→</button></div>
+</div>
+<div id="lightbox"><img alt=""></div>
+</div>
+
+<script>
+(()=>{
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const stage=$('#stage');
+function fit(){const s=Math.min(innerWidth/1280,innerHeight/720);stage.style.transform='translate(-50%,-50%) scale('+s+')'}
+addEventListener('resize',fit);fit();
+
+/* map backgrounds */
+const MAP='<svg class="bg" viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice"><rect width="800" height="480" fill="#e9ece3"/><path d="M-20 330 C180 290 300 400 480 340 S760 280 840 330 L840 380 C760 330 600 400 470 390 S160 350 -20 380Z" fill="#cddde1"/><rect x="520" y="60" width="150" height="110" rx="6" fill="#d5e2cb"/><g stroke="#fff" stroke-width="10" fill="none" stroke-linecap="round"><path d="M0 120H800"/><path d="M0 250H800"/><path d="M150 0V480"/><path d="M420 0V480"/><path d="M690 0V480"/></g><g stroke="#fff" stroke-width="5" fill="none"><path d="M0 60L800 200"/><path d="M280 0L330 480"/><path d="M560 0L520 480"/></g></svg>';
+$$('.map').forEach(m=>m.insertAdjacentHTML('afterbegin',MAP));
+
+/* navigation */
+const slides=$$('.slide');let cur=0;
+slides.forEach((_,i)=>{const b=document.createElement('button');b.setAttribute('aria-label','Slide '+(i+1));b.onclick=()=>go(i);$('#dots').appendChild(b)});
+function go(i){cur=Math.max(0,Math.min(slides.length-1,i));slides.forEach((s,k)=>s.classList.toggle('on',k===cur));$$('#dots button').forEach((b,k)=>b.classList.toggle('on',k===cur));$('#count').textContent=String(cur+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');history.replaceState(null,'','#'+(cur+1))}
+$('#prev').onclick=()=>go(cur-1);$('#next').onclick=()=>go(cur+1);
+document.addEventListener('click',e=>{const n=e.target.closest('[data-next]'),g=e.target.closest('[data-go]');if(n)go(cur+1);if(g)go(+g.dataset.go)});
+addEventListener('keydown',e=>{const t=e.target,field=t.matches&&t.matches('select,input,textarea'),btn=t.matches&&t.matches('button');
+ if(e.key==='ArrowRight'||e.key==='PageDown'){if(!field)go(cur+1)}
+ else if(e.key==='ArrowLeft'||e.key==='PageUp'){if(!field)go(cur-1)}
+ else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);
+ else if(e.key===' '&&!btn&&!field){e.preventDefault();go(cur+1)}
+ else if(e.key==='Escape')$('#lightbox').classList.remove('on')});
+go(Math.max(0,(parseInt(location.hash.slice(1))||1)-1));
+
+/* 02 map filter */
+$('#mapFilter').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$$('#mapFilter .btn').forEach(x=>x.classList.toggle('on',x===b));
+ $$('#mapTable tbody tr').forEach(r=>r.classList.toggle('dim',b.dataset.f!=='all'&&r.dataset.m!==b.dataset.f))});
+
+/* 03 gallery */
+const shots=[['Rightmove','rightmove'],['Emlakjet','emlakjet'],['OpenRent','openrent'],['Airbnb','airbnb'],['OnTheMarket','onthemarket'],['Zoopla','zoopla']];
+/* sites with no screenshot (blocked); others fall back to the placeholder if a file is missing */
+const shotNote={},viewName={'':'Desktop','-m':'Phone','-t':'Tablet'};
+function renderShots(v){
+ $('#shots').innerHTML=shots.map(s=>{const f='shots/'+s[1]+v+'.png',n=shotNote[s[1]];return '<figure class="shot" tabindex="0"><div class="ph"><b>'+s[0]+'</b>'+(n||f)+'</div>'+(n?'':'<img src="'+f+'" alt="'+s[0]+' '+viewName[v]+' screenshot">')+'<span class="lab">'+s[0]+' · '+viewName[v]+'</span></figure>'}).join('');
+ $$('#shots img').forEach(i=>i.addEventListener('error',()=>i.remove()))}
+renderShots('');
+$('#viewSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$$('#viewSeg .btn').forEach(x=>x.classList.toggle('on',x===b));renderShots(b.dataset.v)});
+$('#shots').addEventListener('click',e=>{const i=e.target.closest('.shot')&&e.target.closest('.shot').querySelector('img');if(i){$('#lightbox img').src=i.src;$('#lightbox').classList.add('on')}});
+$('#lightbox').onclick=()=>$('#lightbox').classList.remove('on');
+
+/* 04 pins */
+const pinData=[['£240k',18,30],['£385k',42,24],['£295k',66,36],['£510k',30,64],['£650k',74,72]];
+let sel=null,visited=new Set();
+const pinLayer=$('#pinLayer');
+pinLayer.innerHTML=pinData.map((p,i)=>'<button class="pin" data-i="'+i+'" style="left:'+p[1]+'%;top:'+p[2]+'%">'+p[0]+'</button>').join('');
+function drawPins(){$$('.pin',pinLayer).forEach((b,i)=>{b.classList.toggle('sel',i===sel);b.classList.toggle('vis',i!==sel&&visited.has(i))})}
+pinLayer.addEventListener('click',e=>{const b=e.target.closest('.pin');if(!b)return;const i=+b.dataset.i;if(sel!==null&&sel!==i)visited.add(sel);visited.delete(i);sel=i;drawPins()});
+const pm=$('#pinMap');
+$('#panBtn').onclick=()=>{pm.style.setProperty('--px','-70px');pm.style.setProperty('--py','-40px');$('#searchBtn').classList.remove('hidden');$('#searchBtn').textContent='Search this area'};
+$('#searchBtn').onclick=()=>{$('#searchBtn').textContent='Area searched'};
+$('#resetPins').onclick=()=>{sel=null;visited.clear();drawPins();pm.style.setProperty('--px','0px');pm.style.setProperty('--py','0px');$('#searchBtn').classList.add('hidden')};
+
+/* 05 price */
+const modes={
+ sale:{vals:[100000,150000,200000,300000,500000,750000,1000000],fmt:v=>'£'+v.toLocaleString('en-GB'),unit:'total price'},
+ rent:{vals:[300,500,750,1000,1500,2000,3000],fmt:v=>'£'+v.toLocaleString('en-GB')+' pcm',unit:'per month'},
+ stay:{vals:[2500,5000,10000,20000,40000,63000],fmt:v=>'₺'+v.toLocaleString('tr-TR'),unit:'total for 5 nights, incl. fees'}};
+let mode='sale';
+const minS=$('#minSel'),maxS=$('#maxSel');
+function fillSel(){const m=modes[mode];
+ minS.innerHTML='<option value="0">No min</option>'+m.vals.map(v=>'<option value="'+v+'">'+m.fmt(v)+'</option>').join('');
+ maxS.innerHTML='<option value="0">No max</option>'+m.vals.map(v=>'<option value="'+v+'">'+m.fmt(v)+'</option>').join('');
+ sync()}
+function sync(){const m=modes[mode],lo=+minS.value,hi=+maxS.value;
+ [...maxS.options].forEach(o=>o.disabled=+o.value>0&&lo>0&&+o.value<lo);
+ [...minS.options].forEach(o=>o.disabled=+o.value>0&&hi>0&&+o.value>hi);
+ $('#readout').textContent=(lo?m.fmt(lo):'any')+'  →  '+(hi?m.fmt(hi):'any')+'   ·   '+m.unit}
+minS.onchange=sync;maxS.onchange=sync;
+$('#modeSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;mode=b.dataset.mode;$$('#modeSeg .btn').forEach(x=>x.classList.toggle('on',x===b));$$('.mode[data-for]').forEach(c=>c.classList.toggle('on',c.dataset.for===mode));fillSel()});
+fillSel();
+
+/* 06 POC */
+const homes=[
+ {id:1,p:240000,a:'12 Mill Lane',t:'Flat',b:2,s:'Available',x:22,y:34,c:'#d9c9a8'},
+ {id:2,p:385000,a:'8 Orchard Road',t:'House',b:3,s:'Under offer',x:48,y:24,c:'#b9c9b0'},
+ {id:3,p:510000,a:'41 King Street',t:'House',b:4,s:'Available',x:72,y:38,c:'#c8b6a6'},
+ {id:4,p:180000,a:'5 Dock Row',t:'Flat',b:1,s:'Sold',x:30,y:64,c:'#a9bcc6'},
+ {id:5,p:295000,a:'27 Park View',t:'Flat',b:2,s:'Available',x:58,y:66,c:'#d6c3b9'},
+ {id:6,p:650000,a:'3 Elm Court',t:'House',b:5,s:'Available',x:82,y:74,c:'#bfc7a5'}];
+const groups=[
+ {k:'type',l:'Type',o:['All','Flat','House']},
+ {k:'beds',l:'Beds',o:['Any','2+','3+','4+']},
+ {k:'status',l:'Status',o:['All','Available','Under offer','Sold']},
+ {k:'max',l:'Max price',o:['Any','£250k','£400k','£600k']}];
+const f={type:0,beds:0,status:0,max:0};let psel=null;
+const lim={max:[0,250000,400000,600000]};
+const short=p=>'£'+Math.round(p/1000)+'k';
+function match(h){
+ if(f.type&&h.t!==groups[0].o[f.type])return false;
+ if(f.beds&&h.b<+groups[1].o[f.beds][0])return false;
+ if(f.status&&h.s!==groups[2].o[f.status])return false;
+ if(f.max&&h.p>lim.max[f.max])return false;return true}
+function renderFilters(){
+ $('#filters').innerHTML=groups.map(g=>'<div class="g"><span>'+g.l+'</span><div class="chips">'+g.o.map((o,i)=>'<button class="chip'+(f[g.k]===i?' on':'')+'" data-k="'+g.k+'" data-i="'+i+'">'+o+'</button>').join('')+'</div></div>').join('')}
+function render(){
+ renderFilters();
+ const res=homes.filter(match);
+ if(psel&&!res.find(h=>h.id===psel))psel=null;
+ const act=groups.filter(g=>f[g.k]).map(g=>'<button class="chip" data-clear="'+g.k+'">'+g.l+': '+g.o[f[g.k]]+' ×</button>').join('');
+ $('#active').innerHTML='<span>'+res.length+' of '+homes.length+' homes</span>'+act+(act?'<button class="btn" style="padding:3px 8px;font-size:11px" data-reset>Reset</button>':'');
+ $('#list').innerHTML=res.length?res.map(h=>'<button class="row'+(h.id===psel?' sel':'')+'" data-id="'+h.id+'"><span class="sw" style="background:'+h.c+'"></span><span><span class="p">£'+h.p.toLocaleString('en-GB')+'</span><br><span class="a">'+h.a+'</span> <span class="m">· '+h.t+' · '+h.b+' bed</span></span><span class="stat '+h.s.split(' ')[0]+'">'+h.s+'</span></button>').join(''):'<div class="empty"><b>No homes match</b><span>Try loosening a filter.</span><button class="btn acc" data-reset>Reset filters</button></div>';
+ $('#pocLayer').innerHTML=res.map(h=>'<button class="pin'+(h.id===psel?' sel':'')+'" data-id="'+h.id+'" style="left:'+h.x+'%;top:'+h.y+'%">'+short(h.p)+'</button>').join('')}
+const s6=$('#s6');
+s6.addEventListener('click',e=>{
+ const c=e.target.closest('.chip[data-k]');if(c){f[c.dataset.k]=+c.dataset.i;render();return}
+ const cl=e.target.closest('[data-clear]');if(cl){f[cl.dataset.clear]=0;render();return}
+ if(e.target.closest('[data-reset]')){Object.keys(f).forEach(k=>f[k]=0);render();return}
+ const r=e.target.closest('[data-id]');if(r){psel=+r.dataset.id;render();const el=$('.row.sel',s6);if(el)el.scrollIntoView({block:'nearest'})}});
+s6.addEventListener('mouseover',e=>{const r=e.target.closest('.row');$$('#pocLayer .pin').forEach(p=>p.classList.toggle('hov',!!r&&p.dataset.id===r.dataset.id))});
+s6.addEventListener('mouseout',e=>{if(e.target.closest('.row'))$$('#pocLayer .pin').forEach(p=>p.classList.remove('hov'))});
+render();
+
+/* 07 libraries */
+$$('[data-lib]').forEach(b=>b.addEventListener('click',()=>{$$('[data-lib]').forEach(x=>x.classList.toggle('on',x===b));$$('#libTable tbody tr').forEach(r=>r.classList.toggle('dim',b.dataset.lib==='nokey'&&r.dataset.key==='1'))}));
+
+/* 09 matrix */
+/* [status, phrase]: ok = verified, bl = blocked, no = not verified. Playwright, 7 Oct 2026, emulated viewports. */
+const NV=['no'];
+const rows=[
+ ['Rightmove',[['ok','Google Maps'],['ok','Full-screen map'],['ok','Full-screen map'],['ok','Same in FF/WebKit']]],
+ ['OnTheMarket',[['ok','Google Maps'],['ok','Full-screen map'],['ok','Full-screen map'],['ok','Same in FF/WebKit']]],
+ ['Zillow',[['ok','Google Maps'],NV,NV,NV]],
+ ['Airbnb',[['ok','Google Maps'],['ok','Map, list sheet'],['ok','List, map button'],['ok','Same in FF/WebKit']]],
+ ['OpenRent',[['ok','Leaflet 1.5.1'],['ok','Map behind button'],['ok','Map beside filters'],['ok','Same in FF/WebKit']]],
+ ['Zoopla',[['ok','Google Maps'],['ok','Map, list toggle'],['ok','Map, list toggle'],['bl','Firefox 403']]],
+ ['Sahibinden',[['bl','Cloudflare 403'],NV,NV,NV]]];
+const stName={ok:'verified',bl:'blocked',no:'not verified'};
+$('#matrix tbody').innerHTML=rows.map(r=>'<tr><td>'+r[0]+'</td>'+r[1].map(c=>c[0]==='no'?'<td><button class="cell no" type="button"><i></i>not verified</button></td>':'<td><span class="cell '+c[0]+'" title="'+stName[c[0]]+'"><i></i>'+c[1]+'</span></td>').join('')+'</tr>').join('');
+$('#matrix').addEventListener('click',e=>{const b=e.target.closest('button.cell');if(!b)return;const done=b.classList.toggle('me');b.classList.toggle('no',!done);b.lastChild.textContent=done?'checked by me':'not verified'});
+})();
+</script>
+</body>
+</html>
