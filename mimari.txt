@@ -1,0 +1,38 @@
+React + TypeScript + ...
+
+Map için --> 
+https://react-leaflet.js.org/
+https://leafletjs.com/  - https://github.com/leaflet/Leaflet
+https://www.openstreetmap.org/#map=7/38.917/34.662
+
+
+Filtreleme için -->
+https://carto.com/
+
+
+Deploy: Vercel
+
+Veri Tipi: image, price, address, type, bedrooms, status, koordinat
+
+
+Proje için site örnek -->
+https://www.onthemarket.com/
+https://www.zillow.com/
+https://www.rightmove.co.uk/
+https://www.airbnb.com.tr/
+https://www.sahibinden.com/
+https://www.openrent.co.uk/
+https://www.zoopla.co.uk/
+
+
+Sitelerde Yapılacak İncelemeler:
+- İlanlarda vurgulanmalar nerelerde
+- Harita için kullanılan teknoloji 
+- Fiyat aralığı neye bağlı
+- Siteler mobilde, ipadde, bilgisayarda, farklı tarayıcılarda nasıl gözüküyor
+- Neye göre filtrelenmiş, filtrelenme özellikleri
+
+
+Site tasarımı için bakılabilecek site:
+https://dribbble.com/search/real-estate
+

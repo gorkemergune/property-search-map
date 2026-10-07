@@ -1,0 +1,27 @@
+SEVDE
+
+https://react-leaflet.js.org/
+https://leafletjs.com/  - https://github.com/leaflet/Leaflet
+https://www.openstreetmap.org/#map=7/38.917/34.662
+https://carto.com/
+https://www.onthemarket.com/
+
+
+
+YASEMİN
+
+https://www.zillow.com/
+https://www.rightmove.co.uk/
+https://www.zoopla.co.uk/
+https://www.openstreetmap.org/#map=7/38.917/34.662
+https://carto.com/
+https://www.openrent.co.uk/
+
+GÖRKEM
+
+https://www.airbnb.com.tr/
+https://www.sahibinden.com/
+https://react-leaflet.js.org/
+https://leafletjs.com/  - https://github.com/leaflet/Leaflet
+
+
