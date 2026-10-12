@@ -39,7 +39,7 @@ describe('SearchBox', () => {
     render(<Harness />);
     await userEvent.type(screen.getByRole('combobox', { name: 'Search listings' }), 'New Yrok');
     const option = options().find((o) => o.textContent?.startsWith('Did you mean New York?'));
-    expect(option?.textContent).toContain('12 homes');
+    expect(option?.textContent).toContain('16 homes');
     // Listing rows show their own title, never a "Did you mean" prefix.
     expect(options().filter((o) => o.textContent?.startsWith('Did you mean'))).toHaveLength(1);
   });
@@ -110,7 +110,7 @@ describe('SearchBox', () => {
     expect(screen.queryByText('No matching places or listings')).not.toBeNull();
     await userEvent.clear(input);
     await userEvent.type(input, 'for rent');
-    expect(options()[0].textContent).toContain('37 homes');
+    expect(options()[0].textContent).toContain('56 homes');
     expect(screen.queryByText('No matching places or listings')).toBeNull();
   });
 });

@@ -52,12 +52,12 @@ const PRICE_BANDS: Record<Currency, Record<PricePeriod, [number, number]>> = {
 };
 
 describe('property dataset', () => {
-  it('has exactly 80 listings', () => {
-    expect(properties).toHaveLength(80);
+  it('has exactly 120 listings', () => {
+    expect(properties).toHaveLength(120);
   });
 
-  it('has the 52 / 20 / 8 country split', () => {
-    expect(countBy((p) => p.countryCode)).toEqual({ US: 52, TR: 20, GB: 8 });
+  it('has the 78 / 30 / 12 country split', () => {
+    expect(countBy((p) => p.countryCode)).toEqual({ US: 78, TR: 30, GB: 12 });
   });
 
   it('covers every required city and no others', () => {

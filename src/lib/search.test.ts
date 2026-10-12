@@ -20,7 +20,7 @@ describe('getSuggestions', () => {
     const ny = places.find((s) => s.kind === 'city' && s.label === 'New York');
     expect(ny).toBeDefined();
     expect(ny!.fuzzy).toBe(true);
-    expect(ny!.count).toBe(12);
+    expect(ny!.count).toBe(16);
     expect(ny!.patch).toEqual({ city: 'New York', query: '' });
   });
 
@@ -31,10 +31,10 @@ describe('getSuggestions', () => {
   });
 
   it('suggests countries and home types with counts', () => {
-    expect(suggest('turk').places.find((s) => s.kind === 'country')).toMatchObject({ label: 'Turkey', count: 20 });
+    expect(suggest('turk').places.find((s) => s.kind === 'country')).toMatchObject({ label: 'Turkey', count: 30 });
     const apartment = suggest('apartmnet').types.find((s) => s.label === 'Apartment');
-    expect(apartment).toMatchObject({ fuzzy: true, count: 51 });
-    expect(suggest('villa').types.find((s) => s.label === 'Villa')).toMatchObject({ fuzzy: false, count: 6 });
+    expect(apartment).toMatchObject({ fuzzy: true, count: 75 });
+    expect(suggest('villa').types.find((s) => s.label === 'Villa')).toMatchObject({ fuzzy: false, count: 11 });
   });
 
   it('counts within the current filters and keeps them when applied', () => {

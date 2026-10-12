@@ -11,7 +11,7 @@ import type {
 } from '../types/property';
 
 /**
- * 80 fictional listings: 52 US, 20 TR, 8 GB.
+ * 120 fictional listings: 78 US, 30 TR, 12 GB.
  *
  * Cities and neighborhoods are real so markers cluster the way real listings
  * would, but every address is fictional on purpose: street names such as
@@ -113,7 +113,7 @@ function city(countryCode: CountryCode, cityName: string, idPrefix: string, rows
 }
 
 // ---------------------------------------------------------------------------
-// United States (USD) — 52
+// United States (USD) — 78
 // ---------------------------------------------------------------------------
 
 const newYork = city('US', 'New York', 'us-nyc', [
@@ -129,6 +129,10 @@ const newYork = city('US', 'New York', 'us-nyc', [
   { neighborhood: 'East Village', address: '75 Placeholder Lane, Unit 11B', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 3_950, bathrooms: 1, areaSqm: 69, furnishing: 'part_furnished', status: 'available', lat: 40.7247, lng: -73.9806, listedAt: '2026-10-06', updatedAt: '2026-10-08' },
   { neighborhood: 'Bushwick', address: '23 Demo Boulevard, Unit 2C', type: 'apartment', bedrooms: 3, pricePeriod: 'monthly', price: 4_200, bathrooms: 3, areaSqm: 122, furnishing: 'furnished', status: 'available', lat: 40.7008, lng: -73.9230, listedAt: '2026-09-25', updatedAt: '2026-10-02' },
   { neighborhood: 'Forest Hills', address: '60 Mockup Place', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 1_875_000, bathrooms: 3, areaSqm: 192, status: 'sold', lat: 40.7188, lng: -73.8468, listedAt: '2026-07-14', updatedAt: '2026-10-04' },
+  { neighborhood: 'Greenwich Village', address: '24 Sample Street, Unit 7B', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 2_125_000, bathrooms: 2, areaSqm: 108, status: 'available', lat: 40.7340, lng: -74.0030, listedAt: '2026-09-24', updatedAt: '2026-10-04' },
+  { neighborhood: 'Chinatown', address: '51 Example Avenue, Unit 4C', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 3_875, bathrooms: 1, areaSqm: 52, furnishing: 'furnished', status: 'available', lat: 40.7158, lng: -73.9970, listedAt: '2026-10-01', updatedAt: '2026-10-06' },
+  { neighborhood: 'Dumbo', address: '82 Placeholder Lane, Unit 5A', type: 'apartment', bedrooms: 3, pricePeriod: 'total', price: 2_650_000, bathrooms: 2, areaSqm: 115, status: 'available', lat: 40.7033, lng: -73.9890, listedAt: '2026-09-05', updatedAt: '2026-09-19' },
+  { neighborhood: 'Flatiron', address: '14 Mockup Place, Unit 12A', type: 'apartment', bedrooms: 0, pricePeriod: 'monthly', price: 3_725, bathrooms: 1, areaSqm: 40, furnishing: 'unfurnished', status: 'available', lat: 40.7409, lng: -73.9896, listedAt: '2026-10-02', updatedAt: '2026-10-02' },
 ]);
 
 const losAngeles = city('US', 'Los Angeles', 'us-la', [
@@ -142,6 +146,10 @@ const losAngeles = city('US', 'Los Angeles', 'us-la', [
   { neighborhood: 'Koreatown', address: '34 Demo Boulevard, Unit 16D', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 815_000, bathrooms: 2, areaSqm: 76, status: 'available', lat: 34.0617, lng: -118.3010, listedAt: '2026-09-15', updatedAt: '2026-09-21' },
   { neighborhood: 'Studio City', address: '71 Mockup Place', type: 'townhouse', bedrooms: 3, pricePeriod: 'total', price: 1_195_000, bathrooms: 2, areaSqm: 95, status: 'available', lat: 34.1440, lng: -118.3888, listedAt: '2026-09-09', updatedAt: '2026-09-23' },
   { neighborhood: 'Downtown', address: '19 Sample Street, Unit 11B', type: 'apartment', bedrooms: 1, pricePeriod: 'total', price: 645_000, bathrooms: 1, areaSqm: 69, status: 'available', lat: 34.0445, lng: -118.2546, listedAt: '2026-09-29', updatedAt: '2026-09-30' },
+  { neighborhood: 'West Hollywood', address: '93 Sample Street, Unit 6B', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 4_525, bathrooms: 2, areaSqm: 80, furnishing: 'furnished', status: 'available', lat: 34.0900, lng: -118.3617, listedAt: '2026-10-03', updatedAt: '2026-10-08' },
+  { neighborhood: 'Brentwood', address: '58 Example Avenue', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 2_875_000, bathrooms: 3, areaSqm: 220, status: 'available', lat: 34.0523, lng: -118.4720, listedAt: '2026-09-16', updatedAt: '2026-09-28' },
+  { neighborhood: 'Marina del Rey', address: '26 Demo Boulevard, Unit 9A', type: 'apartment', bedrooms: 1, pricePeriod: 'total', price: 985_000, bathrooms: 1, areaSqm: 65, status: 'available', lat: 33.9802, lng: -118.4517, listedAt: '2026-09-08', updatedAt: '2026-09-08' },
+  { neighborhood: 'Los Feliz', address: '81 Placeholder Lane', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 1_820_000, bathrooms: 2, areaSqm: 155, status: 'under_offer', lat: 34.1200, lng: -118.2900, listedAt: '2026-08-19', updatedAt: '2026-09-04' },
 ]);
 
 const miami = city('US', 'Miami', 'us-mia', [
@@ -153,6 +161,10 @@ const miami = city('US', 'Miami', 'us-mia', [
   { neighborhood: 'Wynwood', address: '72 Sample Street, Unit 1B', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 2_900, bathrooms: 1, areaSqm: 64, furnishing: 'furnished', status: 'available', lat: 25.8016, lng: -80.2000, listedAt: '2026-10-07', updatedAt: '2026-10-08' },
   { neighborhood: 'Edgewater', address: '20 Example Avenue, Unit 10C', type: 'apartment', bedrooms: 3, pricePeriod: 'total', price: 1_150_000, bathrooms: 3, areaSqm: 134, status: 'available', lat: 25.8065, lng: -80.1876, listedAt: '2026-09-11', updatedAt: '2026-09-11' },
   { neighborhood: 'Little Havana', address: '57 Placeholder Lane', type: 'townhouse', bedrooms: 2, pricePeriod: 'monthly', price: 3_100, bathrooms: 2, areaSqm: 85, furnishing: 'part_furnished', status: 'let', lat: 25.7647, lng: -80.2229, listedAt: '2026-08-15', updatedAt: '2026-08-26' },
+  { neighborhood: 'Key Biscayne', address: '45 Mockup Place', type: 'villa', bedrooms: 4, pricePeriod: 'total', price: 3_450_000, bathrooms: 4, areaSqm: 310, status: 'available', lat: 25.6946, lng: -80.1620, listedAt: '2026-08-23', updatedAt: '2026-09-25' },
+  { neighborhood: 'Mid Beach', address: '66 Demo Boulevard, Unit 12A', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 3_250, bathrooms: 2, areaSqm: 88, furnishing: 'furnished', status: 'available', lat: 25.8140, lng: -80.1230, listedAt: '2026-10-04', updatedAt: '2026-10-07' },
+  { neighborhood: 'Design District', address: '28 Sample Street, Unit 3B', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 2_575, bathrooms: 1, areaSqm: 58, furnishing: 'part_furnished', status: 'available', lat: 25.8080, lng: -80.1930, listedAt: '2026-09-18', updatedAt: '2026-09-26' },
+  { neighborhood: 'Pinecrest', address: '19 Example Avenue', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 1_385_000, bathrooms: 3, areaSqm: 240, status: 'available', lat: 25.6665, lng: -80.3081, listedAt: '2026-08-30', updatedAt: '2026-10-02' },
 ]);
 
 const sanFrancisco = city('US', 'San Francisco', 'us-sf', [
@@ -164,6 +176,10 @@ const sanFrancisco = city('US', 'San Francisco', 'us-sf', [
   { neighborhood: 'Nob Hill', address: '71 Demo Boulevard, Unit 1B', type: 'apartment', bedrooms: 1, pricePeriod: 'total', price: 925_000, bathrooms: 1, areaSqm: 72, status: 'available', lat: 37.7929, lng: -122.4132, listedAt: '2026-09-20', updatedAt: '2026-09-20' },
   { neighborhood: 'Hayes Valley', address: '19 Mockup Place, Unit 8C', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 3_550, bathrooms: 1, areaSqm: 67, furnishing: 'unfurnished', status: 'available', lat: 37.7768, lng: -122.4250, listedAt: '2026-10-05', updatedAt: '2026-10-08' },
   { neighborhood: 'Bernal Heights', address: '56 Sample Street', type: 'house', bedrooms: 2, pricePeriod: 'monthly', price: 5_200, bathrooms: 2, areaSqm: 76, furnishing: 'furnished', status: 'let', lat: 37.7422, lng: -122.4170, listedAt: '2026-08-02', updatedAt: '2026-09-07' },
+  { neighborhood: 'Marina', address: '38 Placeholder Lane, Unit 5A', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 1_540_000, bathrooms: 2, areaSqm: 95, status: 'available', lat: 37.8030, lng: -122.4376, listedAt: '2026-09-12', updatedAt: '2026-09-25' },
+  { neighborhood: 'Richmond', address: '83 Example Avenue', type: 'house', bedrooms: 3, pricePeriod: 'monthly', price: 7_200, bathrooms: 2, areaSqm: 140, furnishing: 'part_furnished', status: 'available', lat: 37.7822, lng: -122.4753, listedAt: '2026-10-07', updatedAt: '2026-10-09' },
+  { neighborhood: 'Castro', address: '45 Mockup Place, Unit 9B', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 3_900, bathrooms: 1, areaSqm: 61, furnishing: 'furnished', status: 'available', lat: 37.7609, lng: -122.4350, listedAt: '2026-09-29', updatedAt: '2026-10-05' },
+  { neighborhood: 'Potrero Hill', address: '27 Demo Boulevard', type: 'townhouse', bedrooms: 3, pricePeriod: 'total', price: 1_670_000, bathrooms: 2, areaSqm: 135, status: 'available', lat: 37.7580, lng: -122.4000, listedAt: '2026-09-02', updatedAt: '2026-09-02' },
 ]);
 
 const chicago = city('US', 'Chicago', 'us-chi', [
@@ -174,6 +190,11 @@ const chicago = city('US', 'Chicago', 'us-chi', [
   { neighborhood: 'Logan Square', address: '57 Example Avenue', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 695_000, bathrooms: 2, areaSqm: 191, status: 'under_offer', lat: 41.9285, lng: -87.6992, listedAt: '2026-08-20', updatedAt: '2026-08-20' },
   { neighborhood: 'Hyde Park', address: '94 Placeholder Lane, Unit 2B', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 345_000, bathrooms: 2, areaSqm: 100, status: 'available', lat: 41.7965, lng: -87.5878, listedAt: '2026-09-08', updatedAt: '2026-09-15' },
   { neighborhood: 'Lakeview', address: '42 Demo Boulevard, Unit 7C', type: 'apartment', bedrooms: 0, pricePeriod: 'monthly', price: 1_550, bathrooms: 1, areaSqm: 45, furnishing: 'part_furnished', status: 'available', lat: 41.9393, lng: -87.6386, listedAt: '2026-10-06', updatedAt: '2026-10-09' },
+  { neighborhood: 'Bucktown', address: '63 Example Avenue, Unit 11A', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 2_325, bathrooms: 2, areaSqm: 82, furnishing: 'part_furnished', status: 'available', lat: 41.9170, lng: -87.6830, listedAt: '2026-10-05', updatedAt: '2026-10-09' },
+  { neighborhood: 'River North', address: '41 Sample Street, Unit 18C', type: 'apartment', bedrooms: 1, pricePeriod: 'total', price: 1_075_000, bathrooms: 1, areaSqm: 70, status: 'available', lat: 41.8929, lng: -87.6367, listedAt: '2026-09-11', updatedAt: '2026-09-20' },
+  { neighborhood: 'Old Town', address: '79 Mockup Place', type: 'townhouse', bedrooms: 3, pricePeriod: 'total', price: 1_225_000, bathrooms: 2, areaSqm: 132, status: 'available', lat: 41.9120, lng: -87.6350, listedAt: '2026-09-08', updatedAt: '2026-09-15' },
+  { neighborhood: 'Pilsen', address: '26 Placeholder Lane', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 1_265_000, bathrooms: 2, areaSqm: 148, status: 'available', lat: 41.8560, lng: -87.6600, listedAt: '2026-08-24', updatedAt: '2026-09-02' },
+  { neighborhood: 'Rogers Park', address: '58 Demo Boulevard, Unit 11A', type: 'apartment', bedrooms: 0, pricePeriod: 'monthly', price: 1_775, bathrooms: 1, areaSqm: 42, furnishing: 'furnished', status: 'available', lat: 42.0100, lng: -87.6700, listedAt: '2026-10-01', updatedAt: '2026-10-01' },
 ]);
 
 const austin = city('US', 'Austin', 'us-aus', [
@@ -184,10 +205,15 @@ const austin = city('US', 'Austin', 'us-aus', [
   { neighborhood: 'Zilker', address: '46 Sample Street', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 1_395_000, bathrooms: 2, areaSqm: 219, status: 'sold', lat: 30.2560, lng: -97.7700, listedAt: '2026-07-21', updatedAt: '2026-07-21' },
   { neighborhood: 'Hyde Park', address: '83 Example Avenue, Unit 18B', type: 'apartment', bedrooms: 0, pricePeriod: 'monthly', price: 1_350, bathrooms: 1, areaSqm: 29, furnishing: 'part_furnished', status: 'available', lat: 30.3049, lng: -97.7303, listedAt: '2026-09-23', updatedAt: '2026-09-23' },
   { neighborhood: 'Circle C Ranch', address: '31 Placeholder Lane', type: 'house', bedrooms: 5, pricePeriod: 'total', price: 1_089_000, bathrooms: 4, areaSqm: 281, status: 'available', lat: 30.1905, lng: -97.8790, listedAt: '2026-08-27', updatedAt: '2026-10-08' },
+  { neighborhood: 'Barton Hills', address: '42 Mockup Place', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 1_850_000, bathrooms: 2, areaSqm: 162, status: 'available', lat: 30.2545, lng: -97.7700, listedAt: '2026-09-05', updatedAt: '2026-09-19' },
+  { neighborhood: 'Westlake', address: '85 Demo Boulevard', type: 'villa', bedrooms: 5, pricePeriod: 'total', price: 3_975_000, bathrooms: 5, areaSqm: 420, status: 'available', lat: 30.2960, lng: -97.8095, listedAt: '2026-08-14', updatedAt: '2026-09-10' },
+  { neighborhood: 'South Congress', address: '58 Example Avenue, Unit 7B', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 2_125, bathrooms: 1, areaSqm: 55, furnishing: 'furnished', status: 'available', lat: 30.2510, lng: -97.7498, listedAt: '2026-10-02', updatedAt: '2026-10-08' },
+  { neighborhood: 'North Loop', address: '34 Placeholder Lane, Unit 13A', type: 'apartment', bedrooms: 0, pricePeriod: 'monthly', price: 1_875, bathrooms: 1, areaSqm: 38, furnishing: 'part_furnished', status: 'available', lat: 30.3155, lng: -97.7174, listedAt: '2026-09-27', updatedAt: '2026-09-27' },
+  { neighborhood: 'Travis Heights', address: '71 Sample Street', type: 'townhouse', bedrooms: 3, pricePeriod: 'monthly', price: 1_425, bathrooms: 2, areaSqm: 112, furnishing: 'unfurnished', status: 'available', lat: 30.2491, lng: -97.7418, listedAt: '2026-09-20', updatedAt: '2026-09-29' },
 ]);
 
 // ---------------------------------------------------------------------------
-// Turkey (TRY) — 20. Bedroom counts follow the "N+1" convention (3+1 → 3).
+// Turkey (TRY) — 30. Bedroom counts follow the "N+1" convention (3+1 → 3).
 // ---------------------------------------------------------------------------
 
 const istanbul = city('TR', 'Istanbul', 'tr-ist', [
@@ -200,6 +226,10 @@ const istanbul = city('TR', 'Istanbul', 'tr-ist', [
   { neighborhood: 'Cihangir', address: 'Demo Sokak No: 53 D: 7', type: 'apartment', bedrooms: 0, pricePeriod: 'monthly', price: 28_000, bathrooms: 1, areaSqm: 33, furnishing: 'unfurnished', status: 'available', lat: 41.0318, lng: 28.9825, listedAt: '2026-10-06', updatedAt: '2026-10-07' },
   { neighborhood: 'Bakırköy', address: 'Taslak Sokak No: 90 D: 16', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 9_850_000, bathrooms: 1, areaSqm: 79, status: 'available', lat: 40.9795, lng: 28.8730, listedAt: '2026-09-13', updatedAt: '2026-09-18' },
   { neighborhood: 'Beylikdüzü', address: 'Örnek Sokak No: 38 D: 6', type: 'apartment', bedrooms: 3, pricePeriod: 'monthly', price: 26_500, bathrooms: 3, areaSqm: 117, furnishing: 'furnished', status: 'available', lat: 41.0015, lng: 28.6425, listedAt: '2026-09-27', updatedAt: '2026-09-27' },
+  { neighborhood: 'Levent', address: 'Örnek Sokak No: 24 D: 7', type: 'apartment', bedrooms: 3, pricePeriod: 'total', price: 29_750_000, bathrooms: 2, areaSqm: 148, status: 'available', lat: 41.0820, lng: 29.0180, listedAt: '2026-09-08', updatedAt: '2026-09-25' },
+  { neighborhood: 'Fatih', address: 'Deneme Caddesi No: 71 D: 4', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 31_500, bathrooms: 1, areaSqm: 88, furnishing: 'unfurnished', status: 'available', lat: 41.0190, lng: 28.9500, listedAt: '2026-10-01', updatedAt: '2026-10-07' },
+  { neighborhood: 'Sarıyer', address: 'Taslak Sokak No: 54', type: 'villa', bedrooms: 4, pricePeriod: 'total', price: 42_500_000, bathrooms: 4, areaSqm: 325, status: 'available', lat: 41.1660, lng: 29.0570, listedAt: '2026-08-18', updatedAt: '2026-09-14' },
+  { neighborhood: 'Maslak', address: 'Demo Sokak No: 19 D: 12', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 23_250, bathrooms: 1, areaSqm: 62, furnishing: 'furnished', status: 'available', lat: 41.1120, lng: 29.0190, listedAt: '2026-10-04', updatedAt: '2026-10-04' },
 ]);
 
 const ankara = city('TR', 'Ankara', 'tr-ank', [
@@ -207,6 +237,8 @@ const ankara = city('TR', 'Ankara', 'tr-ank', [
   { neighborhood: 'Kızılay', address: 'Taslak Sokak No: 24 D: 9', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 19_500, bathrooms: 1, areaSqm: 51, furnishing: 'unfurnished', status: 'available', lat: 39.9200, lng: 32.8545, listedAt: '2026-10-02', updatedAt: '2026-10-02' },
   { neighborhood: 'Ümitköy', address: 'Örnek Sokak No: 61', type: 'villa', bedrooms: 4, pricePeriod: 'total', price: 16_500_000, bathrooms: 3, areaSqm: 210, status: 'available', lat: 39.8935, lng: 32.7050, listedAt: '2026-08-21', updatedAt: '2026-08-24' },
   { neighborhood: 'Bahçelievler', address: 'Deneme Caddesi No: 98 D: 6', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 22_000, bathrooms: 1, areaSqm: 83, furnishing: 'furnished', status: 'under_offer', lat: 39.9225, lng: 32.8235, listedAt: '2026-09-18', updatedAt: '2026-09-18' },
+  { neighborhood: 'Çayyolu', address: 'Örnek Sokak No: 42', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 12_300_000, bathrooms: 3, areaSqm: 195, status: 'available', lat: 39.8720, lng: 32.6940, listedAt: '2026-09-02', updatedAt: '2026-09-21' },
+  { neighborhood: 'Keçiören', address: 'Taslak Sokak No: 59 D: 11', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 16_750, bathrooms: 1, areaSqm: 85, furnishing: 'part_furnished', status: 'available', lat: 39.9830, lng: 32.8640, listedAt: '2026-09-27', updatedAt: '2026-10-05' },
 ]);
 
 const izmir = city('TR', 'Izmir', 'tr-izm', [
@@ -214,16 +246,20 @@ const izmir = city('TR', 'Izmir', 'tr-izm', [
   { neighborhood: 'Karşıyaka', address: 'Demo Sokak No: 13 D: 11', type: 'apartment', bedrooms: 3, pricePeriod: 'total', price: 8_250_000, bathrooms: 2, areaSqm: 115, status: 'available', lat: 38.4590, lng: 27.1050, listedAt: '2026-09-04', updatedAt: '2026-09-04' },
   { neighborhood: 'Bornova', address: 'Taslak Sokak No: 50 D: 16', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 17_500, bathrooms: 1, areaSqm: 62, furnishing: 'unfurnished', status: 'let', lat: 38.4625, lng: 27.2160, listedAt: '2026-08-16', updatedAt: '2026-08-16' },
   { neighborhood: 'Urla', address: 'Örnek Sokak No: 87', type: 'villa', bedrooms: 4, pricePeriod: 'total', price: 21_750_000, bathrooms: 4, areaSqm: 259, status: 'available', lat: 38.3590, lng: 26.7670, listedAt: '2026-08-31', updatedAt: '2026-09-16' },
+  { neighborhood: 'Konak', address: 'Deneme Caddesi No: 28 D: 5', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 29_000, bathrooms: 2, areaSqm: 92, furnishing: 'furnished', status: 'available', lat: 38.4200, lng: 27.1300, listedAt: '2026-10-03', updatedAt: '2026-10-08' },
+  { neighborhood: 'Çiğli', address: 'Örnek Sokak No: 46', type: 'villa', bedrooms: 4, pricePeriod: 'total', price: 15_250_000, bathrooms: 3, areaSqm: 275, status: 'available', lat: 38.4958, lng: 27.0691, listedAt: '2026-08-27', updatedAt: '2026-09-11' },
 ]);
 
 const antalya = city('TR', 'Antalya', 'tr-ayt', [
   { neighborhood: 'Konyaaltı', address: 'Taslak Sokak No: 87 D: 3', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 6_900_000, bathrooms: 1, areaSqm: 95, status: 'available', lat: 36.8690, lng: 30.6350, listedAt: '2026-09-15', updatedAt: '2026-09-17' },
   { neighborhood: 'Lara', address: 'Örnek Sokak No: 35 D: 9', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 24_000, bathrooms: 1, areaSqm: 64, furnishing: 'unfurnished', status: 'available', lat: 36.8580, lng: 30.7880, listedAt: '2026-10-01', updatedAt: '2026-10-09' },
   { neighborhood: 'Döşemealtı', address: 'Deneme Caddesi No: 72', type: 'villa', bedrooms: 5, pricePeriod: 'total', price: 32_000_000, bathrooms: 5, areaSqm: 452, status: 'under_offer', lat: 37.0255, lng: 30.6000, listedAt: '2026-08-09', updatedAt: '2026-09-13' },
+  { neighborhood: 'Muratpaşa', address: 'Örnek Sokak No: 64', type: 'villa', bedrooms: 5, pricePeriod: 'total', price: 18_900_000, bathrooms: 4, areaSqm: 345, status: 'available', lat: 36.8870, lng: 30.7340, listedAt: '2026-09-06', updatedAt: '2026-09-06' },
+  { neighborhood: 'Kepez', address: 'Demo Sokak No: 48 D: 7', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 20_500, bathrooms: 1, areaSqm: 90, furnishing: 'part_furnished', status: 'available', lat: 36.9330, lng: 30.6750, listedAt: '2026-09-30', updatedAt: '2026-10-06' },
 ]);
 
 // ---------------------------------------------------------------------------
-// United Kingdom (GBP) — 8. Rents are per calendar month (pcm).
+// United Kingdom (GBP) — 12. Rents are per calendar month (pcm).
 // ---------------------------------------------------------------------------
 
 const london = city('GB', 'London', 'gb-lon', [
@@ -231,16 +267,20 @@ const london = city('GB', 'London', 'gb-lon', [
   { neighborhood: 'Clapham', address: 'Flat 9, 24 Demo Lane', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 2_375, bathrooms: 1, areaSqm: 56, furnishing: 'unfurnished', status: 'available', lat: 51.4555, lng: -0.1430, listedAt: '2026-10-05', updatedAt: '2026-10-08' },
   { neighborhood: 'Hackney', address: '61 Example Road', type: 'townhouse', bedrooms: 4, pricePeriod: 'total', price: 1_450_000, bathrooms: 3, areaSqm: 194, status: 'under_offer', lat: 51.5470, lng: -0.0630, listedAt: '2026-08-26', updatedAt: '2026-09-29' },
   { neighborhood: 'Canary Wharf', address: 'Flat 4, 98 Sample Mews', type: 'apartment', bedrooms: 0, pricePeriod: 'monthly', price: 2_100, bathrooms: 1, areaSqm: 33, furnishing: 'part_furnished', status: 'available', lat: 51.5005, lng: -0.0180, listedAt: '2026-09-30', updatedAt: '2026-10-05' },
+  { neighborhood: 'Shoreditch', address: 'Flat 5, 48 Example Road', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 2_825, bathrooms: 1, areaSqm: 72, furnishing: 'furnished', status: 'available', lat: 51.5260, lng: -0.0790, listedAt: '2026-10-02', updatedAt: '2026-10-09' },
+  { neighborhood: 'Battersea', address: '72 Demo Lane', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 1_125_000, bathrooms: 2, areaSqm: 82, status: 'available', lat: 51.4790, lng: -0.1600, listedAt: '2026-09-15', updatedAt: '2026-09-28' },
 ]);
 
 const manchester = city('GB', 'Manchester', 'gb-man', [
   { neighborhood: 'Ancoats', address: 'Flat 2, 31 Placeholder Row', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 1_325, bathrooms: 1, areaSqm: 60, furnishing: 'part_furnished', status: 'available', lat: 53.4840, lng: -2.2280, listedAt: '2026-10-02', updatedAt: '2026-10-02' },
   { neighborhood: 'Didsbury', address: '68 Demo Lane', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 465_000, bathrooms: 2, areaSqm: 115, status: 'available', lat: 53.4170, lng: -2.2320, listedAt: '2026-09-09', updatedAt: '2026-09-16' },
+  { neighborhood: 'Northern Quarter', address: 'Flat 4, 56 Sample Mews', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 1_475, bathrooms: 1, areaSqm: 58, furnishing: 'furnished', status: 'available', lat: 53.4845, lng: -2.2340, listedAt: '2026-10-04', updatedAt: '2026-10-08' },
 ]);
 
 const birmingham = city('GB', 'Birmingham', 'gb-bhm', [
   { neighborhood: 'Jewellery Quarter', address: 'Flat 3, 31 Placeholder Row', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_250, bathrooms: 2, areaSqm: 86, furnishing: 'unfurnished', status: 'let', lat: 52.4870, lng: -1.9085, listedAt: '2026-08-12', updatedAt: '2026-08-12' },
   { neighborhood: 'Harborne', address: '68 Demo Lane', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 525_000, bathrooms: 3, areaSqm: 186, status: 'available', lat: 52.4590, lng: -1.9600, listedAt: '2026-09-17', updatedAt: '2026-09-17' },
+  { neighborhood: 'Edgbaston', address: '19 Example Road', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 575_000, bathrooms: 2, areaSqm: 142, status: 'available', lat: 52.4610, lng: -1.9330, listedAt: '2026-08-30', updatedAt: '2026-09-21' },
 ]);
 
 export const properties: readonly Property[] = [

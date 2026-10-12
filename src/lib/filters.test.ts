@@ -22,12 +22,12 @@ const CITY_INDEX = buildCityIndex(properties);
 const f = (patch: Partial<Filters>): Filters => ({ ...DEFAULT_FILTERS, ...patch });
 
 describe('applyFilters', () => {
-  it('returns all 80 listings with default filters', () => {
-    expect(applyFilters(properties, DEFAULT_FILTERS)).toHaveLength(80);
+  it('returns all 120 listings with default filters', () => {
+    expect(applyFilters(properties, DEFAULT_FILTERS)).toHaveLength(120);
   });
 
   it('filters by country, city and sale/rent', () => {
-    expect(applyFilters(properties, f({ country: 'TR' }))).toHaveLength(20);
+    expect(applyFilters(properties, f({ country: 'TR' }))).toHaveLength(30);
     expect(applyFilters(properties, f({ city: 'London' })).every((p) => p.city === 'London')).toBe(true);
     const rentals = applyFilters(properties, f({ pricePeriod: 'monthly' }));
     expect(rentals.length).toBeGreaterThan(0);
@@ -56,15 +56,15 @@ describe('applyFilters', () => {
   });
 
   it('ignores price bounds without a single market and period, so currencies never mix', () => {
-    expect(applyFilters(properties, f({ minPrice: 1_000_000 }))).toHaveLength(80);
-    expect(applyFilters(properties, f({ country: 'US', minPrice: 1_000_000 }))).toHaveLength(52);
+    expect(applyFilters(properties, f({ minPrice: 1_000_000 }))).toHaveLength(120);
+    expect(applyFilters(properties, f({ country: 'US', minPrice: 1_000_000 }))).toHaveLength(78);
   });
 
   it('searches location text without case or accents', () => {
     const r = applyFilters(properties, f({ query: 'uskudar' }));
     expect(r.map((p) => p.neighborhood)).toEqual(['Üsküdar']);
     expect(applyFilters(properties, f({ query: 'KADIKÖY' }))).toHaveLength(1);
-    expect(applyFilters(properties, f({ query: 'united kingdom' }))).toHaveLength(8);
+    expect(applyFilters(properties, f({ query: 'united kingdom' }))).toHaveLength(12);
     expect(normalizeText('  İzmir ')).toBe('izmir');
   });
 });
@@ -108,7 +108,7 @@ describe('updateFilters', () => {
     const london = updateFilters(DEFAULT_FILTERS, { city: 'London' }, CITY_INDEX);
     expect(london).toMatchObject({ country: 'GB', city: 'London' });
     expect(updateFilters(london, { country: 'all' }, CITY_INDEX)).toMatchObject({ country: 'all', city: 'all' });
-    expect(applyFilters(properties, updateFilters(london, { country: 'all' }, CITY_INDEX))).toHaveLength(80);
+    expect(applyFilters(properties, updateFilters(london, { country: 'all' }, CITY_INDEX))).toHaveLength(120);
   });
 
   it('drops a city from another country when the country changes', () => {
@@ -217,7 +217,7 @@ describe('extended filters', () => {
     expect(r.every((p) => p.pricePeriod === 'monthly' && p.furnishing === 'furnished')).toBe(true);
     expect(updateFilters(rent, { pricePeriod: 'total' }, CITY_INDEX).furnishing).toEqual([]);
     // Defensive: a stray furnishing value never filters sale listings.
-    expect(applyFilters(properties, f({ furnishing: ['furnished'] }))).toHaveLength(80);
+    expect(applyFilters(properties, f({ furnishing: ['furnished'] }))).toHaveLength(120);
   });
 
   it('keeps the edited bound when bedroom or area ranges cross', () => {
@@ -300,7 +300,7 @@ describe('chips and clear all', () => {
 
   it('clear all resets every filter but keeps the area unit preference', () => {
     expect(clearFilters(busy)).toEqual({ ...DEFAULT_FILTERS, areaUnit: 'sqft' });
-    expect(applyFilters(properties, clearFilters(busy))).toHaveLength(80);
+    expect(applyFilters(properties, clearFilters(busy))).toHaveLength(120);
   });
 
   it('labels bedroom ranges including studio and 5+', () => {

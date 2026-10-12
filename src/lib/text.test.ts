@@ -58,19 +58,19 @@ describe('scoreText and matchesQuery', () => {
   it('finds listings with Turkish characters typed either way', () => {
     const plain = properties.filter((p) => matchesQuery(p, 'istanbul'));
     const dotted = properties.filter((p) => matchesQuery(p, 'İSTANBUL'));
-    expect(plain).toHaveLength(9);
+    expect(plain).toHaveLength(13);
     expect(dotted.map((p) => p.id)).toEqual(plain.map((p) => p.id));
-    expect(properties.filter((p) => matchesQuery(p, 'İzmir'))).toHaveLength(4);
+    expect(properties.filter((p) => matchesQuery(p, 'İzmir'))).toHaveLength(6);
   });
 
   it('tolerates typos in place names', () => {
-    expect(properties.filter((p) => matchesQuery(p, 'New Yrok'))).toHaveLength(12);
-    expect(properties.filter((p) => matchesQuery(p, 'Manchstr'))).toHaveLength(2);
+    expect(properties.filter((p) => matchesQuery(p, 'New Yrok'))).toHaveLength(16);
+    expect(properties.filter((p) => matchesQuery(p, 'Manchstr'))).toHaveLength(3);
   });
 
   it('searches title, type, country, address and description', () => {
     expect(properties.filter((p) => matchesQuery(p, 'villa')).every((p) => p.type === 'villa' || /villa/i.test(p.title))).toBe(true);
-    expect(properties.filter((p) => matchesQuery(p, 'turkey'))).toHaveLength(20);
+    expect(properties.filter((p) => matchesQuery(p, 'turkey'))).toHaveLength(30);
     // Addresses are fictional; a unique one still finds exactly its listing.
     expect(properties.filter((p) => matchesQuery(p, '23 Demo Boulevard')).map((p) => p.id)).toEqual(['us-nyc-11']);
     expect(properties.filter((p) => matchesQuery(p, 'part-furnished')).every((p) => p.furnishing === 'part_furnished')).toBe(true);
@@ -81,18 +81,18 @@ describe('filler and template words (regression)', () => {
   const count = (q: string) => properties.filter((p) => matchesQuery(p, q)).length;
 
   it('does not match every listing through the generated description wording', () => {
-    expect(count('demo')).toBe(80); // filler only → the query does not narrow
+    expect(count('demo')).toBe(120); // filler only → the query does not narrow
     expect(count('bath')).toBe(0); // e.g. the UK city of Bath is not in the data
     expect(count('Bath')).toBe(0);
-    expect(count('fictional details')).toBe(80);
-    expect(count('with london')).toBe(4);
+    expect(count('fictional details')).toBe(120);
+    expect(count('with london')).toBe(6);
   });
 
   it('ignores filler words but keeps meaningful ones', () => {
-    expect(count('in')).toBe(80);
+    expect(count('in')).toBe(120);
     expect(count('homes in chelsea')).toBe(0); // "homes" is not a stop word and matches nothing
     expect(count('apartment in chelsea')).toBe(1);
-    expect(count('for rent')).toBe(37);
+    expect(count('for rent')).toBe(56);
     expect(properties.filter((p) => matchesQuery(p, 'furnished')).every((p) => p.furnishing === 'furnished' || p.furnishing === 'part_furnished')).toBe(true);
   });
 });
