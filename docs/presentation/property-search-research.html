@@ -151,7 +151,7 @@ button.cell{cursor:pointer}button.cell:hover{text-decoration:underline}
       <p class="sub" style="margin-top:22px">Property Search With Map &amp; Filters<br>Research summary · 7 Oct 2026</p>
       <div style="margin-top:34px;display:flex;gap:12px">
         <button class="btn acc" data-next>Start</button>
-        <button class="btn" data-go="9">Questions for the mentor</button>
+        <button class="btn" data-go="9">Product questions</button>
       </div>
     </div>
     <div class="map" style="width:520px;height:440px">
@@ -329,14 +329,13 @@ button.cell{cursor:pointer}button.cell:hover{text-decoration:underline}
 <!-- 10 -->
 <section class="slide" id="s10">
   <div class="kick">10 · For the mentor</div>
-  <h2>Questions for the mentor</h2>
+  <h2>Product questions</h2>
   <div class="body" style="display:block;margin-top:12px">
-    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Which market: a chosen country (₺, $ or £), or the UK (£) like most examples?<small>Decides the sample listings, the currency and how prices are shown.</small></span></label>
-    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">English only, or can users choose the language?<small>One language keeps it simple. We suggest one language.</small></span></label>
-    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Pick a location by typing a city, by moving the map, or both?<small>Typing is quick to build; map-area search is extra work. We suggest typing first.</small></span></label>
-    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">“Listing status”: for sale / for rent, or available / under offer / sold?<small>Sale vs. rent changes the price (total vs. monthly); availability is a tag on the card.</small></span></label>
-    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">A few dozen sample listings, or hundreds?<small>Hundreds need grouped map markers. We suggest 30–50.</small></span></label>
-    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">How important are phones compared with computers?<small>We suggest computer first, with a simple list/map switch on phones.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Which listing data will the product use: an internal API, or an external feed (e.g. agent XML)?<small>We shape our data model and filters around it. Today: 120 fictional listings, static data.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Map in production: is OpenStreetMap enough, or Google Maps / CARTO?<small>OSM’s free tile server doesn’t allow heavy traffic. The others need an API key and charge per use.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Is react-leaflet’s Hippocratic-2.1 license acceptable for the product?<small>If not, we drop react-leaflet and use Leaflet (BSD-2) directly; the UI stays the same.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Will the product focus on one market (e.g. Turkey), or stay multi-market?<small>Currency, language and price format depend on it. Today: 3 markets (₺ / $ / £), English UI.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">What comes after the prototype?<small>“Search this area”, marker clustering, shareable search links, favorites. Hundreds of real listings would need clustering.</small></span></label>
   </div>
 </section>
 

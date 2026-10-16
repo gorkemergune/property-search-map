@@ -151,7 +151,7 @@ button.cell{cursor:pointer}button.cell:hover{text-decoration:underline}
       <p class="sub" style="margin-top:22px">Harita ve Filtrelerle Emlak Arama<br>Araştırma özeti · 7 Eki 2026</p>
       <div style="margin-top:34px;display:flex;gap:12px">
         <button class="btn acc" data-next>Başla</button>
-        <button class="btn" data-go="9">Mentöre sorular</button>
+        <button class="btn" data-go="9">Ürün için sorular</button>
       </div>
     </div>
     <div class="map" style="width:520px;height:440px">
@@ -329,14 +329,13 @@ button.cell{cursor:pointer}button.cell:hover{text-decoration:underline}
 <!-- 10 -->
 <section class="slide" id="s10">
   <div class="kick">10 · Mentör için</div>
-  <h2>Mentöre sorular</h2>
+  <h2>Ürün için sorular</h2>
   <div class="body" style="display:block;margin-top:12px">
-    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Hangi pazar: seçilen bir ülke (₺, $ veya £) mi, örneklerin çoğu gibi İngiltere (£) mi?<small>Örnek ilanları, para birimini ve fiyatların gösterimini belirler.</small></span></label>
-    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Sadece İngilizce mi, yoksa kullanıcı dil seçebilmeli mi?<small>Tek dil işi basit tutar. Önerimiz: tek dil.</small></span></label>
-    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Konum yazarak mı, haritayı kaydırarak mı, ikisiyle de mi seçilsin?<small>Yazarak arama hızlı yapılır; harita alanıyla arama ek iş. Önerimiz: önce yazarak.</small></span></label>
-    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">“İlan durumu”: satılık / kiralık mı, müsait / opsiyonlu / satıldı mı?<small>Satılık/kiralık fiyatı değiştirir (toplam mı, aylık mı); müsaitlik kartta etiket olur.</small></span></label>
-    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Birkaç düzine örnek ilan mı, yüzlerce mi?<small>Yüzlerce ilan haritada gruplama ister. Önerimiz: 30–50.</small></span></label>
-    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Telefon, bilgisayara göre ne kadar önemli?<small>Önerimiz: önce bilgisayar; telefonda basit bir liste/harita geçişi.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Ürün hangi ilan verisiyle beslenecek: şirket içi bir API mi, dışarıdan bir feed (ör. emlakçı XML) mi?<small>Veri modelimizi ve filtreleri buna göre şekillendiririz. Şu an 120 kurgusal ilan, sabit veri.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Canlıda harita: OpenStreetMap yeterli mi, yoksa Google Maps / CARTO mu?<small>OSM’nin ücretsiz sunucusu yoğun trafiğe izin vermiyor. Diğerleri API anahtarı ve kullanım başına ücret ister.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">react-leaflet’in Hippocratic-2.1 lisansı ürün için kabul edilebilir mi?<small>Değilse react-leaflet’i çıkarıp doğrudan Leaflet (BSD-2) kullanırız; arayüz değişmez.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Ürün tek pazara mı odaklanacak (ör. Türkiye), yoksa çok pazarlı mı kalacak?<small>Para birimi, dil ve fiyat biçimi buna bağlı. Şu an 3 pazar (₺ / $ / £), arayüz İngilizce.</small></span></label>
+    <label class="q"><input type="checkbox"><span class="box"></span><span class="t">Prototipten sonraki öncelik hangisi?<small>“Bu alanda ara”, işaretçi kümeleme, paylaşılabilir arama linki, favoriler. Gerçek veride yüzlerce ilan olursa kümeleme şart.</small></span></label>
   </div>
 </section>
 

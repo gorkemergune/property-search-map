@@ -1,0 +1,67 @@
+MENTÖR TOPLANTISI NOTLARI — Property Search With Map & Filters
+Tarih: 16 Ekim 2026 · Sunum: docs/presentation/property-search-research.tr.html
+Demo: local (npm run dev)
+==================================================================
+
+Toplantı akışı (~20 dk)
+------------------------
+1) Araştırma sunumu (8–10 dk) — 10 slayt, ← → ile geçiş.
+2) Demo (5–7 dk) — aşağıdaki C bölümündeki akış.
+3) Sorular (5 dk) — B bölümü.
+
+Durum özeti (1 dakikada)
+-------------------------
+- Brief'teki her madde çalışıyor: konum, fiyat, tip, yatak odası, ilan durumu
+  filtreleri; kart ↔ işaretçi vurgusu; boş durum, sonuç sayısı, sıfırlama; masaüstü,
+  tablet, mobil.
+- Ekstralar: banyo, alan, eşya durumu, 6 sıralama, filtre çipleri, arama önerileri,
+  ilan detayı, klavye erişilebilirliği.
+- 120 kurgusal ilan (78 US / 30 TR / 12 GB), 118 test geçiyor, build hatasız.
+
+
+A) Sunumda dikkat
+------------------
+1. Raporun eski 6 sorusunu üründe kendimiz cevapladık, son slayttan çıkardık.
+   Demoda "şöyle karar verdik" diye kısaca geç:
+   - Pazar: 3 pazar, her biri kendi para birimiyle (₺ / $ / £)
+   - Dil: yalnızca İngilizce
+   - Konum: yazarak arama ("bu alanda ara" yok)
+   - İlan durumu: ikisi de var — Satılık/Kiralık ana filtre; Müsait/Opsiyonlu/
+     Satıldı/Kiralandı ayrı filtre + kart etiketi
+   - Veri: raporda 30–50 demiştik, 120 oldu; kümeleme yine de yok
+   - Mobil: liste/harita geçişi + filtre çekmecesi
+2. Fiyat filtresi ancak ülke + Satılık/Kiralık seçilince açılıyor (para birimleri ve
+   kira/satış karışmasın diye). Mentör "neden pasif" diye sorabilir.
+3. Slayt 8 ("Üç konu için mentörün onayı gerek") → B2 (harita) ve B3 (lisans) soruları
+   buraya bağlanıyor.
+
+
+B) Ürün için sorular (son slaytla aynı)
+----------------------------------------
+1. Ürün hangi ilan verisiyle beslenecek: şirket içi API mi, dış feed (emlakçı XML) mi?
+   → Veri modelini ve filtreleri buna göre şekillendiririz.
+2. Canlıda harita: OSM yeterli mi, Google Maps / CARTO mu?
+   → OSM ücretsiz sunucusu yoğun trafiğe izin vermiyor; diğerleri API anahtarı + ücret.
+3. react-leaflet Hippocratic-2.1 lisansı kabul mü?
+   → Değilse doğrudan Leaflet (BSD-2); arayüz değişmez.
+4. Tek pazar (ör. Türkiye) mı, çok pazarlı mı?
+   → Para birimi, dil, fiyat biçimi buna bağlı.
+5. Prototipten sonraki öncelik: "bu alanda ara", kümeleme, paylaşılabilir arama linki,
+   favoriler? → Gerçek veride yüzlerce ilan olursa kümeleme şart.
+
+
+C) Toplantıdan önce bizim yapmamız gerekenler
+----------------------------------------------
+- Sunumu tarayıcıda bir kez baştan sona aç; slayt 9'daki doğrulama kutularını kontrol et.
+- npm install → npm test → npm run dev. DevTools cihaz modunu hazırda tut.
+- İnternet şart (harita karoları ve fotoğraflar uzaktan yükleniyor).
+- README güncel değil (teslimat maddeleri işaretsiz, görev sahipleri boş); kökteki boş
+  components/, data/, feature/ klasörleri silinecek.
+- Demo akışı:
+  1) Genel görünüm, 120 ilan, harita
+  2) Arama ("Kadıköy" / "Chelsea")
+  3) Türkiye + Satılık → fiyat filtresi açılıyor
+  4) Tip, yatak odası, durum filtreleri; çipleri kaldırma
+  5) Kart → işaretçi, işaretçi → kart vurgusu
+  6) Sonuç vermeyen filtre → boş durum → "Filtreleri temizle"
+  7) Mobil: filtre çekmecesi, liste/harita geçişi
