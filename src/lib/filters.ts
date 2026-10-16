@@ -55,7 +55,7 @@ export interface Filters {
 
 export const DEFAULT_FILTERS: Filters = {
   query: '',
-  country: 'all',
+  country: 'GB',
   city: 'all',
   pricePeriod: 'all',
   minPrice: null,
@@ -282,7 +282,6 @@ export function priceLabel(f: Pick<Filters, 'country' | 'pricePeriod' | 'minPric
 export function getActiveChips(f: Filters): FilterChip[] {
   const chips: FilterChip[] = [];
   if (f.query.trim()) chips.push({ key: 'query', label: `“${f.query.trim()}”`, remove: { query: '' } });
-  if (f.country !== 'all') chips.push({ key: 'country', label: t.countries[f.country], remove: { country: 'all', city: 'all' } });
   if (f.city !== 'all') chips.push({ key: 'city', label: f.city, remove: { city: 'all' } });
   if (f.pricePeriod !== 'all') chips.push({ key: 'period', label: t.listingTag[f.pricePeriod], remove: { pricePeriod: 'all' } });
 

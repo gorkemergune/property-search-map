@@ -22,13 +22,13 @@ const CITY_INDEX = buildCityIndex(properties);
 const f = (patch: Partial<Filters>): Filters => ({ ...DEFAULT_FILTERS, ...patch });
 
 describe('applyFilters', () => {
-  it('returns all 120 listings with default filters', () => {
-    expect(applyFilters(properties, DEFAULT_FILTERS)).toHaveLength(120);
+  it('returns all 200 listings with default filters', () => {
+    expect(applyFilters(properties, DEFAULT_FILTERS)).toHaveLength(200);
   });
 
-  it('filters by country, city and sale/rent', () => {
-    expect(applyFilters(properties, f({ country: 'TR' }))).toHaveLength(30);
+  it('filters by city and sale/rent', () => {
     expect(applyFilters(properties, f({ city: 'London' })).every((p) => p.city === 'London')).toBe(true);
+    expect(applyFilters(properties, f({ city: 'Manchester' }))).toHaveLength(25);
     const rentals = applyFilters(properties, f({ pricePeriod: 'monthly' }));
     expect(rentals.length).toBeGreaterThan(0);
     expect(rentals.every((p) => p.pricePeriod === 'monthly')).toBe(true);
@@ -36,36 +36,33 @@ describe('applyFilters', () => {
 
   it('filters by multiple property types and statuses', () => {
     const r = applyFilters(properties, f({ types: ['villa', 'townhouse'], statuses: ['under_offer'] }));
-    expect(r.length).toBeGreaterThan(0);
     expect(r.every((p) => ['villa', 'townhouse'].includes(p.type) && p.status === 'under_offer')).toBe(true);
   });
 
   it('matches studio exactly and N+ as at least N', () => {
-    // Studio = at most 0 bedrooms; "5+" = at least 5.
     expect(applyFilters(properties, f({ maxBedrooms: 0 })).every((p) => p.bedrooms === 0)).toBe(true);
-    const fivePlus = applyFilters(properties, f({ minBedrooms: 5 }));
-    expect(fivePlus.some((p) => p.bedrooms === 6)).toBe(true);
-    expect(fivePlus.every((p) => p.bedrooms >= 5)).toBe(true);
+    const fourPlus = applyFilters(properties, f({ minBedrooms: 4 }));
+    expect(fourPlus.length).toBeGreaterThan(0);
+    expect(fourPlus.every((p) => p.bedrooms >= 4)).toBe(true);
     expect(matchesRange(0, 1, null)).toBe(false);
   });
 
-  it('applies a price range inside one market and period', () => {
-    const r = applyFilters(properties, f({ country: 'US', pricePeriod: 'total', minPrice: 1_000_000, maxPrice: 2_000_000 }));
+  it('applies a price range inside the sale context', () => {
+    const r = applyFilters(properties, f({ pricePeriod: 'total', minPrice: 500_000, maxPrice: 1_000_000 }));
     expect(r.length).toBeGreaterThan(0);
-    expect(r.every((p) => p.currency === 'USD' && p.pricePeriod === 'total' && p.price >= 1_000_000 && p.price <= 2_000_000)).toBe(true);
+    expect(r.every((p) => p.pricePeriod === 'total' && p.price >= 500_000 && p.price <= 1_000_000)).toBe(true);
   });
 
-  it('ignores price bounds without a single market and period, so currencies never mix', () => {
-    expect(applyFilters(properties, f({ minPrice: 1_000_000 }))).toHaveLength(120);
-    expect(applyFilters(properties, f({ country: 'US', minPrice: 1_000_000 }))).toHaveLength(78);
+  it('ignores price bounds without a sale/rent choice', () => {
+    expect(applyFilters(properties, f({ minPrice: 500_000 }))).toHaveLength(200);
   });
 
   it('searches location text without case or accents', () => {
-    const r = applyFilters(properties, f({ query: 'uskudar' }));
-    expect(r.map((p) => p.neighborhood)).toEqual(['Üsküdar']);
-    expect(applyFilters(properties, f({ query: 'KADIKÖY' }))).toHaveLength(1);
-    expect(applyFilters(properties, f({ query: 'united kingdom' }))).toHaveLength(12);
-    expect(normalizeText('  İzmir ')).toBe('izmir');
+    const r = applyFilters(properties, f({ query: 'shoreditch' }));
+    expect(r.every((p) => p.neighborhood === 'Shoreditch')).toBe(true);
+    expect(applyFilters(properties, f({ query: 'LONDON' })).length).toBe(120);
+    expect(applyFilters(properties, f({ query: 'united kingdom' }))).toHaveLength(200);
+    expect(normalizeText('  London ')).toBe('london');
   });
 });
 
@@ -75,15 +72,15 @@ describe('sortProperties', () => {
     for (let i = 1; i < r.length; i++) expect(r[i - 1].listedAt >= r[i].listedAt).toBe(true);
   });
 
-  it('sorts by price within one market', () => {
-    const us = applyFilters(properties, f({ country: 'US', pricePeriod: 'monthly' }));
-    const asc = sortProperties(us, 'price-asc').map((p) => p.price);
+  it('sorts by price within one sale/rent context', () => {
+    const rentals = applyFilters(properties, f({ pricePeriod: 'monthly' }));
+    const asc = sortProperties(rentals, 'price-asc').map((p) => p.price);
     expect(asc).toEqual([...asc].sort((a, b) => a - b));
-    const desc = sortProperties(us, 'price-desc').map((p) => p.price);
+    const desc = sortProperties(rentals, 'price-desc').map((p) => p.price);
     expect(desc).toEqual([...desc].sort((a, b) => b - a));
   });
 
-  it('never interleaves currencies or periods when price-sorting a mixed list', () => {
+  it('never interleaves periods when price-sorting a mixed list', () => {
     const r = sortProperties(properties, 'price-asc');
     const groups = r.map((p) => `${p.currency}:${p.pricePeriod}`);
     const seen = new Set<string>();
@@ -93,38 +90,32 @@ describe('sortProperties', () => {
     });
   });
 
-  it('falls back to newest when price sorting has no market context', () => {
+  it('falls back to newest when price sorting has no sale/rent context', () => {
     expect(effectiveSort('price-asc', DEFAULT_FILTERS)).toBe('newest');
-    expect(effectiveSort('price-asc', f({ country: 'GB', pricePeriod: 'total' }))).toBe('price-asc');
+    expect(effectiveSort('price-asc', f({ pricePeriod: 'total' }))).toBe('price-asc');
   });
 });
 
 describe('updateFilters', () => {
-  it('picks the country when a city is chosen', () => {
-    expect(updateFilters(DEFAULT_FILTERS, { city: 'Izmir' }, CITY_INDEX).country).toBe('TR');
+  it('keeps country GB when a city is chosen', () => {
+    expect(updateFilters(DEFAULT_FILTERS, { city: 'Bristol' }, CITY_INDEX)).toMatchObject({ country: 'GB', city: 'Bristol' });
   });
 
-  it('clears the city when all countries are chosen (regression)', () => {
+  it('clears the city when "all" is picked (regression)', () => {
     const london = updateFilters(DEFAULT_FILTERS, { city: 'London' }, CITY_INDEX);
     expect(london).toMatchObject({ country: 'GB', city: 'London' });
-    expect(updateFilters(london, { country: 'all' }, CITY_INDEX)).toMatchObject({ country: 'all', city: 'all' });
-    expect(applyFilters(properties, updateFilters(london, { country: 'all' }, CITY_INDEX))).toHaveLength(120);
+    expect(updateFilters(london, { city: 'all' }, CITY_INDEX)).toMatchObject({ city: 'all' });
+    expect(applyFilters(properties, updateFilters(london, { city: 'all' }, CITY_INDEX))).toHaveLength(200);
   });
 
-  it('drops a city from another country when the country changes', () => {
-    const start = f({ country: 'TR', city: 'Ankara' });
-    expect(updateFilters(start, { country: 'US' }, CITY_INDEX).city).toBe('all');
-  });
-
-  it('clears the price range when the market or sale/rent context changes', () => {
-    const start = f({ country: 'US', pricePeriod: 'total', minPrice: 500_000, maxPrice: 1_000_000 });
-    expect(updateFilters(start, { country: 'GB' }, CITY_INDEX)).toMatchObject({ minPrice: null, maxPrice: null });
+  it('clears the price range when the sale/rent context changes', () => {
+    const start = f({ pricePeriod: 'total', minPrice: 500_000, maxPrice: 1_000_000 });
     expect(updateFilters(start, { pricePeriod: 'monthly' }, CITY_INDEX)).toMatchObject({ minPrice: null, maxPrice: null });
     expect(updateFilters(start, { types: ['house'] }, CITY_INDEX)).toMatchObject({ minPrice: 500_000, maxPrice: 1_000_000 });
   });
 
   it('keeps the edited bound when min and max cross', () => {
-    const start = f({ country: 'US', pricePeriod: 'total', minPrice: 500_000, maxPrice: 1_000_000 });
+    const start = f({ pricePeriod: 'total', minPrice: 500_000, maxPrice: 1_000_000 });
     expect(updateFilters(start, { minPrice: 2_000_000 }, CITY_INDEX)).toMatchObject({ minPrice: 2_000_000, maxPrice: null });
   });
 
@@ -136,25 +127,23 @@ describe('updateFilters', () => {
 });
 
 describe('getPriceContext and chips', () => {
-  it('requires one country and one sale/rent choice', () => {
+  it('requires a sale/rent choice (country is always GB)', () => {
     expect(getPriceContext(DEFAULT_FILTERS)).toBeNull();
-    expect(getPriceContext(f({ country: 'TR' }))).toBeNull();
-    expect(getPriceContext(f({ country: 'TR', pricePeriod: 'monthly' }))).toEqual({ currency: 'TRY', pricePeriod: 'monthly' });
+    expect(getPriceContext(f({ pricePeriod: 'monthly' }))).toEqual({ currency: 'GBP', pricePeriod: 'monthly' });
   });
 
   it('builds one removable chip per active filter', () => {
-    const filters = f({ country: 'GB', pricePeriod: 'monthly', maxPrice: 2_000, types: ['apartment'], maxBedrooms: 0 });
+    const filters = f({ pricePeriod: 'monthly', maxPrice: 2_000, types: ['apartment'], maxBedrooms: 0 });
     const chips = getActiveChips(filters);
-    expect(chips.map((c) => c.label)).toEqual(['United Kingdom', 'For rent', 'Up to £2,000/mo', 'Apartment', 'Studio']);
+    expect(chips.map((c) => c.label)).toEqual(['For rent', 'Up to £2,000/mo', 'Apartment', 'Studio']);
     const cleared = chips.reduce((acc, c) => updateFilters(acc, c.remove, CITY_INDEX), filters);
     expect(cleared).toEqual(DEFAULT_FILTERS);
   });
 });
 
 describe('extended filters', () => {
-  it('combines market, sale/rent, price, type, bedroom, bathroom, area and status filters', () => {
+  it('combines sale/rent, price, type, bedroom, bathroom, area and status filters', () => {
     const filters = f({
-      country: 'US',
       pricePeriod: 'total',
       minPrice: 500_000,
       maxPrice: 3_000_000,
@@ -168,7 +157,6 @@ describe('extended filters', () => {
     const r = applyFilters(properties, filters);
     expect(r.length).toBeGreaterThan(0);
     for (const p of r) {
-      expect(p.countryCode).toBe('US');
       expect(p.pricePeriod).toBe('total');
       expect(p.price).toBeGreaterThanOrEqual(500_000);
       expect(p.price).toBeLessThanOrEqual(3_000_000);
@@ -179,15 +167,6 @@ describe('extended filters', () => {
       expect(p.areaSqm).toBeGreaterThanOrEqual(75);
       expect(['available', 'under_offer']).toContain(p.status);
     }
-    // Every listing left out fails at least one condition.
-    const ids = new Set(r.map((p) => p.id));
-    const brute = properties.filter(
-      (p) =>
-        p.countryCode === 'US' && p.pricePeriod === 'total' && p.price >= 500_000 && p.price <= 3_000_000 &&
-        ['house', 'apartment'].includes(p.type) && p.bedrooms >= 2 && p.bedrooms <= 4 && p.bathrooms >= 2 &&
-        p.areaSqm >= 75 && ['available', 'under_offer'].includes(p.status),
-    );
-    expect(brute.map((p) => p.id).sort()).toEqual([...ids].sort());
   });
 
   it('applies bedroom and bathroom ranges inclusively', () => {
@@ -216,8 +195,7 @@ describe('extended filters', () => {
     expect(r.length).toBeGreaterThan(0);
     expect(r.every((p) => p.pricePeriod === 'monthly' && p.furnishing === 'furnished')).toBe(true);
     expect(updateFilters(rent, { pricePeriod: 'total' }, CITY_INDEX).furnishing).toEqual([]);
-    // Defensive: a stray furnishing value never filters sale listings.
-    expect(applyFilters(properties, f({ furnishing: ['furnished'] }))).toHaveLength(120);
+    expect(applyFilters(properties, f({ furnishing: ['furnished'] }))).toHaveLength(200);
   });
 
   it('keeps the edited bound when bedroom or area ranges cross', () => {
@@ -227,33 +205,12 @@ describe('extended filters', () => {
   });
 });
 
-describe('price filters per currency and period', () => {
-  it('uses TRY monthly rent amounts for Turkish rentals only', () => {
-    const r = applyFilters(properties, f({ country: 'TR', pricePeriod: 'monthly', minPrice: 25_000, maxPrice: 40_000 }));
-    expect(r.length).toBeGreaterThan(0);
-    expect(r.every((p) => p.currency === 'TRY' && p.pricePeriod === 'monthly' && p.price >= 25_000 && p.price <= 40_000)).toBe(true);
-  });
-
-  it('uses GBP totals for UK sales and never includes rentals', () => {
-    const r = applyFilters(properties, f({ country: 'GB', pricePeriod: 'total', maxPrice: 550_000 }));
-    expect(r.map((p) => p.id).sort()).toEqual(['gb-bhm-02', 'gb-man-02']);
-  });
-
-  it('a USD rent bound never filters TRY or GBP listings by raw number', () => {
-    const usRent = updateFilters(DEFAULT_FILTERS, { country: 'US', pricePeriod: 'monthly', maxPrice: 3_000 }, CITY_INDEX);
-    const switched = updateFilters(usRent, { country: 'TR' }, CITY_INDEX);
-    expect(switched.maxPrice).toBeNull();
-    expect(applyFilters(properties, switched).every((p) => p.currency === 'TRY')).toBe(true);
-  });
-});
-
 describe('chips and clear all', () => {
   const busy = f({
     query: 'park',
-    country: 'US',
-    city: 'New York',
+    city: 'London',
     pricePeriod: 'monthly',
-    maxPrice: 5_000,
+    maxPrice: 3_000,
     types: ['apartment', 'house'],
     minBedrooms: 1,
     maxBedrooms: 3,
@@ -267,10 +224,9 @@ describe('chips and clear all', () => {
   it('labels every active filter', () => {
     expect(getActiveChips(busy).map((c) => c.label)).toEqual([
       '“park”',
-      'United States',
-      'New York',
+      'London',
       'For rent',
-      'Up to $5,000/mo',
+      'Up to £3,000/mo',
       'Apartment',
       'House',
       '1–3 beds',
@@ -288,10 +244,7 @@ describe('chips and clear all', () => {
       const after = getActiveChips(updateFilters(busy, chip.remove, CITY_INDEX)).map((c) => c.key);
       const expected = chips
         .map((c) => c.key)
-        // Removing the country also removes its city.
-        .filter((k) => k !== chip.key && !(chip.key === 'country' && k === 'city'))
-        // Without a single market the price range no longer applies.
-        .filter((k) => !(chip.key === 'country' && k === 'price'))
+        .filter((k) => k !== chip.key)
         // Without Rent, furnishing and the price range no longer apply.
         .filter((k) => !(chip.key === 'period' && (k.startsWith('furnishing-') || k === 'price')));
       expect(after, `removing ${chip.key}`).toEqual(expected);
@@ -300,7 +253,7 @@ describe('chips and clear all', () => {
 
   it('clear all resets every filter but keeps the area unit preference', () => {
     expect(clearFilters(busy)).toEqual({ ...DEFAULT_FILTERS, areaUnit: 'sqft' });
-    expect(applyFilters(properties, clearFilters(busy))).toHaveLength(120);
+    expect(applyFilters(properties, clearFilters(busy))).toHaveLength(200);
   });
 
   it('labels bedroom ranges including studio and 5+', () => {
@@ -313,8 +266,22 @@ describe('chips and clear all', () => {
 
 describe('empty results', () => {
   it('returns nothing for an impossible but valid combination', () => {
-    expect(applyFilters(properties, f({ country: 'GB', types: ['villa'] }))).toEqual([]);
+    expect(applyFilters(properties, f({ city: 'Edinburgh', types: ['villa'] }))).toEqual([]);
     expect(applyFilters(properties, f({ query: 'zzzz' }))).toEqual([]);
+  });
+});
+
+describe('price filters by period', () => {
+  it('uses GBP monthly rent amounts', () => {
+    const r = applyFilters(properties, f({ pricePeriod: 'monthly', minPrice: 1_500, maxPrice: 3_000 }));
+    expect(r.length).toBeGreaterThan(0);
+    expect(r.every((p) => p.currency === 'GBP' && p.pricePeriod === 'monthly' && p.price >= 1_500 && p.price <= 3_000)).toBe(true);
+  });
+
+  it('uses GBP totals for UK sales and never includes rentals', () => {
+    const r = applyFilters(properties, f({ pricePeriod: 'total', maxPrice: 300_000 }));
+    expect(r.every((p) => p.pricePeriod === 'total' && p.price <= 300_000)).toBe(true);
+    expect(r.length).toBeGreaterThan(0);
   });
 });
 

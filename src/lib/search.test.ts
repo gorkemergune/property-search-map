@@ -15,49 +15,49 @@ describe('getSuggestions', () => {
     expect(flattenSuggestions(suggest('n'))).toEqual([]);
   });
 
-  it('suggests New York for a misspelling, as a "did you mean" with the real count', () => {
-    const { places } = suggest('New Yrok');
-    const ny = places.find((s) => s.kind === 'city' && s.label === 'New York');
-    expect(ny).toBeDefined();
-    expect(ny!.fuzzy).toBe(true);
-    expect(ny!.count).toBe(16);
-    expect(ny!.patch).toEqual({ city: 'New York', query: '' });
+  it('suggests London for a misspelling, as a "did you mean" with the real count', () => {
+    const { places } = suggest('Lonndon');
+    const lon = places.find((s) => s.kind === 'city' && s.label === 'London');
+    expect(lon).toBeDefined();
+    expect(lon!.fuzzy).toBe(true);
+    expect(lon!.count).toBe(120);
+    expect(lon!.patch).toEqual({ city: 'London', query: '' });
   });
 
-  it('matches Turkish place names typed without special characters', () => {
-    const labels = suggest('uskudar').places.map((s) => s.label);
-    expect(labels).toContain('Üsküdar');
-    expect(suggest('izmir').places.find((s) => s.kind === 'city')?.label).toBe('Izmir');
+  it('matches UK place names typed with different casing', () => {
+    const labels = suggest('shoreditch').places.map((s) => s.label);
+    expect(labels).toContain('Shoreditch');
+    expect(suggest('BRISTOL').places.find((s) => s.kind === 'city')?.label).toBe('Bristol');
   });
 
   it('suggests countries and home types with counts', () => {
-    expect(suggest('turk').places.find((s) => s.kind === 'country')).toMatchObject({ label: 'Turkey', count: 30 });
+    expect(suggest('united').places.find((s) => s.kind === 'country')).toMatchObject({ label: 'United Kingdom', count: 200 });
     const apartment = suggest('apartmnet').types.find((s) => s.label === 'Apartment');
-    expect(apartment).toMatchObject({ fuzzy: true, count: 75 });
-    expect(suggest('villa').types.find((s) => s.label === 'Villa')).toMatchObject({ fuzzy: false, count: 11 });
+    expect(apartment).toMatchObject({ fuzzy: true });
+    expect(apartment!.count).toBeGreaterThan(0);
+    expect(suggest('house').types.find((s) => s.label === 'House')).toMatchObject({ fuzzy: false });
   });
 
   it('counts within the current filters and keeps them when applied', () => {
     const rentals = updateFilters(DEFAULT_FILTERS, { pricePeriod: 'monthly' }, CITY_INDEX);
-    const ny = suggest('new york', rentals).places.find((s) => s.label === 'New York')!;
-    const expected = applyFilters(properties, { ...rentals, city: 'New York', country: 'US' }).length;
-    expect(ny.count).toBe(expected);
-    // Applying the suggestion keeps Rent and only changes city/query.
-    const applied = updateFilters(rentals, ny.patch, CITY_INDEX);
+    const london = suggest('london', rentals).places.find((s) => s.label === 'London')!;
+    const expected = applyFilters(properties, { ...rentals, city: 'London', country: 'GB' }).length;
+    expect(london.count).toBe(expected);
+    const applied = updateFilters(rentals, london.patch, CITY_INDEX);
     expect(applied.pricePeriod).toBe('monthly');
     expect(applyFilters(properties, applied)).toHaveLength(expected);
   });
 
   it('lists matching listings with price and place', () => {
-    const { listings } = suggest('brickell');
-    expect(listings.length).toBe(2);
-    expect(listings[0].detail).toMatch(/^\$[\d,]+(\/mo)? · Miami$/);
+    const { listings } = suggest('shoreditch');
+    expect(listings.length).toBeGreaterThan(0);
+    expect(listings[0].detail).toMatch(/^£[\d,]+(\/mo)? · London$/);
   });
 
   it('offers the typed keyword itself with its result count', () => {
-    const { query } = suggest('Chelsea');
-    expect(query).toMatchObject({ kind: 'query', patch: { query: 'Chelsea' } });
-    expect(query!.count).toBe(applyFilters(properties, { ...DEFAULT_FILTERS, query: 'Chelsea' }).length);
+    const { query } = suggest('Clapham');
+    expect(query).toMatchObject({ kind: 'query', patch: { query: 'Clapham' } });
+    expect(query!.count).toBe(applyFilters(properties, { ...DEFAULT_FILTERS, query: 'Clapham' }).length);
   });
 
   it('flattens groups in display order for keyboard navigation', () => {

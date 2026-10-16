@@ -13,13 +13,13 @@ const firstCardButton = () => within(cards()[0] as HTMLElement).getAllByRole('bu
 describe('App', () => {
   it('renders one card and one marker per result, and keeps them in sync while filtering', async () => {
     render(<App />);
-    expect(cards()).toHaveLength(120);
-    expect(markers()).toHaveLength(120);
-    expect(resultCount()).toBe(120);
+    expect(cards()).toHaveLength(200);
+    expect(markers()).toHaveLength(200);
+    expect(resultCount()).toBe(200);
 
     await userEvent.click(screen.getAllByRole('radio', { name: 'Rent' })[0]);
     const n = resultCount();
-    expect(n).toBeLessThan(120);
+    expect(n).toBeLessThan(200);
     expect(cards()).toHaveLength(n);
     expect(markers()).toHaveLength(n);
   });
@@ -54,7 +54,6 @@ describe('App', () => {
     expect(button.getAttribute('aria-pressed')).toBe('true');
     await userEvent.keyboard(' ');
     expect(screen.getByRole('dialog')).toBeTruthy();
-    // Focus moves into the drawer, and back to the card when it closes.
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Close details' }));
     await userEvent.keyboard('{Escape}');
     expect(document.activeElement).toBe(button);
@@ -78,21 +77,21 @@ describe('App', () => {
     expect(screen.getByText('No homes match these filters')).toBeTruthy();
     expect(markers()).toHaveLength(0);
     await userEvent.click(screen.getByRole('button', { name: 'Clear all filters' }));
-    expect(resultCount()).toBe(120);
+    expect(resultCount()).toBe(200);
   });
 
   it('removes chips one at a time and clears all', async () => {
     render(<App />);
     await userEvent.click(screen.getAllByRole('radio', { name: 'Rent' })[0]);
-    await userEvent.click(screen.getByRole('button', { name: 'Turkey' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Manchester' }));
     const chipNames = () => screen.queryAllByRole('button', { name: /^Remove filter/ }).map((b) => b.textContent);
-    expect(chipNames()).toEqual(['Turkey', 'For rent']);
+    expect(chipNames()).toEqual(['Manchester', 'For rent']);
     await userEvent.click(screen.getByRole('button', { name: 'Remove filter: For rent' }));
-    expect(chipNames()).toEqual(['Turkey']);
-    expect(resultCount()).toBe(30);
+    expect(chipNames()).toEqual(['Manchester']);
+    expect(resultCount()).toBe(25);
     await userEvent.click(screen.getByRole('button', { name: 'Clear all' }));
     expect(chipNames()).toEqual([]);
-    expect(resultCount()).toBe(120);
+    expect(resultCount()).toBe(200);
   });
 
   it('switches between list and map on mobile and opens the filter panel', async () => {
@@ -127,28 +126,24 @@ describe('App', () => {
     expect(document.activeElement).toBe(opener);
   });
 
-  it('"All markets" in the header clears a previously chosen city (regression)', async () => {
+  it('"All UK" in the header clears a previously chosen city (regression)', async () => {
     render(<App />);
-    await userEvent.click(screen.getByRole('button', { name: 'United Kingdom' }));
-    await userEvent.click(screen.getByRole('button', { name: /^(Filters|All filters)/ }));
-    await userEvent.selectOptions(within(screen.getByRole('dialog', { name: 'Filters' })).getByLabelText('City'), 'London');
-    await userEvent.keyboard('{Escape}');
-    expect(resultCount()).toBe(6);
-    await userEvent.click(screen.getByRole('button', { name: 'All markets' }));
-    expect(resultCount()).toBe(120);
+    await userEvent.click(screen.getByRole('button', { name: 'Bristol' }));
+    expect(resultCount()).toBe(20);
+    await userEvent.click(screen.getByRole('button', { name: 'All UK' }));
+    expect(resultCount()).toBe(200);
   });
 
   it('does not reopen search suggestions when a detail opened from search closes (regression)', async () => {
     render(<App />);
     const input = screen.getByRole('combobox', { name: 'Search listings' });
-    await userEvent.type(input, 'brickell');
-    const listing = screen.getAllByRole('option').find((o) => o.textContent?.includes('Brickell, Miami'))!;
+    await userEvent.type(input, 'shoreditch');
+    const listing = screen.getAllByRole('option').find((o) => o.textContent?.includes('Shoreditch, London'))!;
     await userEvent.click(listing);
     expect(screen.getByRole('dialog')).toBeTruthy();
     await userEvent.keyboard('{Escape}');
     expect(document.activeElement).toBe(input);
     expect(input.getAttribute('aria-expanded')).toBe('false');
-    // Typing or clicking opens it again.
     await userEvent.click(input);
     expect(input.getAttribute('aria-expanded')).toBe('true');
   });
@@ -160,12 +155,12 @@ describe('App', () => {
 
     it('puts a single marker in the Tab order, labelled for screen readers', () => {
       render(<App />);
-      expect(markers()).toHaveLength(120);
+      expect(markers()).toHaveLength(200);
       const [only] = tabbable();
       expect(tabbable()).toHaveLength(1);
       expect(only.dataset.listingId).toBe(cardIds()[0]);
       expect(only.getAttribute('role')).toBe('button');
-      expect(only.getAttribute('aria-label')).toMatch(/^[$₺£][\d,]+(\/mo)?, (Apartment|House|Townhouse|Villa) in .+, .+$/);
+      expect(only.getAttribute('aria-label')).toMatch(/^£[\d,]+(\/mo)?, (Apartment|House|Townhouse|Villa) in .+, .+$/);
       expect(document.getElementById(only.getAttribute('aria-describedby')!)?.textContent).toContain('arrow keys');
     });
 
@@ -182,7 +177,7 @@ describe('App', () => {
       fireEvent.keyDown(document.activeElement!, { key: 'End' });
       expect(document.activeElement).toBe(marker(ids[ids.length - 1]));
       fireEvent.keyDown(document.activeElement!, { key: 'ArrowRight' });
-      expect(document.activeElement).toBe(marker(ids[0])); // wraps around
+      expect(document.activeElement).toBe(marker(ids[0]));
       fireEvent.keyDown(document.activeElement!, { key: 'Home' });
       expect(document.activeElement).toBe(marker(ids[0]));
     });
@@ -196,7 +191,6 @@ describe('App', () => {
       const card = document.getElementById(`card-${ids[1]}`)!;
       expect(within(card).getAllByRole('button')[0].getAttribute('aria-pressed')).toBe('true');
       expect(marker(ids[1]).getAttribute('aria-pressed')).toBe('true');
-      // Selecting another listing from its card moves the Tab stop with it.
       await userEvent.click(within(document.getElementById(`card-${ids[4]}`)!).getAllByRole('button')[0]);
       expect(tabbable().map((m) => m.dataset.listingId)).toEqual([ids[4]]);
     });
@@ -215,7 +209,7 @@ describe('App', () => {
     expect(dialog.textContent).toContain(`Internal floor area is about ${cardArea} sq ft.`);
     expect(within(dialog).getByText('Floor area').nextElementSibling!.textContent).toMatch(new RegExp(`^${cardArea} sq ft\\d+ m²$`));
     expect(dialog.textContent).toContain('Approximate location');
-    expect(dialog.textContent).not.toMatch(/-?\d+\.\d{4}, -?\d+\.\d{4}/); // no precise coordinates
+    expect(dialog.textContent).not.toMatch(/-?\d+\.\d{4}, -?\d+\.\d{4}/);
   });
 
   describe('Safari-style clicks that do not focus the button (regression)', () => {

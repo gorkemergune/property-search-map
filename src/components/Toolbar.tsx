@@ -10,7 +10,7 @@ interface Props {
   filters: Filters;
   onChange: (patch: Partial<Filters>) => void;
   chips: FilterChip[];
-  citiesByCountry: Record<CountryCode, string[]>;
+  cities: readonly string[];
   cityCountry: Readonly<Record<string, CountryCode>>;
   properties: readonly Property[];
   onOpenFilters: () => void;
@@ -24,7 +24,7 @@ const TABS: { period: PricePeriod | 'all'; label: string }[] = [
 ];
 
 /** Search row: Buy/Rent tabs, search with suggestions, quick filter popovers (xl+) and the full filter drawer. */
-export function Toolbar({ filters, onChange, chips, citiesByCountry, cityCountry, properties, onOpenFilters, onOpenListing }: Props) {
+export function Toolbar({ filters, onChange, chips, cities, cityCountry, properties, onOpenFilters, onOpenListing }: Props) {
   const fieldProps = { filters, onChange };
   const priceChip = chips.find((c) => c.key === 'price');
   const typeLabel =
@@ -77,7 +77,7 @@ export function Toolbar({ filters, onChange, chips, citiesByCountry, cityCountry
 
       <div className="hidden items-center gap-2 xl:flex">
         <Popover label={filters.city !== 'all' ? filters.city : t.filters.city} title={t.filters.city} active={filters.city !== 'all'} width={280}>
-          <CityField {...fieldProps} citiesByCountry={citiesByCountry} />
+          <CityField {...fieldProps} cities={cities} />
         </Popover>
         <Popover label={priceChip?.label ?? t.filters.priceShort} title={t.filters.price} active={!!priceChip} width={320}>
           <PriceField {...fieldProps} />

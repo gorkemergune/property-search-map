@@ -1,5 +1,5 @@
 import { useId, type ReactNode } from 'react';
-import { MARKETS, PRICE_STEPS } from '../data/markets';
+import { PRICE_STEPS } from '../data/markets';
 import { t } from '../i18n/en';
 import { formatCompactAmount } from '../lib/format';
 import {
@@ -12,7 +12,7 @@ import {
   type Filters,
 } from '../lib/filters';
 import { formatArea } from '../lib/format';
-import { AREA_UNITS, COUNTRY_CODES, FURNISHINGS, PROPERTY_TYPES, type AreaUnit, type CountryCode, type PricePeriod } from '../types/property';
+import { AREA_UNITS, FURNISHINGS, PROPERTY_TYPES, type AreaUnit, type PricePeriod } from '../types/property';
 
 export interface FieldProps {
   filters: Filters;
@@ -24,42 +24,16 @@ export interface FieldProps {
  * drawer (`FilterPanel`) stacks all of them. Each instance gets its own ids.
  */
 
-export function CountryField({ filters, onChange }: FieldProps) {
+export function CityField({ filters, onChange, cities }: FieldProps & { cities: readonly string[] }) {
   const id = useId();
-  return (
-    <Labeled label={t.filters.country} htmlFor={id}>
-      <select
-        id={id}
-        value={filters.country}
-        onChange={(e) => onChange({ country: e.target.value as CountryCode | 'all' })}
-        className={selectClass}
-      >
-        <option value="all">{t.filters.allCountries}</option>
-        {COUNTRY_CODES.map((c) => (
-          <option key={c} value={c}>
-            {t.countries[c]} · {MARKETS[c].currency}
-          </option>
-        ))}
-      </select>
-    </Labeled>
-  );
-}
-
-export function CityField({ filters, onChange, citiesByCountry }: FieldProps & { citiesByCountry: Record<CountryCode, string[]> }) {
-  const id = useId();
-  const countries = filters.country === 'all' ? COUNTRY_CODES : [filters.country];
   return (
     <Labeled label={t.filters.city} htmlFor={id}>
       <select id={id} value={filters.city} onChange={(e) => onChange({ city: e.target.value })} className={selectClass}>
         <option value="all">{t.filters.allCities}</option>
-        {countries.map((c) => (
-          <optgroup key={c} label={t.countries[c]}>
-            {citiesByCountry[c].map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
-            ))}
-          </optgroup>
+        {cities.map((city) => (
+          <option key={city} value={city}>
+            {city}
+          </option>
         ))}
       </select>
     </Labeled>
@@ -263,14 +237,11 @@ export function StatusField({ filters, onChange }: FieldProps) {
 }
 
 /** Every filter stacked; used in the drawer ("All filters" on desktop, "Filters" on mobile). */
-export function FilterPanel(props: FieldProps & { citiesByCountry: Record<CountryCode, string[]> }) {
+export function FilterPanel(props: FieldProps & { cities: readonly string[] }) {
   return (
     <div className="divide-y divide-line">
-      <Section title={t.filters.market}>
-        <div className="grid gap-3">
-          <CountryField {...props} />
-          <CityField {...props} />
-        </div>
+      <Section title={t.filters.city}>
+        <CityField {...props} />
       </Section>
       <Section title={t.filters.listingType}>
         <ListingTypeField {...props} />

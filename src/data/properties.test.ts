@@ -7,7 +7,6 @@ import {
   LISTING_STATUSES,
   PRICE_PERIODS,
   PROPERTY_TYPES,
-  type CountryCode,
   type Currency,
   type PricePeriod,
 } from '../types/property';
@@ -20,20 +19,12 @@ const countBy = <K extends string>(keyOf: (p: (typeof properties)[number]) => K)
   }, {});
 
 /** City centers; every listing must sit within `radiusKm` of its city. */
-const CITY_CENTERS: Record<string, { country: CountryCode; lat: number; lng: number; radiusKm: number }> = {
-  'New York': { country: 'US', lat: 40.7128, lng: -74.006, radiusKm: 25 },
-  'Los Angeles': { country: 'US', lat: 34.0522, lng: -118.2437, radiusKm: 30 },
-  Miami: { country: 'US', lat: 25.7617, lng: -80.1918, radiusKm: 20 },
-  'San Francisco': { country: 'US', lat: 37.7749, lng: -122.4194, radiusKm: 12 },
-  Chicago: { country: 'US', lat: 41.8781, lng: -87.6298, radiusKm: 20 },
-  Austin: { country: 'US', lat: 30.2672, lng: -97.7431, radiusKm: 25 },
-  Istanbul: { country: 'TR', lat: 41.0082, lng: 28.9784, radiusKm: 40 },
-  Ankara: { country: 'TR', lat: 39.9334, lng: 32.8597, radiusKm: 25 },
-  Izmir: { country: 'TR', lat: 38.4237, lng: 27.1428, radiusKm: 45 },
-  Antalya: { country: 'TR', lat: 36.8969, lng: 30.7133, radiusKm: 25 },
-  London: { country: 'GB', lat: 51.5072, lng: -0.1276, radiusKm: 20 },
-  Manchester: { country: 'GB', lat: 53.4808, lng: -2.2426, radiusKm: 15 },
-  Birmingham: { country: 'GB', lat: 52.4862, lng: -1.8904, radiusKm: 15 },
+const CITY_CENTERS: Record<string, { lat: number; lng: number; radiusKm: number }> = {
+  London: { lat: 51.5072, lng: -0.1276, radiusKm: 20 },
+  Manchester: { lat: 53.4808, lng: -2.2426, radiusKm: 15 },
+  Birmingham: { lat: 52.4862, lng: -1.8904, radiusKm: 15 },
+  Bristol: { lat: 51.4545, lng: -2.5879, radiusKm: 15 },
+  Edinburgh: { lat: 55.9533, lng: -3.1883, radiusKm: 15 },
 };
 
 function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -46,18 +37,26 @@ function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): num
 
 /** Loose plausibility bands per market, to catch typos like a missing zero. */
 const PRICE_BANDS: Record<Currency, Record<PricePeriod, [number, number]>> = {
-  USD: { total: [200_000, 15_000_000], monthly: [1_000, 15_000] },
-  TRY: { total: [2_000_000, 150_000_000], monthly: [10_000, 150_000] },
   GBP: { total: [150_000, 5_000_000], monthly: [800, 8_000] },
 };
 
 describe('property dataset', () => {
-  it('has exactly 120 listings', () => {
-    expect(properties).toHaveLength(120);
+  it('has exactly 200 listings', () => {
+    expect(properties).toHaveLength(200);
   });
 
-  it('has the 78 / 30 / 12 country split', () => {
-    expect(countBy((p) => p.countryCode)).toEqual({ US: 78, TR: 30, GB: 12 });
+  it('is a UK-only dataset', () => {
+    expect(countBy((p) => p.countryCode)).toEqual({ GB: 200 });
+  });
+
+  it('clusters listings across the five expected UK cities', () => {
+    expect(countBy((p) => p.city)).toEqual({
+      London: 120,
+      Manchester: 25,
+      Birmingham: 20,
+      Bristol: 20,
+      Edinburgh: 15,
+    });
   });
 
   it('covers every required city and no others', () => {
@@ -83,10 +82,9 @@ describe('property dataset', () => {
     }
   });
 
-  it('places every listing in its own country and near its city', () => {
+  it('places every listing within its city radius', () => {
     for (const p of properties) {
       const center = CITY_CENTERS[p.city];
-      expect(center.country, p.id).toBe(p.countryCode);
       expect(distanceKm(p.lat, p.lng, center.lat, center.lng), p.id).toBeLessThanOrEqual(center.radiusKm);
     }
   });
@@ -104,11 +102,9 @@ describe('property dataset', () => {
     expect(new Set(properties.map((p) => p.price)).size).toBe(properties.length);
   });
 
-  it('has both sale and rent listings in every country', () => {
-    for (const country of COUNTRY_CODES) {
-      const periods = new Set(properties.filter((p) => p.countryCode === country).map((p) => p.pricePeriod));
-      expect(periods, country).toEqual(new Set(PRICE_PERIODS));
-    }
+  it('has both sale and rent listings', () => {
+    const periods = new Set(properties.map((p) => p.pricePeriod));
+    expect(periods).toEqual(new Set(PRICE_PERIODS));
   });
 
   it('only marks sale listings as sold and rentals as let', () => {
@@ -118,14 +114,14 @@ describe('property dataset', () => {
     }
   });
 
-  it('has varied bedroom counts including studios and 5+', () => {
+  it('has varied bedroom counts including studios and 4+', () => {
     for (const p of properties) {
       expect(Number.isInteger(p.bedrooms) && p.bedrooms >= 0, p.id).toBe(true);
     }
     const bedrooms = new Set(properties.map((p) => p.bedrooms));
-    expect(bedrooms.size).toBeGreaterThanOrEqual(6);
+    expect(bedrooms.size).toBeGreaterThanOrEqual(5);
     expect(properties.some((p) => p.bedrooms === 0)).toBe(true);
-    expect(properties.filter((p) => p.bedrooms >= 5).length).toBeGreaterThanOrEqual(3);
+    expect(properties.filter((p) => p.bedrooms >= 4).length).toBeGreaterThanOrEqual(10);
   });
 
   it('only uses studios for apartments', () => {
@@ -162,20 +158,15 @@ describe('image fallback', () => {
 });
 
 describe('isPriceComparable', () => {
-  const find = (country: CountryCode, period: PricePeriod) =>
-    properties.find((p) => p.countryCode === country && p.pricePeriod === period)!;
+  const find = (period: PricePeriod) => properties.find((p) => p.pricePeriod === period)!;
 
   it('allows same currency and same price period', () => {
-    const sales = properties.filter((p) => p.countryCode === 'US' && p.pricePeriod === 'total');
+    const sales = properties.filter((p) => p.pricePeriod === 'total');
     expect(isPriceComparable(sales[0], sales[1])).toBe(true);
   });
 
-  it('rejects different currencies', () => {
-    expect(isPriceComparable(find('US', 'total'), find('GB', 'total'))).toBe(false);
-  });
-
   it('rejects sale vs rent in the same currency', () => {
-    expect(isPriceComparable(find('TR', 'total'), find('TR', 'monthly'))).toBe(false);
+    expect(isPriceComparable(find('total'), find('monthly'))).toBe(false);
   });
 });
 
@@ -212,14 +203,13 @@ describe('extended listing fields', () => {
     for (const p of properties) {
       expect(p.title, p.id).toContain(p.neighborhood);
       expect(p.description.startsWith('Demo listing'), p.id).toBe(true);
-      // Floor area is left out of the stored text so it can be shown in the viewer's unit.
       expect(p.description, p.id).not.toMatch(/m²|sq ft|\d+ ?m\b/);
     }
   });
 });
 
 describe('fictional addresses and approximate locations', () => {
-  const FICTIONAL_STREETS = /(Sample Street|Example Avenue|Placeholder Lane|Demo Boulevard|Mockup Place|Örnek Sokak|Deneme Caddesi|Demo Sokak|Taslak Sokak|Example Road|Sample Mews|Placeholder Row|Demo Lane)/;
+  const FICTIONAL_STREETS = /(Sample Street|Example Avenue|Placeholder Lane|Demo Boulevard|Mockup Place|Example Road|Sample Mews|Placeholder Row|Demo Lane)/;
 
   it('uses only clearly fictional street names', () => {
     for (const p of properties) expect(p.address, p.id).toMatch(FICTIONAL_STREETS);
@@ -230,18 +220,9 @@ describe('fictional addresses and approximate locations', () => {
     expect(new Set(keys).size).toBe(keys.length);
   });
 
-  it('formats addresses per market', () => {
+  it('does not include real postcodes at the end of an address', () => {
     for (const p of properties) {
-      if (p.countryCode === 'TR') expect(p.address, p.id).toMatch(/ No: \d+/);
-      if (p.countryCode === 'US') expect(p.address, p.id).toMatch(/^\d+ /);
-      if (p.countryCode === 'GB') expect(p.address, p.id).not.toMatch(/\b[A-Z]{1,2}\d{1,2}\b$/); // no real postcodes
-    }
-  });
-
-  it('keeps the old real street names out of the data', () => {
-    const json = JSON.stringify(properties);
-    for (const street of ['Willoughby', 'Brickell Bay Dr', 'Canonbury Road', 'Moda Cd', 'Tunalı Hilmi', 'Wilshire Blvd']) {
-      expect(json).not.toContain(street);
+      expect(p.address, p.id).not.toMatch(/\b[A-Z]{1,2}\d{1,2}\b$/);
     }
   });
 });

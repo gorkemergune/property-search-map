@@ -1,16 +1,16 @@
 /**
- * Shared listing model for every market the POC covers (US, TR, GB).
+ * Shared listing model for the UK market.
  *
- * Prices are stored as plain numbers in the listing's own currency. They are
- * never converted, and listings in different currencies must never be compared
- * by raw price (see `src/data/markets.ts`).
+ * Prices are stored as plain numbers in GBP. Country and currency are kept as
+ * named constants rather than string literals so the data model stays open to
+ * adding more markets later without renaming fields.
  */
 
-export const COUNTRY_CODES = ['US', 'TR', 'GB'] as const;
+export const COUNTRY_CODES = ['GB'] as const;
 /** ISO 3166-1 alpha-2 country code. */
 export type CountryCode = (typeof COUNTRY_CODES)[number];
 
-export const CURRENCIES = ['USD', 'TRY', 'GBP'] as const;
+export const CURRENCIES = ['GBP'] as const;
 /** ISO 4217 currency code. */
 export type Currency = (typeof CURRENCIES)[number];
 
@@ -28,9 +28,9 @@ export const PROPERTY_TYPES = ['apartment', 'house', 'townhouse', 'villa'] as co
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 
 /**
- * Availability of a listing, shared across all markets.
+ * Availability of a listing.
  * - `available`: on the market.
- * - `under_offer`: offer accepted, deal not completed (UK "Under offer" / "Sold STC", US "Pending", TR "opsiyonlu").
+ * - `under_offer`: offer accepted, deal not completed (UK "Under offer" / "Sold STC").
  * - `sold`: sale completed (sale listings only).
  * - `let`: rental agreed (rental listings only).
  */

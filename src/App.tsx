@@ -24,12 +24,9 @@ import {
   type Filters,
   type SortKey,
 } from './lib/filters';
-import { COUNTRY_CODES, type CountryCode } from './types/property';
-
 const CITY_INDEX = buildCityIndex(properties);
-const CITIES_BY_COUNTRY = Object.fromEntries(
-  COUNTRY_CODES.map((c) => [c, Object.keys(CITY_INDEX).filter((city) => CITY_INDEX[city] === c)]),
-) as Record<CountryCode, string[]>;
+/** Ordered city list; same order drives the Header tabs and the City dropdown. */
+const CITIES: readonly string[] = ['London', 'Manchester', 'Birmingham', 'Bristol', 'Edinburgh'];
 
 export default function App() {
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
@@ -48,17 +45,16 @@ export default function App() {
   const chips = useMemo(() => getActiveChips(filters), [filters]);
   const selection = useListingSelection(results);
 
-  const place =
-    filters.city !== 'all' ? filters.city : filters.country !== 'all' ? t.countries[filters.country] : t.results.everywhere;
+  const place = filters.city !== 'all' ? filters.city : t.results.everywhere;
 
   return (
     <div className="flex h-dvh flex-col bg-white text-ink">
-      <Header country={filters.country} onCountryChange={(country) => change({ country })} />
+      <Header city={filters.city} cities={CITIES} onCityChange={(city) => change({ city })} />
       <Toolbar
         filters={filters}
         onChange={change}
         chips={chips}
-        citiesByCountry={CITIES_BY_COUNTRY}
+        cities={CITIES}
         cityCountry={CITY_INDEX}
         properties={properties}
         onOpenFilters={() => setFiltersOpen(true)}
@@ -153,7 +149,7 @@ export default function App() {
         <FilterDrawer
           filters={filters}
           onChange={change}
-          citiesByCountry={CITIES_BY_COUNTRY}
+          cities={CITIES}
           resultCount={results.length}
           onClearAll={clearAll}
           onClose={() => setFiltersOpen(false)}

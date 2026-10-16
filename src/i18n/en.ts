@@ -10,7 +10,7 @@ export const t = {
   brand: 'Iceberg X',
   brandSub: 'Property Search',
   demoBadge: 'Demo · mock data',
-  nav: { buy: 'Buy', rent: 'Rent', all: 'All', markets: 'Markets', allMarkets: 'All markets' },
+  nav: { buy: 'Buy', rent: 'Rent', all: 'All', markets: 'Cities', allMarkets: 'All UK' },
   search: {
     placeholder: 'Search city, area or keyword',
     label: 'Search listings',
@@ -27,7 +27,7 @@ export const t = {
     /** Heading is split so the place name can be set in the display serif. */
     headingLead: (period: PricePeriod | 'all') =>
       period === 'total' ? 'Homes for sale in' : period === 'monthly' ? 'Homes for rent in' : 'Homes for sale & rent in',
-    everywhere: 'all markets',
+    everywhere: 'the UK',
     count: (n: number) => (n === 1 ? '1 home found' : `${n} homes found`),
     sortLabel: 'Sort by',
     filtersButton: 'Filters',
@@ -115,7 +115,7 @@ export const t = {
   },
   listingType: { total: 'Buy', monthly: 'Rent' } satisfies Record<PricePeriod, string>,
   listingTag: { total: 'For sale', monthly: 'For rent' } satisfies Record<PricePeriod, string>,
-  countries: { US: 'United States', TR: 'Turkey', GB: 'United Kingdom' } satisfies Record<CountryCode, string>,
+  countries: { GB: 'United Kingdom' } satisfies Record<CountryCode, string>,
   propertyTypes: {
     apartment: 'Apartment',
     house: 'House',
