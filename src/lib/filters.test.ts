@@ -47,14 +47,21 @@ describe('applyFilters', () => {
     expect(matchesRange(0, 1, null)).toBe(false);
   });
 
-  it('applies a price range inside the sale context', () => {
-    const r = applyFilters(properties, f({ pricePeriod: 'total', minPrice: 500_000, maxPrice: 1_000_000 }));
+  it('applies a sale price range to sale listings', () => {
+    const r = applyFilters(properties, f({ pricePeriod: 'total', minSalePrice: 500_000, maxSalePrice: 1_000_000 }));
     expect(r.length).toBeGreaterThan(0);
     expect(r.every((p) => p.pricePeriod === 'total' && p.price >= 500_000 && p.price <= 1_000_000)).toBe(true);
   });
 
-  it('ignores price bounds without a sale/rent choice', () => {
-    expect(applyFilters(properties, f({ minPrice: 500_000 }))).toHaveLength(200);
+  it('applies sale and rent ranges independently when the period is "all"', () => {
+    const r = applyFilters(properties, f({ maxSalePrice: 300_000, maxMonthlyPrice: 2_000 }));
+    for (const p of r) {
+      if (p.pricePeriod === 'total') expect(p.price).toBeLessThanOrEqual(300_000);
+      if (p.pricePeriod === 'monthly') expect(p.price).toBeLessThanOrEqual(2_000);
+    }
+    // Both sale and rent listings should remain.
+    expect(r.some((p) => p.pricePeriod === 'total')).toBe(true);
+    expect(r.some((p) => p.pricePeriod === 'monthly')).toBe(true);
   });
 
   it('searches location text without case or accents', () => {
@@ -108,15 +115,20 @@ describe('updateFilters', () => {
     expect(applyFilters(properties, updateFilters(london, { city: 'all' }, CITY_INDEX))).toHaveLength(200);
   });
 
-  it('clears the price range when the sale/rent context changes', () => {
-    const start = f({ pricePeriod: 'total', minPrice: 500_000, maxPrice: 1_000_000 });
-    expect(updateFilters(start, { pricePeriod: 'monthly' }, CITY_INDEX)).toMatchObject({ minPrice: null, maxPrice: null });
-    expect(updateFilters(start, { types: ['house'] }, CITY_INDEX)).toMatchObject({ minPrice: 500_000, maxPrice: 1_000_000 });
+  it('keeps the sale range when switching to rent (ranges are independent per period)', () => {
+    const start = f({ pricePeriod: 'total', minSalePrice: 500_000, maxSalePrice: 1_000_000 });
+    expect(updateFilters(start, { pricePeriod: 'monthly' }, CITY_INDEX)).toMatchObject({
+      minSalePrice: 500_000,
+      maxSalePrice: 1_000_000,
+    });
   });
 
   it('keeps the edited bound when min and max cross', () => {
-    const start = f({ pricePeriod: 'total', minPrice: 500_000, maxPrice: 1_000_000 });
-    expect(updateFilters(start, { minPrice: 2_000_000 }, CITY_INDEX)).toMatchObject({ minPrice: 2_000_000, maxPrice: null });
+    const start = f({ pricePeriod: 'total', minSalePrice: 500_000, maxSalePrice: 1_000_000 });
+    expect(updateFilters(start, { minSalePrice: 2_000_000 }, CITY_INDEX)).toMatchObject({
+      minSalePrice: 2_000_000,
+      maxSalePrice: null,
+    });
   });
 
   it('drops statuses that do not fit sale or rent', () => {
@@ -133,7 +145,7 @@ describe('getPriceContext and chips', () => {
   });
 
   it('builds one removable chip per active filter', () => {
-    const filters = f({ pricePeriod: 'monthly', maxPrice: 2_000, types: ['apartment'], maxBedrooms: 0 });
+    const filters = f({ pricePeriod: 'monthly', maxMonthlyPrice: 2_000, types: ['apartment'], maxBedrooms: 0 });
     const chips = getActiveChips(filters);
     expect(chips.map((c) => c.label)).toEqual(['For rent', 'Up to £2,000/mo', 'Apartment', 'Studio']);
     const cleared = chips.reduce((acc, c) => updateFilters(acc, c.remove, CITY_INDEX), filters);
@@ -145,8 +157,8 @@ describe('extended filters', () => {
   it('combines sale/rent, price, type, bedroom, bathroom, area and status filters', () => {
     const filters = f({
       pricePeriod: 'total',
-      minPrice: 500_000,
-      maxPrice: 3_000_000,
+      minSalePrice: 500_000,
+      maxSalePrice: 3_000_000,
       types: ['house', 'apartment'],
       minBedrooms: 2,
       maxBedrooms: 4,
@@ -210,7 +222,7 @@ describe('chips and clear all', () => {
     query: 'park',
     city: 'London',
     pricePeriod: 'monthly',
-    maxPrice: 3_000,
+    maxMonthlyPrice: 3_000,
     types: ['apartment', 'house'],
     minBedrooms: 1,
     maxBedrooms: 3,
@@ -244,9 +256,10 @@ describe('chips and clear all', () => {
       const after = getActiveChips(updateFilters(busy, chip.remove, CITY_INDEX)).map((c) => c.key);
       const expected = chips
         .map((c) => c.key)
+        // Removing a filter drops its own chip.
         .filter((k) => k !== chip.key)
-        // Without Rent, furnishing and the price range no longer apply.
-        .filter((k) => !(chip.key === 'period' && (k.startsWith('furnishing-') || k === 'price')));
+        // Removing the Rent period also drops furnishing (which only applies to rent).
+        .filter((k) => !(chip.key === 'period' && k.startsWith('furnishing-')));
       expect(after, `removing ${chip.key}`).toEqual(expected);
     }
   });
@@ -273,15 +286,66 @@ describe('empty results', () => {
 
 describe('price filters by period', () => {
   it('uses GBP monthly rent amounts', () => {
-    const r = applyFilters(properties, f({ pricePeriod: 'monthly', minPrice: 1_500, maxPrice: 3_000 }));
+    const r = applyFilters(properties, f({ pricePeriod: 'monthly', minMonthlyPrice: 1_500, maxMonthlyPrice: 3_000 }));
     expect(r.length).toBeGreaterThan(0);
     expect(r.every((p) => p.currency === 'GBP' && p.pricePeriod === 'monthly' && p.price >= 1_500 && p.price <= 3_000)).toBe(true);
   });
 
   it('uses GBP totals for UK sales and never includes rentals', () => {
-    const r = applyFilters(properties, f({ pricePeriod: 'total', maxPrice: 300_000 }));
+    const r = applyFilters(properties, f({ pricePeriod: 'total', maxSalePrice: 300_000 }));
     expect(r.every((p) => p.pricePeriod === 'total' && p.price <= 300_000)).toBe(true);
     expect(r.length).toBeGreaterThan(0);
+  });
+});
+
+describe('UK must-have features', () => {
+  it('filters by garden, parking and minimum EPC rating', () => {
+    const garden = applyFilters(properties, f({ hasGarden: true }));
+    expect(garden.length).toBeGreaterThan(0);
+    expect(garden.every((p) => p.hasGarden)).toBe(true);
+
+    const parking = applyFilters(properties, f({ hasParking: true }));
+    expect(parking.every((p) => p.hasParking)).toBe(true);
+
+    const epc = applyFilters(properties, f({ minEpcRating: 'C' }));
+    expect(epc.every((p) => ['A', 'B', 'C'].includes(p.epcRating))).toBe(true);
+  });
+
+  it('applies tenure and new build only within the sale context', () => {
+    const freehold = applyFilters(properties, f({ pricePeriod: 'total', tenure: ['freehold'] }));
+    expect(freehold.every((p) => p.tenure === 'freehold')).toBe(true);
+
+    const newBuild = applyFilters(properties, f({ pricePeriod: 'total', newBuildOnly: true }));
+    expect(newBuild.every((p) => p.newBuild === true)).toBe(true);
+
+    // Without the sale context, these filters are inert.
+    expect(applyFilters(properties, f({ tenure: ['freehold'] }))).toHaveLength(200);
+    expect(applyFilters(properties, f({ newBuildOnly: true }))).toHaveLength(200);
+  });
+
+  it('applies pets, bills and availableBy only within the rent context', () => {
+    const pets = applyFilters(properties, f({ pricePeriod: 'monthly', petsAllowed: true }));
+    expect(pets.every((p) => p.petsAllowed === true)).toBe(true);
+
+    const bills = applyFilters(properties, f({ pricePeriod: 'monthly', billsIncluded: true }));
+    expect(bills.every((p) => p.billsIncluded === true)).toBe(true);
+
+    const soon = applyFilters(properties, f({ pricePeriod: 'monthly', availableBy: '2026-10-20' }));
+    expect(soon.every((p) => p.availableFrom && p.availableFrom <= '2026-10-20')).toBe(true);
+
+    // Without the rent context, these filters are inert.
+    expect(applyFilters(properties, f({ petsAllowed: true }))).toHaveLength(200);
+    expect(applyFilters(properties, f({ availableBy: '2026-10-20' }))).toHaveLength(200);
+  });
+
+  it('clears sale-only or rent-only filters when the context flips', () => {
+    const sale = f({ pricePeriod: 'total', tenure: ['freehold'], newBuildOnly: true });
+    const flipped = updateFilters(sale, { pricePeriod: 'monthly' }, CITY_INDEX);
+    expect(flipped).toMatchObject({ tenure: [], newBuildOnly: false });
+
+    const rent = f({ pricePeriod: 'monthly', petsAllowed: true, billsIncluded: true, availableBy: '2026-11-01' });
+    const flipped2 = updateFilters(rent, { pricePeriod: 'total' }, CITY_INDEX);
+    expect(flipped2).toMatchObject({ petsAllowed: false, billsIncluded: false, availableBy: null });
   });
 });
 

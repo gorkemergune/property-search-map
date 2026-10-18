@@ -70,7 +70,7 @@ export function PropertyMap({ properties, selectedId, hoveredId, flyTarget, onSe
         <ViewController properties={properties} target={flyTarget} />
       </MapContainer>
       {tilesUnavailable && (
-        <p role="status" className="absolute left-4 right-4 top-4 z-[1000] rounded-xl bg-white/95 px-4 py-3 text-[13px] text-ink-soft shadow-[0_4px_16px_-4px_rgb(29_28_26/0.25)] sm:right-auto sm:max-w-sm">
+        <p role="status" className="absolute left-4 right-4 top-4 z-1000 rounded-xl bg-white/95 px-4 py-3 text-[13px] text-ink-soft shadow-[0_4px_16px_-4px_rgb(29_28_26/0.25)] sm:right-auto sm:max-w-sm">
           {t.map.tilesFailed}
         </p>
       )}

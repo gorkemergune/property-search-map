@@ -1,4 +1,4 @@
-import type { AreaUnit, CountryCode, Furnishing, ListingStatus, PricePeriod, PropertyType } from '../types/property';
+import type { AreaUnit, CountryCode, Furnishing, ListingStatus, PricePeriod, PropertyType, Tenure } from '../types/property';
 
 /**
  * All interface copy in one place so it can be swapped for another locale later.
@@ -85,6 +85,27 @@ export const t = {
     furnishingLocked: 'Furnishing applies to rentals. Choose Rent to filter by it.',
     priceShort: 'Price',
     removeChip: (label: string) => `Remove filter: ${label}`,
+    features: 'Must-have features',
+    gardenLabel: 'Garden or outdoor space',
+    parkingLabel: 'Parking',
+    petsLabel: 'Pets allowed',
+    billsLabel: 'Bills included',
+    newBuildLabel: 'New build',
+    epc: 'EPC rating',
+    epcHint: 'Minimum energy rating (A is most efficient)',
+    anyEpc: 'Any rating',
+    tenure: 'Tenure',
+    tenureLocked: 'Tenure applies to sale listings. Choose Buy to filter by it.',
+    availableBy: 'Available from',
+    availableByLabel: 'Available by this date',
+    availableByLocked: 'Availability dates apply to rentals. Choose Rent to filter by it.',
+    gardenChip: 'Garden',
+    parkingChip: 'Parking',
+    petsChip: 'Pets allowed',
+    billsChip: 'Bills included',
+    newBuildChip: 'New build',
+    epcChip: (rating: string) => `EPC ${rating}+`,
+    availableByChip: (iso: string) => `Available by ${iso}`,
   },
   bedrooms: {
     any: 'Any',
@@ -134,6 +155,11 @@ export const t = {
     sold: 'Sold',
     let: 'Let agreed',
   } satisfies Record<ListingStatus, string>,
+  tenures: {
+    freehold: 'Freehold',
+    leasehold: 'Leasehold',
+    share_of_freehold: 'Share of freehold',
+  } satisfies Record<Tenure, string>,
   demoFootnote:
     'All listings are fictional demo data for the Iceberg X prototype. Addresses are invented, map positions are approximate points inside real neighborhoods (not buildings), and photos are illustrative stock images (Unsplash) that repeat across listings.',
   empty: {

@@ -26,7 +26,7 @@ const TABS: { period: PricePeriod | 'all'; label: string }[] = [
 /** Search row: Buy/Rent tabs, search with suggestions, quick filter popovers (xl+) and the full filter drawer. */
 export function Toolbar({ filters, onChange, chips, cities, cityCountry, properties, onOpenFilters, onOpenListing }: Props) {
   const fieldProps = { filters, onChange };
-  const priceChip = chips.find((c) => c.key === 'price');
+  const priceChip = chips.find((c) => c.key === 'salePrice' || c.key === 'monthlyPrice');
   const typeLabel =
     filters.types.length === 0
       ? t.filters.homeType

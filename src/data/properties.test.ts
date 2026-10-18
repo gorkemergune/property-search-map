@@ -4,9 +4,11 @@ import { MARKETS, isPriceComparable } from './markets';
 import { PHOTO_POOLS, getFallbackImage } from './images';
 import {
   COUNTRY_CODES,
+  EPC_RATINGS,
   LISTING_STATUSES,
   PRICE_PERIODS,
   PROPERTY_TYPES,
+  TENURES,
   type Currency,
   type PricePeriod,
 } from '../types/property';
@@ -224,5 +226,49 @@ describe('fictional addresses and approximate locations', () => {
     for (const p of properties) {
       expect(p.address, p.id).not.toMatch(/\b[A-Z]{1,2}\d{1,2}\b$/);
     }
+  });
+});
+
+describe('UK-specific fields', () => {
+  it('gives every listing an EPC rating from A to G', () => {
+    for (const p of properties) expect(EPC_RATINGS, p.id).toContain(p.epcRating);
+    const seen = new Set(properties.map((p) => p.epcRating));
+    expect(seen.size).toBeGreaterThanOrEqual(4);
+  });
+
+  it('marks every listing with a garden and parking boolean', () => {
+    for (const p of properties) {
+      expect(typeof p.hasGarden, p.id).toBe('boolean');
+      expect(typeof p.hasParking, p.id).toBe('boolean');
+    }
+    expect(properties.some((p) => p.hasGarden)).toBe(true);
+    expect(properties.some((p) => p.hasParking)).toBe(true);
+  });
+
+  it('attaches tenure and (optionally) newBuild to sale listings only', () => {
+    for (const p of properties) {
+      if (p.pricePeriod === 'total') {
+        expect(p.tenure, p.id).toBeDefined();
+        expect(TENURES, p.id).toContain(p.tenure!);
+      } else {
+        expect(p.tenure, p.id).toBeUndefined();
+        expect(p.newBuild, p.id).toBeUndefined();
+      }
+    }
+    expect(properties.some((p) => p.newBuild)).toBe(true);
+  });
+
+  it('attaches availableFrom and optional pet/bills flags to rentals only', () => {
+    for (const p of properties) {
+      if (p.pricePeriod === 'monthly') {
+        expect(p.availableFrom, p.id).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      } else {
+        expect(p.availableFrom, p.id).toBeUndefined();
+        expect(p.petsAllowed, p.id).toBeUndefined();
+        expect(p.billsIncluded, p.id).toBeUndefined();
+      }
+    }
+    expect(properties.some((p) => p.petsAllowed)).toBe(true);
+    expect(properties.some((p) => p.billsIncluded)).toBe(true);
   });
 });

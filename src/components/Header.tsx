@@ -17,7 +17,7 @@ export function Header({ city, cities, onCityChange }: Props) {
     <header className="relative z-20 flex h-16 shrink-0 items-center gap-6 border-b border-line bg-white px-4 sm:px-8">
       <a href="/" className="flex shrink-0 items-baseline gap-1.5" aria-label={`${t.brand} ${t.brandSub}`}>
         <span className="font-serif text-[26px] leading-none tracking-tight text-ink">Iceberg</span>
-        <span className="relative -top-px grid h-[18px] w-[18px] place-items-center rounded-[5px] bg-accent text-[11px] font-semibold text-white">
+        <span className="relative -top-px grid h-4.5 w-4.5 place-items-center rounded-[5px] bg-accent text-[11px] font-semibold text-white">
           X
         </span>
       </a>

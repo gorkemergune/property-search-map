@@ -22,9 +22,9 @@ export function FilterDrawer({ filters, onChange, cities, resultCount, onClearAl
   useDialogFocus(panel, closeButton, onClose, () => document.querySelector<HTMLElement>('[data-filters-trigger]'));
 
   return (
-    <div className="fixed inset-0 z-[1200] flex" role="dialog" aria-modal="true" aria-label={t.filters.title}>
+    <div className="fixed inset-0 z-1200 flex" role="dialog" aria-modal="true" aria-label={t.filters.title}>
       <button type="button" tabIndex={-1} aria-hidden="true" className="flex-1 bg-ink/30" onClick={onClose} />
-      <div ref={panel} className="flex w-full max-w-[400px] flex-col bg-white shadow-[-12px_0_40px_-12px_rgb(29_28_26/0.3)]">
+      <div ref={panel} className="flex w-full max-w-100 flex-col bg-white shadow-[-12px_0_40px_-12px_rgb(29_28_26/0.3)]">
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-line px-6">
           <h2 className="font-serif text-2xl text-ink">{t.filters.title}</h2>
           <button

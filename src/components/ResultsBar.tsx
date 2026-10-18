@@ -47,7 +47,7 @@ export function ResultsBar({
             value={sort}
             onChange={(e) => onSortChange(e.target.value as SortKey)}
             title={priceSortEnabled ? undefined : t.sort.priceNeedsMarket}
-            className="cursor-pointer appearance-none bg-transparent font-medium text-accent [field-sizing:content] focus:outline-none focus-visible:underline"
+            className="cursor-pointer appearance-none bg-transparent font-medium text-accent field-sizing-content focus:outline-none focus-visible:underline"
           >
             {SORT_KEYS.map((key) => (
               <option key={key} value={key} disabled={isPriceSort(key) && !priceSortEnabled}>

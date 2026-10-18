@@ -77,7 +77,7 @@ export function PropertyCard({
         onClick={() => onOpenDetails(p.id)}
         className="group flex w-full gap-4 rounded-2xl bg-white p-2.5 pr-10 text-left shadow-[0_16px_40px_-12px_rgb(29_28_26/0.35),0_0_0_1px_rgb(29_28_26/0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
       >
-        <span className="relative block aspect-[4/3] w-32 shrink-0 overflow-hidden rounded-xl bg-canvas sm:w-36">
+        <span className="relative block aspect-4/3 w-32 shrink-0 overflow-hidden rounded-xl bg-canvas sm:w-36">
           <PropertyImage property={p} />
         </span>
         <span className="flex min-w-0 flex-col justify-center gap-1">
@@ -112,7 +112,7 @@ export function PropertyCard({
         className="group block w-full cursor-pointer rounded-2xl text-left focus-visible:outline-2 focus-visible:outline-offset-[6px] focus-visible:outline-ink"
       >
         <span
-          className={`relative block aspect-[4/3] overflow-hidden rounded-2xl bg-canvas transition ${
+          className={`relative block aspect-4/3 overflow-hidden rounded-2xl bg-canvas transition ${
             selected ? 'ring-2 ring-accent ring-offset-[3px]' : hovered ? 'ring-1 ring-ink/20 ring-offset-[3px]' : ''
           }`}
         >

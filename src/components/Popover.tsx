@@ -59,7 +59,7 @@ export function Popover({ label, title, active, width = 300, children }: Props) 
           role="dialog"
           aria-label={title}
           style={{ width }}
-          className="absolute left-0 top-full z-[1300] mt-2 rounded-xl border border-line bg-white p-5 shadow-[0_12px_32px_-8px_rgb(29_28_26/0.18),0_2px_6px_rgb(29_28_26/0.06)]"
+          className="absolute left-0 top-full z-1300 mt-2 rounded-xl border border-line bg-white p-5 shadow-[0_12px_32px_-8px_rgb(29_28_26/0.18),0_2px_6px_rgb(29_28_26/0.06)]"
         >
           {children}
           <div className="mt-5 flex justify-end border-t border-line pt-4">

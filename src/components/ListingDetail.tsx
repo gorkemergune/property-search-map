@@ -31,11 +31,11 @@ export function ListingDetail({ property: p, areaUnit, onClose, onShowOnMap }: P
   const titleId = `detail-title-${p.id}`;
 
   return (
-    <div className="fixed inset-0 z-[1250] flex" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+    <div className="fixed inset-0 z-1250 flex" role="dialog" aria-modal="true" aria-labelledby={titleId}>
       <button type="button" tabIndex={-1} aria-hidden="true" className="hidden flex-1 bg-ink/30 sm:block" onClick={onClose} />
       <div
         ref={panel}
-        className="scroll-quiet flex h-full w-full flex-col overflow-y-auto bg-white shadow-[-12px_0_40px_-12px_rgb(29_28_26/0.3)] sm:max-w-[640px]"
+        className="scroll-quiet flex h-full w-full flex-col overflow-y-auto bg-white shadow-[-12px_0_40px_-12px_rgb(29_28_26/0.3)] sm:max-w-160"
       >
         <div className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between border-b border-line bg-white/95 px-5 backdrop-blur sm:px-8">
           <button
@@ -58,7 +58,7 @@ export function ListingDetail({ property: p, areaUnit, onClose, onShowOnMap }: P
         </div>
 
         <div className="px-5 pb-10 pt-6 sm:px-8">
-          <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-canvas">
+          <div className="relative aspect-16/10 overflow-hidden rounded-2xl bg-canvas">
             <PropertyImage property={p} />
             {p.status !== 'available' && (
               <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-medium text-ink shadow-sm">

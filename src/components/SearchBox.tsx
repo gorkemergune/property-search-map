@@ -124,7 +124,7 @@ export function SearchBox({ properties, filters, cityCountry, onChange, onOpenLi
   return (
     <form
       role="search"
-      className="relative order-first w-full sm:order-none sm:w-80 xl:w-[22rem]"
+      className="relative order-first w-full sm:order-0 sm:w-80 xl:w-88"
       onSubmit={(e) => e.preventDefault()}
     >
       <label htmlFor="location-search" className="sr-only">
@@ -175,7 +175,7 @@ export function SearchBox({ properties, filters, cityCountry, onChange, onOpenLi
         role="listbox"
         aria-label={t.search.suggestions}
         hidden={!showList}
-        className="scroll-quiet absolute left-0 top-full z-[1300] mt-2 max-h-[min(70vh,520px)] w-full overflow-y-auto rounded-xl border border-line bg-white p-1.5 shadow-[0_12px_32px_-8px_rgb(29_28_26/0.18),0_2px_6px_rgb(29_28_26/0.06)] sm:w-[440px]"
+        className="scroll-quiet absolute left-0 top-full z-1300 mt-2 max-h-[min(70vh,520px)] w-full overflow-y-auto rounded-xl border border-line bg-white p-1.5 shadow-[0_12px_32px_-8px_rgb(29_28_26/0.18),0_2px_6px_rgb(29_28_26/0.06)] sm:w-110"
       >
         {groups.query && renderOption(groups.query)}
         {nothingFound && (

@@ -3,15 +3,18 @@ import { t } from '../i18n/en';
 import { areaIn, formatArea, formatCompactAmount } from './format';
 import { matchesQuery } from './text';
 import {
+  EPC_RATINGS,
   LISTING_STATUSES,
   type AreaUnit,
   type CountryCode,
   type Currency,
+  type EpcRating,
   type Furnishing,
   type ListingStatus,
   type PricePeriod,
   type Property,
   type PropertyType,
+  type Tenure,
 } from '../types/property';
 
 export { normalizeText } from './text';
@@ -36,8 +39,12 @@ export interface Filters {
   country: CountryCode | 'all';
   city: string | 'all';
   pricePeriod: PricePeriod | 'all';
-  minPrice: number | null;
-  maxPrice: number | null;
+  /** Sale (total) price bounds — only applied to listings whose pricePeriod is 'total'. */
+  minSalePrice: number | null;
+  maxSalePrice: number | null;
+  /** Monthly rent bounds — only applied to listings whose pricePeriod is 'monthly'. */
+  minMonthlyPrice: number | null;
+  maxMonthlyPrice: number | null;
   types: PropertyType[];
   /** `maxBedrooms: 0` = studios only; `minBedrooms: 5` = "5+". */
   minBedrooms: number | null;
@@ -51,6 +58,20 @@ export interface Filters {
   /** Rentals only; cleared outside the Rent context. */
   furnishing: Furnishing[];
   statuses: ListingStatus[];
+  /** Must-have property features; a `true` means the listing must have it. */
+  hasGarden: boolean;
+  hasParking: boolean;
+  /** Minimum acceptable EPC rating (A best, G worst). `null` = any. */
+  minEpcRating: EpcRating | null;
+  /** Sale only — ownership structures to include. Empty = any. */
+  tenure: Tenure[];
+  /** Sale only — restrict to newly built listings when true. */
+  newBuildOnly: boolean;
+  /** Rentals only — must-have rental features. */
+  petsAllowed: boolean;
+  billsIncluded: boolean;
+  /** Rentals only — ISO date; keep listings available on or before this day. */
+  availableBy: string | null;
 }
 
 export const DEFAULT_FILTERS: Filters = {
@@ -58,8 +79,10 @@ export const DEFAULT_FILTERS: Filters = {
   country: 'GB',
   city: 'all',
   pricePeriod: 'all',
-  minPrice: null,
-  maxPrice: null,
+  minSalePrice: null,
+  maxSalePrice: null,
+  minMonthlyPrice: null,
+  maxMonthlyPrice: null,
   types: [],
   minBedrooms: null,
   maxBedrooms: null,
@@ -70,6 +93,14 @@ export const DEFAULT_FILTERS: Filters = {
   maxArea: null,
   furnishing: [],
   statuses: [],
+  hasGarden: false,
+  hasParking: false,
+  minEpcRating: null,
+  tenure: [],
+  newBuildOnly: false,
+  petsAllowed: false,
+  billsIncluded: false,
+  availableBy: null,
 };
 
 /** Resets every filter but keeps the viewer's area unit preference. */
@@ -83,8 +114,9 @@ export interface PriceContext {
 }
 
 /**
- * A price range or price sort only makes sense inside one currency and one
- * sale/rent context. Returns null when the filters span several.
+ * Price sorting only makes sense inside a single sale/rent context, since sale
+ * totals and monthly rents are on completely different scales. Price filtering
+ * is handled per-period (see `applyFilters`) and works in every mode.
  */
 export function getPriceContext(f: Pick<Filters, 'country' | 'pricePeriod'>): PriceContext | null {
   if (f.country === 'all' || f.pricePeriod === 'all') return null;
@@ -107,8 +139,10 @@ export function matchesRange(value: number, min: number | null, max: number | nu
 
 export { areaIn } from './format';
 
+/** EPC comparisons use A=0 (best) through G=6 (worst), so `rank(x) <= rank(min)` keeps A–min. */
+const EPC_RANK: Record<EpcRating, number> = Object.fromEntries(EPC_RATINGS.map((r, i) => [r, i])) as Record<EpcRating, number>;
+
 export function applyFilters(list: readonly Property[], f: Filters): Property[] {
-  const priceContext = getPriceContext(f);
   return list.filter((p) => {
     if (f.country !== 'all' && p.countryCode !== f.country) return false;
     if (f.city !== 'all' && p.city !== f.city) return false;
@@ -122,8 +156,24 @@ export function applyFilters(list: readonly Property[], f: Filters): Property[] 
     if (f.pricePeriod === 'monthly' && f.furnishing.length > 0 && !(p.furnishing && f.furnishing.includes(p.furnishing))) {
       return false;
     }
-    // Price bounds are ignored outside a single market + period, so currencies never mix.
-    if (priceContext && !matchesRange(p.price, f.minPrice, f.maxPrice)) return false;
+    // Price bounds apply per period, so sale totals never compare against monthly rents.
+    if (p.pricePeriod === 'total' && !matchesRange(p.price, f.minSalePrice, f.maxSalePrice)) return false;
+    if (p.pricePeriod === 'monthly' && !matchesRange(p.price, f.minMonthlyPrice, f.maxMonthlyPrice)) return false;
+    // Must-have features (both contexts).
+    if (f.hasGarden && !p.hasGarden) return false;
+    if (f.hasParking && !p.hasParking) return false;
+    if (f.minEpcRating && EPC_RANK[p.epcRating] > EPC_RANK[f.minEpcRating]) return false;
+    // Sale-only filters only apply when the sale context is chosen.
+    if (f.pricePeriod === 'total') {
+      if (f.tenure.length > 0 && !(p.tenure && f.tenure.includes(p.tenure))) return false;
+      if (f.newBuildOnly && !p.newBuild) return false;
+    }
+    // Rent-only filters only apply when the rent context is chosen.
+    if (f.pricePeriod === 'monthly') {
+      if (f.petsAllowed && !p.petsAllowed) return false;
+      if (f.billsIncluded && !p.billsIncluded) return false;
+      if (f.availableBy && !(p.availableFrom && p.availableFrom <= f.availableBy)) return false;
+    }
     return matchesQuery(p, f.query);
   });
 }
@@ -176,7 +226,7 @@ function fixRange(next: Filters, patch: Partial<Filters>, minKey: RangeKey, maxK
     else next[minKey] = null;
   }
 }
-type RangeKey = 'minPrice' | 'maxPrice' | 'minBedrooms' | 'maxBedrooms' | 'minBathrooms' | 'maxBathrooms' | 'minArea' | 'maxArea';
+type RangeKey = 'minSalePrice' | 'maxSalePrice' | 'minMonthlyPrice' | 'maxMonthlyPrice' | 'minBedrooms' | 'maxBedrooms' | 'minBathrooms' | 'maxBathrooms' | 'minArea' | 'maxArea';
 
 /**
  * Applies a filter change and keeps the result coherent:
@@ -203,27 +253,29 @@ export function updateFilters(
     next.city = 'all';
   }
 
-  if (next.country !== prev.country || next.pricePeriod !== prev.pricePeriod) {
-    if (patch.minPrice === undefined) next.minPrice = null;
-    if (patch.maxPrice === undefined) next.maxPrice = null;
-  }
-  if (!getPriceContext(next)) {
-    next.minPrice = null;
-    next.maxPrice = null;
-  }
   if (next.areaUnit !== prev.areaUnit) {
     if (patch.minArea === undefined) next.minArea = null;
     if (patch.maxArea === undefined) next.maxArea = null;
   }
 
-  fixRange(next, patch, 'minPrice', 'maxPrice');
+  fixRange(next, patch, 'minSalePrice', 'maxSalePrice');
+  fixRange(next, patch, 'minMonthlyPrice', 'maxMonthlyPrice');
   fixRange(next, patch, 'minBedrooms', 'maxBedrooms');
   fixRange(next, patch, 'minBathrooms', 'maxBathrooms');
   fixRange(next, patch, 'minArea', 'maxArea');
 
   const allowed = statusesFor(next.pricePeriod);
   next.statuses = next.statuses.filter((s) => allowed.includes(s));
-  if (next.pricePeriod !== 'monthly') next.furnishing = [];
+  if (next.pricePeriod !== 'monthly') {
+    next.furnishing = [];
+    next.petsAllowed = false;
+    next.billsIncluded = false;
+    next.availableBy = null;
+  }
+  if (next.pricePeriod !== 'total') {
+    next.tenure = [];
+    next.newBuildOnly = false;
+  }
 
   return next;
 }
@@ -265,17 +317,17 @@ export function areaLabel(min: number | null, max: number | null, unit: AreaUnit
   return min !== null ? t.price.from(fmt(min)) : t.price.upTo(fmt(max!));
 }
 
-export function priceLabel(f: Pick<Filters, 'country' | 'pricePeriod' | 'minPrice' | 'maxPrice'>): string | null {
-  const ctx = getPriceContext(f);
-  if (!ctx || (f.minPrice === null && f.maxPrice === null)) return null;
-  const fmt = (v: number) => formatCompactAmount(v, ctx.currency);
-  const suffix = ctx.pricePeriod === 'monthly' ? t.price.perMonth : '';
+/** Labels one of the two price ranges (sale totals or monthly rents) — used in chips and popovers. */
+export function priceRangeLabel(min: number | null, max: number | null, period: PricePeriod): string | null {
+  if (min === null && max === null) return null;
+  const fmt = (v: number) => formatCompactAmount(v, 'GBP');
+  const suffix = period === 'monthly' ? t.price.perMonth : '';
   const label =
-    f.minPrice !== null && f.maxPrice !== null
-      ? t.price.range(fmt(f.minPrice), fmt(f.maxPrice))
-      : f.minPrice !== null
-        ? t.price.from(fmt(f.minPrice))
-        : t.price.upTo(fmt(f.maxPrice!));
+    min !== null && max !== null
+      ? t.price.range(fmt(min), fmt(max))
+      : min !== null
+        ? t.price.from(fmt(min))
+        : t.price.upTo(fmt(max!));
   return label + suffix;
 }
 
@@ -285,8 +337,16 @@ export function getActiveChips(f: Filters): FilterChip[] {
   if (f.city !== 'all') chips.push({ key: 'city', label: f.city, remove: { city: 'all' } });
   if (f.pricePeriod !== 'all') chips.push({ key: 'period', label: t.listingTag[f.pricePeriod], remove: { pricePeriod: 'all' } });
 
-  const price = priceLabel(f);
-  if (price) chips.push({ key: 'price', label: price, remove: { minPrice: null, maxPrice: null } });
+  // Sale price chip only shows when the sale context is active (or no period filter).
+  if (f.pricePeriod !== 'monthly') {
+    const sale = priceRangeLabel(f.minSalePrice, f.maxSalePrice, 'total');
+    if (sale) chips.push({ key: 'salePrice', label: sale, remove: { minSalePrice: null, maxSalePrice: null } });
+  }
+  // Monthly rent chip only shows when the rent context is active (or no period filter).
+  if (f.pricePeriod !== 'total') {
+    const monthly = priceRangeLabel(f.minMonthlyPrice, f.maxMonthlyPrice, 'monthly');
+    if (monthly) chips.push({ key: 'monthlyPrice', label: monthly, remove: { minMonthlyPrice: null, maxMonthlyPrice: null } });
+  }
 
   for (const type of f.types) {
     chips.push({ key: `type-${type}`, label: t.propertyTypes[type], remove: { types: f.types.filter((x) => x !== type) } });
@@ -303,5 +363,15 @@ export function getActiveChips(f: Filters): FilterChip[] {
   for (const status of f.statuses) {
     chips.push({ key: `status-${status}`, label: t.statuses[status], remove: { statuses: f.statuses.filter((x) => x !== status) } });
   }
+  if (f.hasGarden) chips.push({ key: 'garden', label: t.filters.gardenChip, remove: { hasGarden: false } });
+  if (f.hasParking) chips.push({ key: 'parking', label: t.filters.parkingChip, remove: { hasParking: false } });
+  if (f.minEpcRating) chips.push({ key: 'epc', label: t.filters.epcChip(f.minEpcRating), remove: { minEpcRating: null } });
+  for (const item of f.tenure) {
+    chips.push({ key: `tenure-${item}`, label: t.tenures[item], remove: { tenure: f.tenure.filter((x) => x !== item) } });
+  }
+  if (f.newBuildOnly) chips.push({ key: 'newBuild', label: t.filters.newBuildChip, remove: { newBuildOnly: false } });
+  if (f.petsAllowed) chips.push({ key: 'pets', label: t.filters.petsChip, remove: { petsAllowed: false } });
+  if (f.billsIncluded) chips.push({ key: 'bills', label: t.filters.billsChip, remove: { billsIncluded: false } });
+  if (f.availableBy) chips.push({ key: 'availableBy', label: t.filters.availableByChip(f.availableBy), remove: { availableBy: null } });
   return chips;
 }

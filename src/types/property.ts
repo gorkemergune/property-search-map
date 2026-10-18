@@ -47,6 +47,20 @@ export type AreaUnit = (typeof AREA_UNITS)[number];
 export const SQFT_PER_SQM = 10.7639;
 
 /**
+ * UK Energy Performance Certificate rating. A is most efficient, G is least.
+ * Required on UK property listings since 2008.
+ */
+export const EPC_RATINGS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'] as const;
+export type EpcRating = (typeof EPC_RATINGS)[number];
+
+/**
+ * UK ownership structure. Houses are usually freehold, apartments usually
+ * leasehold; "share of freehold" is a common hybrid for mansion blocks.
+ */
+export const TENURES = ['freehold', 'leasehold', 'share_of_freehold'] as const;
+export type Tenure = (typeof TENURES)[number];
+
+/**
  * Bedroom count. `0` means a studio. Filters treat `5` as "5+", so values
  * above 5 are valid and match the 5+ option.
  */
@@ -85,4 +99,20 @@ export interface Property {
   listedAt: string;
   /** ISO date (YYYY-MM-DD) of the last change to the listing; equals `listedAt` if never updated. */
   updatedAt: string;
+  /** UK Energy Performance Certificate rating (A best, G worst). */
+  epcRating: EpcRating;
+  /** Outdoor space (private garden, patio or roof terrace). */
+  hasGarden: boolean;
+  /** Dedicated parking (off-street, driveway or garage). */
+  hasParking: boolean;
+  /** Freehold / leasehold / share of freehold. Sale listings only. */
+  tenure?: Tenure;
+  /** Newly built (within last 2 years) or off-plan. Sale listings only. */
+  newBuild?: boolean;
+  /** Landlord accepts pets. Rentals only. */
+  petsAllowed?: boolean;
+  /** Utilities (electricity/gas/water) included in the rent. Rentals only. */
+  billsIncluded?: boolean;
+  /** ISO date (YYYY-MM-DD) tenancy can start. Rentals only. */
+  availableFrom?: string;
 }

@@ -7,12 +7,20 @@ import {
   BATHROOM_OPTIONS,
   BEDROOM_MAX_OPTIONS,
   BEDROOM_MIN_OPTIONS,
-  getPriceContext,
   statusesFor,
   type Filters,
 } from '../lib/filters';
 import { formatArea } from '../lib/format';
-import { AREA_UNITS, FURNISHINGS, PROPERTY_TYPES, type AreaUnit, type PricePeriod } from '../types/property';
+import {
+  AREA_UNITS,
+  EPC_RATINGS,
+  FURNISHINGS,
+  PROPERTY_TYPES,
+  TENURES,
+  type AreaUnit,
+  type EpcRating,
+  type PricePeriod,
+} from '../types/property';
 
 export interface FieldProps {
   filters: Filters;
@@ -55,19 +63,30 @@ export function ListingTypeField({ filters, onChange }: FieldProps) {
   );
 }
 
-export function PriceField({ filters, onChange }: FieldProps) {
+/** Reusable min/max dropdown pair for a single period's prices. */
+function PriceRange({
+  heading,
+  period,
+  min,
+  max,
+  onChange,
+}: {
+  heading: string;
+  period: PricePeriod;
+  min: number | null;
+  max: number | null;
+  onChange: (patch: Partial<Filters>) => void;
+}) {
   const id = useId();
-  const ctx = getPriceContext(filters);
-  if (!ctx) {
-    return <p className="max-w-64 text-[13px] leading-relaxed text-muted">{t.filters.priceLocked}</p>;
-  }
-  const steps = PRICE_STEPS[ctx.currency][ctx.pricePeriod];
-  const format = (v: number) => formatCompactAmount(v, ctx.currency);
+  const steps = PRICE_STEPS.GBP[period];
+  const format = (v: number) => formatCompactAmount(v, 'GBP');
   const parse = (v: string) => (v === '' ? null : Number(v));
+  const minKey = period === 'total' ? 'minSalePrice' : 'minMonthlyPrice';
+  const maxKey = period === 'total' ? 'maxSalePrice' : 'maxMonthlyPrice';
   return (
     <div>
       <p className="mb-2 text-xs text-muted">
-        {ctx.pricePeriod === 'monthly' ? t.filters.monthlyRent : t.filters.price} · {ctx.currency}
+        {heading} · GBP
       </p>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
         <label htmlFor={`${id}-min`} className="sr-only">
@@ -75,13 +94,13 @@ export function PriceField({ filters, onChange }: FieldProps) {
         </label>
         <select
           id={`${id}-min`}
-          value={filters.minPrice ?? ''}
-          onChange={(e) => onChange({ minPrice: parse(e.target.value) })}
+          value={min ?? ''}
+          onChange={(e) => onChange({ [minKey]: parse(e.target.value) })}
           className={`${selectClass} tabular`}
         >
           <option value="">{t.filters.noMin}</option>
           {steps.map((s) => (
-            <option key={s} value={s} disabled={filters.maxPrice !== null && s > filters.maxPrice}>
+            <option key={s} value={s} disabled={max !== null && s > max}>
               {format(s)}
             </option>
           ))}
@@ -92,18 +111,45 @@ export function PriceField({ filters, onChange }: FieldProps) {
         </label>
         <select
           id={`${id}-max`}
-          value={filters.maxPrice ?? ''}
-          onChange={(e) => onChange({ maxPrice: parse(e.target.value) })}
+          value={max ?? ''}
+          onChange={(e) => onChange({ [maxKey]: parse(e.target.value) })}
           className={`${selectClass} tabular`}
         >
           <option value="">{t.filters.noMax}</option>
           {steps.map((s) => (
-            <option key={s} value={s} disabled={filters.minPrice !== null && s < filters.minPrice}>
+            <option key={s} value={s} disabled={min !== null && s < min}>
               {format(s)}
             </option>
           ))}
         </select>
       </div>
+    </div>
+  );
+}
+
+export function PriceField({ filters, onChange }: FieldProps) {
+  const showSale = filters.pricePeriod !== 'monthly';
+  const showMonthly = filters.pricePeriod !== 'total';
+  return (
+    <div className="space-y-4">
+      {showSale && (
+        <PriceRange
+          heading={t.filters.price}
+          period="total"
+          min={filters.minSalePrice}
+          max={filters.maxSalePrice}
+          onChange={onChange}
+        />
+      )}
+      {showMonthly && (
+        <PriceRange
+          heading={t.filters.monthlyRent}
+          period="monthly"
+          min={filters.minMonthlyPrice}
+          max={filters.maxMonthlyPrice}
+          onChange={onChange}
+        />
+      )}
     </div>
   );
 }
@@ -213,6 +259,99 @@ export function FurnishingField({ filters, onChange }: FieldProps) {
   );
 }
 
+export function FeaturesField({ filters, onChange }: FieldProps) {
+  const items: { key: 'hasGarden' | 'hasParking' | 'petsAllowed' | 'billsIncluded' | 'newBuildOnly'; label: string; show: boolean }[] = [
+    { key: 'hasGarden', label: t.filters.gardenLabel, show: true },
+    { key: 'hasParking', label: t.filters.parkingLabel, show: true },
+    { key: 'petsAllowed', label: t.filters.petsLabel, show: filters.pricePeriod === 'monthly' },
+    { key: 'billsIncluded', label: t.filters.billsLabel, show: filters.pricePeriod === 'monthly' },
+    { key: 'newBuildOnly', label: t.filters.newBuildLabel, show: filters.pricePeriod === 'total' },
+  ];
+  return (
+    <div className="space-y-2.5" role="group" aria-label={t.filters.features}>
+      {items.filter((i) => i.show).map((item) => {
+        const on = filters[item.key] as boolean;
+        return (
+          <label key={item.key} className="flex cursor-pointer items-center gap-3 text-sm text-ink-soft">
+            <input
+              type="checkbox"
+              checked={on}
+              onChange={() => onChange({ [item.key]: !on } as Partial<Filters>)}
+              className="h-4 w-4 rounded border-line-strong accent-ink"
+            />
+            {item.label}
+          </label>
+        );
+      })}
+    </div>
+  );
+}
+
+export function EpcField({ filters, onChange }: FieldProps) {
+  const id = useId();
+  return (
+    <Labeled label={t.filters.epcHint} htmlFor={id}>
+      <select
+        id={id}
+        value={filters.minEpcRating ?? ''}
+        onChange={(e) => onChange({ minEpcRating: (e.target.value || null) as EpcRating | null })}
+        className={selectClass}
+      >
+        <option value="">{t.filters.anyEpc}</option>
+        {EPC_RATINGS.map((r) => (
+          <option key={r} value={r}>
+            {r}
+          </option>
+        ))}
+      </select>
+    </Labeled>
+  );
+}
+
+export function TenureField({ filters, onChange }: FieldProps) {
+  if (filters.pricePeriod !== 'total') {
+    return <p className="max-w-64 text-[13px] leading-relaxed text-muted">{t.filters.tenureLocked}</p>;
+  }
+  return (
+    <div className="flex flex-wrap gap-1.5" role="group" aria-label={t.filters.tenure}>
+      {TENURES.map((item) => {
+        const on = filters.tenure.includes(item);
+        return (
+          <button
+            key={item}
+            type="button"
+            aria-pressed={on}
+            onClick={() =>
+              onChange({ tenure: on ? filters.tenure.filter((x) => x !== item) : [...filters.tenure, item] })
+            }
+            className={chipClass(on)}
+          >
+            {t.tenures[item]}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+export function AvailableByField({ filters, onChange }: FieldProps) {
+  const id = useId();
+  if (filters.pricePeriod !== 'monthly') {
+    return <p className="max-w-64 text-[13px] leading-relaxed text-muted">{t.filters.availableByLocked}</p>;
+  }
+  return (
+    <Labeled label={t.filters.availableByLabel} htmlFor={id}>
+      <input
+        id={id}
+        type="date"
+        value={filters.availableBy ?? ''}
+        onChange={(e) => onChange({ availableBy: e.target.value || null })}
+        className={`${selectClass} tabular`}
+      />
+    </Labeled>
+  );
+}
+
 export function StatusField({ filters, onChange }: FieldProps) {
   return (
     <div className="space-y-2.5" role="group" aria-label={t.filters.status}>
@@ -261,9 +400,27 @@ export function FilterPanel(props: FieldProps & { cities: readonly string[] }) {
       <Section title={t.filters.area}>
         <AreaField {...props} />
       </Section>
-      <Section title={t.filters.furnishing}>
-        <FurnishingField {...props} />
+      {props.filters.pricePeriod === 'monthly' && (
+        <Section title={t.filters.furnishing}>
+          <FurnishingField {...props} />
+        </Section>
+      )}
+      <Section title={t.filters.features}>
+        <FeaturesField {...props} />
       </Section>
+      <Section title={t.filters.epc}>
+        <EpcField {...props} />
+      </Section>
+      {props.filters.pricePeriod === 'total' && (
+        <Section title={t.filters.tenure}>
+          <TenureField {...props} />
+        </Section>
+      )}
+      {props.filters.pricePeriod === 'monthly' && (
+        <Section title={t.filters.availableBy}>
+          <AvailableByField {...props} />
+        </Section>
+      )}
       <Section title={t.filters.status}>
         <StatusField {...props} />
       </Section>
