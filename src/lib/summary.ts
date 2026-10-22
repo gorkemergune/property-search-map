@@ -166,9 +166,22 @@ function detailGroups(p: Property): DetailGroup[] {
       { label: d.bills, value: bills },
       { label: d.pets, value: tri(p.petsAllowed, d.petsValue) },
       { label: d.students, value: tri(p.studentFriendly, d.welcomeValue) },
+      { label: d.couples, value: tri(p.couplesWelcome, d.welcomeValue) },
       { label: d.sharers, value: tri(p.sharersAccepted, d.welcomeValue) },
       { label: d.shortLets, value: tri(p.shortLetsAccepted, d.shortLetsValue) },
     ];
+    rows.push(
+      { label: d.incomeCheck, value: tri(p.regularIncomeRequired, d.incomeValue) },
+      {
+        label: d.applicants,
+        value:
+          p.applicantsWelcome === undefined
+            ? null
+            : p.applicantsWelcome.length
+              ? p.applicantsWelcome.map((g) => t.applicantGroups[g]).join(', ')
+              : d.noneNamed,
+      },
+    );
     // An HMO licence is only shown when the listing says it has one.
     if (p.hmoLicensed) rows.push({ label: d.hmo, value: d.hmoValue });
     groups.push({ key: 'rental', title: d.groups.rental, rows });

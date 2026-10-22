@@ -269,7 +269,7 @@ describe('UK-specific fields', () => {
     expect(properties.some((p) => p.includedBills?.length)).toBe(true);
   });
 
-  const RENT_ONLY = ['availableFrom', 'petsAllowed', 'studentFriendly', 'sharersAccepted', 'hmoLicensed', 'shortLetsAccepted', 'depositWeeks', 'includedBills', 'homeOffice', 'stepFreeAccess', 'hasLift', 'accessibleBathroom'] as const;
+  const RENT_ONLY = ['couplesWelcome', 'regularIncomeRequired', 'applicantsWelcome', 'availableFrom', 'petsAllowed', 'studentFriendly', 'sharersAccepted', 'hmoLicensed', 'shortLetsAccepted', 'depositWeeks', 'includedBills', 'homeOffice', 'stepFreeAccess', 'hasLift', 'accessibleBathroom'] as const;
   const SALE_ONLY = ['tenure', 'newBuild', 'offPlan', 'completionDate', 'chainFree', 'leaseYearsRemaining', 'serviceChargePerYear', 'groundRentPerYear', 'outdoorSpace', 'parking'] as const;
 
   it('keeps rent-only and sale-only fields in their own context', () => {
@@ -330,6 +330,19 @@ describe('UK-specific fields', () => {
     }
     expect(properties.filter((p) => p.city === 'Edinburgh').every((p) => p.nation === 'scotland')).toBe(true);
     expect(properties.filter((p) => p.city !== 'Edinburgh').every((p) => p.nation === 'england')).toBe(true);
+  });
+
+  it('keeps suitability terms on rentals only, coherent with the listing', () => {
+    for (const p of properties) {
+      if (p.pricePeriod === 'total') {
+        expect(p.couplesWelcome ?? p.regularIncomeRequired ?? p.applicantsWelcome, p.id).toBeUndefined();
+      }
+      // Student houses are let room by room to students with a guarantor.
+      if (p.hmoLicensed && p.studentFriendly) {
+        expect(p.couplesWelcome, p.id).toBe(false);
+        expect(p.regularIncomeRequired, p.id).toBe(false);
+      }
+    }
   });
 
   it('keeps student houses coherent', () => {

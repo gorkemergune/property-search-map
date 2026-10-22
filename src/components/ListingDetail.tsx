@@ -7,12 +7,15 @@ import { buildListingSummary } from '../lib/summary';
 import type { AreaUnit, Property } from '../types/property';
 import { CloseIcon, MapIcon } from './icons';
 import { PropertyImage } from './PropertyImage';
+import { SaveButton } from './SaveButton';
 
 interface Props {
   property: Property;
   areaUnit: AreaUnit;
   onClose: () => void;
   onShowOnMap: (id: string) => void;
+  saved: boolean;
+  onToggleSave: (id: string) => void;
 }
 
 /**
@@ -20,7 +23,7 @@ interface Props {
  * Focus moves into the drawer, Tab stays inside it, Escape closes it and focus
  * returns to the element that opened it.
  */
-export function ListingDetail({ property: p, areaUnit, onClose, onShowOnMap }: Props) {
+export function ListingDetail({ property: p, areaUnit, onClose, onShowOnMap, saved, onToggleSave }: Props) {
   const panel = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
 
@@ -49,6 +52,7 @@ export function ListingDetail({ property: p, areaUnit, onClose, onShowOnMap }: P
             <MapIcon width={15} height={15} />
             {t.detail.showOnMap}
           </button>
+          <SaveButton variant="inline" title={p.title} saved={saved} onToggle={() => onToggleSave(p.id)} className="ml-auto mr-4" />
           <button
             ref={closeButton}
             type="button"

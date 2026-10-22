@@ -1,8 +1,9 @@
 import { t } from '../i18n/en';
 import { formatAmount, formatListedDate, formatPropertyArea } from '../lib/format';
 import type { AreaUnit, Property } from '../types/property';
-import { BedIcon } from './icons';
+import { BedIcon, EyeIcon } from './icons';
 import { PropertyImage } from './PropertyImage';
+import { SaveButton } from './SaveButton';
 
 interface Props {
   property: Property;
@@ -15,6 +16,10 @@ interface Props {
   onHover: (id: string | null) => void;
   /** `horizontal` is the compact preview shown over the map; activating it opens details. */
   layout?: 'vertical' | 'horizontal';
+  saved: boolean;
+  onToggleSave: (id: string) => void;
+  /** The visitor opened this listing's details before (this browser only). */
+  viewed: boolean;
 }
 
 /** Status shown on the photo; available listings need no badge. */
@@ -34,6 +39,9 @@ export function PropertyCard({
   onOpenDetails,
   onHover,
   layout = 'vertical',
+  saved,
+  onToggleSave,
+  viewed,
 }: Props) {
   const horizontal = layout === 'horizontal';
   const active = p.status === 'available';
@@ -45,6 +53,12 @@ export function PropertyCard({
       <span className="text-faint">·</span>
       <span className="text-muted">{t.propertyTypes[p.type]}</span>
       {!active && horizontal && <span className="text-muted">· {t.statuses[p.status]}</span>}
+      {viewed && !horizontal && (
+        <span className="ml-auto flex items-center gap-1 pl-2 font-normal text-faint">
+          <EyeIcon width={13} height={13} />
+          {t.viewed.badge}
+        </span>
+      )}
     </span>
   );
 
@@ -70,8 +84,11 @@ export function PropertyCard({
     </span>
   );
 
+  const save = <SaveButton title={p.title} saved={saved} onToggle={() => onToggleSave(p.id)} />;
+
   if (horizontal) {
     return (
+      <div className="relative">
       <button
         type="button"
         onClick={() => onOpenDetails(p.id)}
@@ -87,11 +104,19 @@ export function PropertyCard({
           <span className="truncate text-[13px] text-muted">
             {p.neighborhood}, {p.city}
           </span>
+          {viewed && (
+            <span className="flex items-center gap-1 text-[11.5px] text-faint">
+              <EyeIcon width={12} height={12} />
+              {t.viewed.badge}
+            </span>
+          )}
           <span className="text-xs font-medium text-ink underline decoration-line-strong underline-offset-4 group-hover:decoration-ink">
             {t.card.details}
           </span>
         </span>
       </button>
+      <div className="absolute bottom-2.5 right-2.5">{save}</div>
+      </div>
     );
   }
 
@@ -123,7 +148,7 @@ export function PropertyCard({
             </span>
           )}
           {selected && (
-            <span className="absolute right-3 top-3 rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-white shadow-sm">
+            <span className="absolute bottom-3 left-3 rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-white shadow-sm">
               {t.map.onMap}
             </span>
           )}
@@ -148,6 +173,8 @@ export function PropertyCard({
         {selected && <span className="sr-only">{t.card.pressAgain}</span>}
       </button>
 
+      {/* Sibling of the card button (buttons cannot nest), placed over the photo. */}
+      <div className="absolute right-3 top-3">{save}</div>
       <button
         type="button"
         onClick={() => onOpenDetails(p.id)}

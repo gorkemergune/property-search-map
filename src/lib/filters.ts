@@ -7,6 +7,7 @@ import {
   EPC_RATINGS,
   LEASE_TENURES,
   LISTING_STATUSES,
+  type ApplicantGroup,
   type AreaUnit,
   type Bill,
   type CountryCode,
@@ -47,6 +48,8 @@ export const GROUND_RENT_OPTIONS = [0, 100, 250, 500] as const;
 
 export const PET_POLICIES = ['any', 'allowed', 'not_allowed'] as const;
 export type PetPolicy = (typeof PET_POLICIES)[number];
+export const INCOME_CHECK_OPTIONS = ['any', 'required', 'not_required'] as const;
+export type IncomeCheckFilter = (typeof INCOME_CHECK_OPTIONS)[number];
 export const COMPLETION_OPTIONS = ['any', 'ready', 'off_plan'] as const;
 export type CompletionFilter = (typeof COMPLETION_OPTIONS)[number];
 
@@ -107,6 +110,12 @@ export interface Filters {
   stepFreeAccess: boolean;
   hasLift: boolean;
   accessibleBathroom: boolean;
+  /** Rentals only — suitability terms stated by the listing. */
+  couplesWelcome: boolean;
+  /** `required`/`not_required` need an explicit statement; unknown matches neither. */
+  incomeCheck: IncomeCheckFilter;
+  /** Listing names at least one of these groups as welcome. Empty = any. */
+  applicantsWelcome: ApplicantGroup[];
   /** Rentals only — every one of these bills must be included. */
   includedBills: Bill[];
   /** Rentals only — maximum deposit in weeks of rent. */
@@ -127,6 +136,9 @@ const RENT_ONLY_DEFAULTS = {
   stepFreeAccess: false,
   hasLift: false,
   accessibleBathroom: false,
+  couplesWelcome: false,
+  incomeCheck: 'any',
+  applicantsWelcome: [],
   includedBills: [],
   maxDepositWeeks: null,
   availableBy: null,
@@ -265,6 +277,9 @@ function matchesRentFilters(p: Property, f: Filters): boolean {
   if (f.stepFreeAccess && !has(p.stepFreeAccess)) return false;
   if (f.hasLift && !has(p.hasLift)) return false;
   if (f.accessibleBathroom && !has(p.accessibleBathroom)) return false;
+  if (f.couplesWelcome && !has(p.couplesWelcome)) return false;
+  if (f.incomeCheck !== 'any' && p.regularIncomeRequired !== (f.incomeCheck === 'required')) return false;
+  if (f.applicantsWelcome.length > 0 && !p.applicantsWelcome?.some((g) => f.applicantsWelcome.includes(g))) return false;
   if (f.includedBills.length > 0 && !f.includedBills.every((b) => p.includedBills?.includes(b))) return false;
   if (f.maxDepositWeeks !== null && !(p.depositWeeks !== undefined && p.depositWeeks <= f.maxDepositWeeks)) return false;
   if (f.availableBy && !(p.availableFrom && p.availableFrom <= f.availableBy)) return false;
@@ -374,6 +389,7 @@ export function buildCityIndex(list: readonly Property[]): Record<string, Countr
 
 /** Rent-only yes/no must-haves, in display order. Accessibility flags are grouped separately in the UI. */
 export const RENT_FLAGS = [
+  'couplesWelcome',
   'studentFriendly',
   'sharersAccepted',
   'hmoLicensed',
@@ -574,6 +590,14 @@ export function getActiveChips(f: Filters): FilterChip[] {
   if (f.petPolicy !== 'any') chips.push({ key: 'pets', label: t.petPolicy[f.petPolicy], remove: { petPolicy: 'any' } });
   for (const key of RENT_FLAGS) {
     if (f[key]) chips.push({ key, label: t.filters.rentFlags[key].chip, remove: { [key]: false } });
+  }
+  if (f.incomeCheck !== 'any') chips.push({ key: 'incomeCheck', label: t.filters.incomeChip[f.incomeCheck], remove: { incomeCheck: 'any' } });
+  for (const group of f.applicantsWelcome) {
+    chips.push({
+      key: `applicants-${group}`,
+      label: t.filters.applicantChip(t.applicantGroups[group]),
+      remove: { applicantsWelcome: f.applicantsWelcome.filter((x) => x !== group) },
+    });
   }
   for (const bill of f.includedBills) {
     chips.push({ key: `bill-${bill}`, label: t.filters.billChip(t.bills[bill]), remove: { includedBills: f.includedBills.filter((x) => x !== bill) } });

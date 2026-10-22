@@ -9,6 +9,7 @@ import {
   BEDROOM_MIN_OPTIONS,
   COMPLETION_OPTIONS,
   DEPOSIT_WEEK_OPTIONS,
+  INCOME_CHECK_OPTIONS,
   GROUND_RENT_OPTIONS,
   LEASE_YEAR_OPTIONS,
   PET_POLICIES,
@@ -17,11 +18,13 @@ import {
   statusesFor,
   type CompletionFilter,
   type Filters,
+  type IncomeCheckFilter,
   type PetPolicy,
   type RentFlag,
 } from '../lib/filters';
 import { formatArea } from '../lib/format';
 import {
+  APPLICANT_GROUPS,
   AREA_UNITS,
   BILLS,
   EPC_RATINGS,
@@ -284,7 +287,44 @@ export function FeaturesField({ filters, onChange }: FieldProps) {
 }
 
 const ACCESSIBILITY_FLAGS = ['stepFreeAccess', 'hasLift', 'accessibleBathroom'] as const satisfies readonly RentFlag[];
-const TENANCY_FLAGS = RENT_FLAGS.filter((key) => !(ACCESSIBILITY_FLAGS as readonly RentFlag[]).includes(key));
+const SUITABILITY_FLAGS = ['couplesWelcome', 'studentFriendly'] as const satisfies readonly RentFlag[];
+const TENANCY_FLAGS = RENT_FLAGS.filter(
+  (key) => !([...ACCESSIBILITY_FLAGS, ...SUITABILITY_FLAGS] as readonly RentFlag[]).includes(key),
+);
+
+/** Rentals only: who the listing says it welcomes. Never asks about the visitor. */
+export function SuitabilityField({ filters, onChange }: FieldProps) {
+  return (
+    <div className="space-y-4">
+      <Checkboxes
+        label={t.filters.suitability}
+        items={SUITABILITY_FLAGS.map((key) => ({ key, label: t.filters.rentFlags[key].label }))}
+        filters={filters}
+        onChange={onChange}
+      />
+      <div>
+        <p className="mb-2 text-xs text-muted">{t.filters.applicantsLabel}</p>
+        <ToggleChips
+          label={t.filters.applicantsLabel}
+          options={APPLICANT_GROUPS.map((value) => ({ value, label: t.applicantGroups[value] }))}
+          selected={filters.applicantsWelcome}
+          onChange={(applicantsWelcome) => onChange({ applicantsWelcome })}
+        />
+      </div>
+      <div>
+        <p className="mb-2 text-xs text-muted">{t.filters.incomeCheck}</p>
+        <Choices<IncomeCheckFilter>
+          label={t.filters.incomeCheck}
+          value={filters.incomeCheck}
+          onChange={(incomeCheck) => onChange({ incomeCheck })}
+          options={INCOME_CHECK_OPTIONS.map((value) => ({ value, label: t.filters.incomeCheckOption[value] }))}
+        />
+        <p className="mt-1.5 text-xs text-muted">{t.filters.incomeHint}</p>
+      </div>
+      <p className="text-xs leading-relaxed text-muted">{t.filters.suitabilityNote}</p>
+    </div>
+  );
+}
 
 /** Rentals only: pet policy plus who the home is let to. */
 export function TenancyField({ filters, onChange }: FieldProps) {
@@ -524,6 +564,9 @@ export function FilterPanel(props: FieldProps & { cities: readonly string[] }) {
       {period === 'monthly' && (
         <>
           <GroupHeading>{t.filters.rentalGroup}</GroupHeading>
+          <Section title={t.filters.suitability}>
+            <SuitabilityField {...props} />
+          </Section>
           <Section title={t.filters.tenancy}>
             <TenancyField {...props} />
           </Section>

@@ -2,6 +2,7 @@ import { t } from '../i18n/en';
 import { SORT_KEYS, isPriceSort, type FilterChip, type QuickPreset, type SortKey } from '../lib/filters';
 import type { PricePeriod } from '../types/property';
 import { CloseIcon, SlidersIcon } from './icons';
+import { ShareSearchButton } from './ShareSearchButton';
 
 interface Props {
   place: string;
@@ -16,6 +17,8 @@ interface Props {
   presets: { preset: QuickPreset; active: boolean }[];
   onTogglePreset: (preset: QuickPreset) => void;
   onOpenFilters: () => void;
+  viewedCount: number;
+  onClearViewed: () => void;
 }
 
 /** Results heading (display serif), count, sort and the active-filter chips. */
@@ -32,6 +35,8 @@ export function ResultsBar({
   presets,
   onTogglePreset,
   onOpenFilters,
+  viewedCount,
+  onClearViewed,
 }: Props) {
   return (
     <div className="pb-5">
@@ -40,11 +45,21 @@ export function ResultsBar({
           <h1 className="font-serif text-[26px] leading-[1.1] tracking-[-0.01em] text-ink sm:text-[34px]">
             {t.results.headingLead(pricePeriod)} <em className="whitespace-nowrap">{place}</em>
           </h1>
-          <p className="mt-1.5 text-[13px] text-muted tabular" aria-live="polite">
-            {t.results.count(count)}
+          <p className="mt-1.5 text-[13px] text-muted tabular">
+            <span aria-live="polite">{t.results.count(count)}</span>
+            {viewedCount > 0 && (
+              <>
+                <span className="text-faint"> · {t.viewed.summary(viewedCount)} · </span>
+                <button type="button" onClick={onClearViewed} className="text-muted underline decoration-line-strong underline-offset-2 hover:text-ink">
+                  {t.viewed.clear}
+                </button>
+              </>
+            )}
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-1.5 pb-0.5 text-[13px]">
+        <div className="flex shrink-0 flex-col items-end gap-2 pb-0.5">
+        <ShareSearchButton />
+        <div className="flex items-center gap-1.5 text-[13px]">
           <label htmlFor="sort" className="text-muted">
             {t.results.sortLabel}:
           </label>
@@ -61,6 +76,7 @@ export function ResultsBar({
               </option>
             ))}
           </select>
+        </div>
         </div>
       </div>
       {!priceSortEnabled && <p className="sr-only">{t.sort.priceNeedsMarket}</p>}

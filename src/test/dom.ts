@@ -15,6 +15,14 @@ class ResizeObserverStub {
 if (typeof window !== 'undefined') {
   window.ResizeObserver ??= ResizeObserverStub as unknown as typeof ResizeObserver;
   Element.prototype.scrollIntoView ??= function scrollIntoView() {};
+  // jsdom has no canvas; the heat layer draws nothing without a 2D context.
+  HTMLCanvasElement.prototype.getContext = (() => null) as typeof HTMLCanvasElement.prototype.getContext;
 }
 
-afterEach(() => cleanup());
+// The URL (search state) and localStorage (saved homes, viewed history) outlive
+// a render in jsdom, so every test starts from a clean page.
+afterEach(() => {
+  cleanup();
+  window.history.replaceState(null, '', '/');
+  window.localStorage.clear();
+});

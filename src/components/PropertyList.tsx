@@ -12,6 +12,9 @@ interface Props {
   onOpenDetails: (id: string) => void;
   onHover: (id: string | null) => void;
   onClearFilters: () => void;
+  isSaved: (id: string) => boolean;
+  onToggleSave: (id: string) => void;
+  viewed: ReadonlySet<string>;
 }
 
 export function PropertyList({
@@ -23,6 +26,9 @@ export function PropertyList({
   onOpenDetails,
   onHover,
   onClearFilters,
+  isSaved,
+  onToggleSave,
+  viewed,
 }: Props) {
   // Bring the selected card into view (e.g. after a marker click).
   useEffect(() => {
@@ -59,6 +65,9 @@ export function PropertyList({
               onActivate={onActivate}
               onOpenDetails={onOpenDetails}
               onHover={onHover}
+              saved={isSaved(p.id)}
+              onToggleSave={onToggleSave}
+              viewed={viewed.has(p.id)}
             />
           </li>
         ))}

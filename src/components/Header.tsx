@@ -1,13 +1,16 @@
 import { t } from '../i18n/en';
+import { HeartIcon } from './icons';
 
 interface Props {
   city: string | 'all';
   cities: readonly string[];
   onCityChange: (city: string | 'all') => void;
+  savedCount: number;
+  onOpenSaved: () => void;
 }
 
 /** Brand, city switcher and demo notice. */
-export function Header({ city, cities, onCityChange }: Props) {
+export function Header({ city, cities, onCityChange, savedCount, onOpenSaved }: Props) {
   const tabs: { value: string | 'all'; label: string }[] = [
     { value: 'all', label: t.nav.allMarkets },
     ...cities.map((c) => ({ value: c, label: c })),
@@ -48,6 +51,17 @@ export function Header({ city, cities, onCityChange }: Props) {
         <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true" />
         {t.demoBadge}
       </p>
+      <button
+        type="button"
+        data-saved-trigger
+        onClick={onOpenSaved}
+        aria-label={t.saved.openLabel(savedCount)}
+        className="flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-line-strong pl-3 pr-3.5 text-[13px] text-ink transition hover:border-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      >
+        <HeartIcon width={15} height={15} fill={savedCount > 0 ? 'currentColor' : 'none'} className={savedCount > 0 ? 'text-accent' : ''} />
+        <span className="hidden sm:inline">{t.saved.open}</span>
+        <span className="tabular">{savedCount}</span>
+      </button>
     </header>
   );
 }

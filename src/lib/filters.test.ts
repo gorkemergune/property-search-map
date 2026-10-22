@@ -530,3 +530,54 @@ describe('quick presets', () => {
     }
   });
 });
+
+describe('rental suitability filters', () => {
+  const rent = (patch: Partial<Filters>) => applyFilters(properties, f({ pricePeriod: 'monthly', ...patch }));
+  const rentals = rent({});
+
+  it('keeps only listings that state couples are welcome', () => {
+    const r = rent({ couplesWelcome: true });
+    expect(r.length).toBeGreaterThan(0);
+    expect(r.every((p) => p.couplesWelcome === true)).toBe(true);
+    expect(rentals.some((p) => p.couplesWelcome === false)).toBe(true);
+    expect(rentals.some((p) => p.couplesWelcome === undefined)).toBe(true);
+  });
+
+  it('matches income check required / not required only on explicit statements', () => {
+    const required = rent({ incomeCheck: 'required' });
+    const notRequired = rent({ incomeCheck: 'not_required' });
+    const unknown = rentals.filter((p) => p.regularIncomeRequired === undefined);
+    expect(required.every((p) => p.regularIncomeRequired === true)).toBe(true);
+    expect(notRequired.every((p) => p.regularIncomeRequired === false)).toBe(true);
+    expect(required.length && notRequired.length && unknown.length).toBeGreaterThan(0);
+    expect(required.length + notRequired.length + unknown.length).toBe(rentals.length);
+  });
+
+  it.each(['salaried', 'civil_servants', 'teachers'] as const)('finds listings that welcome %s', (group) => {
+    const r = rent({ applicantsWelcome: [group] });
+    expect(r.length).toBeGreaterThan(0);
+    expect(r.every((p) => p.applicantsWelcome?.includes(group))).toBe(true);
+  });
+
+  it('matches any selected applicant group and never an unstated or empty list', () => {
+    const r = rent({ applicantsWelcome: ['teachers', 'civil_servants'] });
+    expect(r.every((p) => p.applicantsWelcome!.some((g) => g === 'teachers' || g === 'civil_servants'))).toBe(true);
+    expect(r.some((p) => !p.applicantsWelcome?.length)).toBe(false);
+  });
+
+  it('shows chips, removes them one by one, and clears outside Rent', () => {
+    const rentFilters = f({ pricePeriod: 'monthly', couplesWelcome: true, incomeCheck: 'not_required', applicantsWelcome: ['teachers'] });
+    const chips = getActiveChips(rentFilters);
+    expect(chips.map((c) => c.label)).toEqual(expect.arrayContaining(['Couples welcome', 'No income check', 'Welcomes teachers']));
+    for (const chip of chips.filter((c) => c.key !== 'period')) {
+      expect(getActiveChips(updateFilters(rentFilters, chip.remove, CITY_INDEX)).some((c) => c.key === chip.key)).toBe(false);
+    }
+    expect(updateFilters(rentFilters, { pricePeriod: 'total' }, CITY_INDEX)).toMatchObject({
+      couplesWelcome: false,
+      incomeCheck: 'any',
+      applicantsWelcome: [],
+    });
+    // Inert outside the Rent context.
+    expect(applyFilters(properties, f({ couplesWelcome: true, incomeCheck: 'required' }))).toHaveLength(200);
+  });
+});

@@ -72,6 +72,14 @@ export type Tenure = (typeof TENURES)[number];
 export const BILLS = ['electricity', 'gas', 'water', 'internet'] as const;
 export type Bill = (typeof BILLS)[number];
 
+/**
+ * Applicant groups a rental listing says it welcomes. Deliberately "welcome"
+ * only: a listing that *requires* a salary or a given job is in effect a
+ * blanket "no benefits" rule, which this app does not offer as a search term.
+ */
+export const APPLICANT_GROUPS = ['salaried', 'civil_servants', 'teachers'] as const;
+export type ApplicantGroup = (typeof APPLICANT_GROUPS)[number];
+
 /** Kind of outdoor space on a sale listing. A balcony alone does not count as `hasGarden`. */
 export const OUTDOOR_SPACES = ['private_garden', 'shared_garden', 'balcony', 'terrace'] as const;
 export type OutdoorSpace = (typeof OUTDOOR_SPACES)[number];
@@ -160,6 +168,16 @@ export interface Property {
   hasLift?: boolean;
   /** Wet room or adapted bathroom. */
   accessibleBathroom?: boolean;
+  /**
+   * Suitability terms the listing states. They describe the listing, never the
+   * visitor, and do not decide anyone's eligibility.
+   */
+  /** Couples (including newlyweds) welcome. No marital status is implied or needed. */
+  couplesWelcome?: boolean;
+  /** Asks for proof of regular income (from any lawful source, including benefits or pension). */
+  regularIncomeRequired?: boolean;
+  /** Applicant groups the listing names as welcome; `[]` = names none. */
+  applicantsWelcome?: ApplicantGroup[];
 
   // --- Sale listings only (`pricePeriod === 'total'`) ---
   /** Freehold / leasehold / share of freehold. */

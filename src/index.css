@@ -152,6 +152,13 @@ body {
 }
 
 /* Low zoom: dots only, so city clusters stay readable. */
+.price-marker.is-muted {
+  opacity: 0.55;
+}
+.heat-layer {
+  pointer-events: none;
+}
+
 .price-marker.is-dot {
   width: 12px;
   height: 12px;

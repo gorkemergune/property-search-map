@@ -5,6 +5,8 @@ import 'leaflet/dist/leaflet.css';
 import { DEFAULT_CENTER, DEFAULT_ZOOM, MAP_MAX_ZOOM, TILE_ATTRIBUTION, TILE_URL } from '../config/map';
 import { t } from '../i18n/en';
 import { formatMarkerPrice, formatPrice } from '../lib/format';
+import type { HeatPoint } from '../lib/heat';
+import { HeatLayer, type HeatStyle } from './HeatLayer';
 import type { Property } from '../types/property';
 
 /** Below this zoom, price pills would pile up, so markers render as dots. */
@@ -23,6 +25,8 @@ interface Props {
   flyTarget: FlyTarget | null;
   onSelect: (id: string) => void;
   onHover: (id: string | null) => void;
+  /** Heat layer drawn under the markers; markers shrink to quiet dots while it is on. */
+  heat?: { points: HeatPoint[]; style: HeatStyle } | null;
 }
 
 type MarkerState = 'default' | 'hovered' | 'selected';
@@ -30,8 +34,8 @@ type MarkerState = 'default' | 'hovered' | 'selected';
 const escapeHtml = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
-function markerIcon(p: Property, state: MarkerState, showPrice: boolean): L.DivIcon {
-  const classes = ['price-marker', `is-${state}`, showPrice ? '' : 'is-dot', p.status === 'available' ? '' : 'is-inactive']
+function markerIcon(p: Property, state: MarkerState, showPrice: boolean, muted: boolean): L.DivIcon {
+  const classes = ['price-marker', `is-${state}`, showPrice ? '' : 'is-dot', muted ? 'is-muted' : '', p.status === 'available' ? '' : 'is-inactive']
     .filter(Boolean)
     .join(' ');
   return L.divIcon({
@@ -41,7 +45,7 @@ function markerIcon(p: Property, state: MarkerState, showPrice: boolean): L.DivI
   });
 }
 
-export function PropertyMap({ properties, selectedId, hoveredId, flyTarget, onSelect, onHover }: Props) {
+export function PropertyMap({ properties, selectedId, hoveredId, flyTarget, onSelect, onHover, heat = null }: Props) {
   // Show a notice when tiles fail and none have loaded (offline, blocked or provider down).
   const [tiles, setTiles] = useState({ loaded: 0, failed: 0 });
   const tileHandlers = useMemo<L.LeafletEventHandlerFnMap>(
@@ -66,7 +70,15 @@ export function PropertyMap({ properties, selectedId, hoveredId, flyTarget, onSe
       >
         <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} maxZoom={MAP_MAX_ZOOM} eventHandlers={tileHandlers} />
         <ZoomControl position="bottomright" />
-        <Markers properties={properties} selectedId={selectedId} hoveredId={hoveredId} onSelect={onSelect} onHover={onHover} />
+        {heat && <HeatLayer points={heat.points} style={heat.style} />}
+        <Markers
+          properties={properties}
+          selectedId={selectedId}
+          hoveredId={hoveredId}
+          onSelect={onSelect}
+          onHover={onHover}
+          muted={heat !== null}
+        />
         <ViewController properties={properties} target={flyTarget} />
       </MapContainer>
       {tilesUnavailable && (
@@ -93,11 +105,12 @@ function Markers({
   hoveredId,
   onSelect,
   onHover,
-}: Pick<Props, 'properties' | 'selectedId' | 'hoveredId' | 'onSelect' | 'onHover'>) {
+  muted,
+}: Pick<Props, 'properties' | 'selectedId' | 'hoveredId' | 'onSelect' | 'onHover'> & { muted: boolean }) {
   const map = useMap();
   const [zoom, setZoom] = useState(() => map.getZoom());
   useMapEvents({ zoomend: () => setZoom(map.getZoom()) });
-  const showPrice = zoom >= PRICE_LABEL_MIN_ZOOM;
+  const showPrice = zoom >= PRICE_LABEL_MIN_ZOOM && !muted;
 
   const [focusId, setFocusId] = useState<string | null>(null);
   const inResults = (id: string | null) => id !== null && properties.some((p) => p.id === id);
@@ -197,6 +210,7 @@ function Markers({
         // Selected and hovered markers draw above neighbours.
         zIndexOffset={state === 'selected' ? 1000 : state === 'hovered' ? 500 : 0}
         showPrice={showPrice}
+        muted={muted && state === 'default'}
         onSelect={onSelect}
         onHover={onHover}
       />
@@ -210,6 +224,7 @@ function PriceMarker({
   tabbable,
   zIndexOffset,
   showPrice,
+  muted,
   onSelect,
   onHover,
 }: {
@@ -218,11 +233,12 @@ function PriceMarker({
   tabbable: boolean;
   zIndexOffset: number;
   showPrice: boolean;
+  muted: boolean;
   onSelect: (id: string) => void;
   onHover: (id: string | null) => void;
 }) {
   const marker = useRef<L.Marker>(null);
-  const icon = useMemo(() => markerIcon(p, state, showPrice), [p, state, showPrice]);
+  const icon = useMemo(() => markerIcon(p, state, showPrice, muted), [p, state, showPrice, muted]);
   const handlers = useMemo<L.LeafletEventHandlerFnMap>(
     () => ({
       click: () => onSelect(p.id),
