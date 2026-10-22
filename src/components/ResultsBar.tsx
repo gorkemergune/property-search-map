@@ -1,7 +1,7 @@
 import { t } from '../i18n/en';
-import { SORT_KEYS, isPriceSort, type FilterChip, type SortKey } from '../lib/filters';
+import { SORT_KEYS, isPriceSort, type FilterChip, type QuickPreset, type SortKey } from '../lib/filters';
 import type { PricePeriod } from '../types/property';
-import { CloseIcon } from './icons';
+import { CloseIcon, SlidersIcon } from './icons';
 
 interface Props {
   place: string;
@@ -13,6 +13,9 @@ interface Props {
   chips: FilterChip[];
   onRemoveChip: (chip: FilterChip) => void;
   onClearAll: () => void;
+  presets: { preset: QuickPreset; active: boolean }[];
+  onTogglePreset: (preset: QuickPreset) => void;
+  onOpenFilters: () => void;
 }
 
 /** Results heading (display serif), count, sort and the active-filter chips. */
@@ -26,6 +29,9 @@ export function ResultsBar({
   chips,
   onRemoveChip,
   onClearAll,
+  presets,
+  onTogglePreset,
+  onOpenFilters,
 }: Props) {
   return (
     <div className="pb-5">
@@ -58,6 +64,35 @@ export function ResultsBar({
         </div>
       </div>
       {!priceSortEnabled && <p className="sr-only">{t.sort.priceNeedsMarket}</p>}
+
+      {/* Quick filters scroll sideways on phones instead of wrapping into several rows. */}
+      <div
+        role="group"
+        aria-label={t.presets.label}
+        className="scroll-quiet -mx-4 mt-4 flex gap-1.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
+      >
+        {presets.map(({ preset, active }) => (
+          <button
+            key={preset.key}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onTogglePreset(preset)}
+            className={`h-8 shrink-0 rounded-full border px-3 text-[13px] transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+              active ? 'border-ink bg-ink text-white' : 'border-line-strong bg-white text-ink-soft hover:border-ink'
+            }`}
+          >
+            {preset.label}
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={onOpenFilters}
+          className="flex h-8 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-[13px] font-medium text-accent hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          <SlidersIcon width={13} height={13} />
+          {t.presets.more}
+        </button>
+      </div>
 
       {chips.length > 0 && (
         <div className="mt-4 flex flex-wrap items-center gap-1.5">

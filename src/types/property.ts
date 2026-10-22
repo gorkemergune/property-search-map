@@ -53,12 +53,32 @@ export const SQFT_PER_SQM = 10.7639;
 export const EPC_RATINGS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'] as const;
 export type EpcRating = (typeof EPC_RATINGS)[number];
 
+/** Nation within the UK. Tenure, deposit and licensing rules differ between them. */
+export const NATIONS = ['england', 'wales', 'scotland', 'northern_ireland'] as const;
+export type Nation = (typeof NATIONS)[number];
+
 /**
- * UK ownership structure. Houses are usually freehold, apartments usually
- * leasehold; "share of freehold" is a common hybrid for mansion blocks.
+ * UK ownership structure. In England and Wales houses are usually freehold and
+ * flats leasehold; "share of freehold" is a common hybrid for mansion blocks.
+ * Scotland abolished residential leasehold, so Scottish homes are owned
+ * outright (heritable title) and never carry lease length or ground rent.
  */
-export const TENURES = ['freehold', 'leasehold', 'share_of_freehold'] as const;
+export const TENURES = ['freehold', 'leasehold', 'share_of_freehold', 'outright'] as const;
+/** Tenures that come with a lease, and so with lease length, service charge and ground rent. */
+export const LEASE_TENURES: readonly Tenure[] = ['leasehold', 'share_of_freehold'];
 export type Tenure = (typeof TENURES)[number];
+
+/** Utilities a rent can include. "All bills" is never a value: each bill is recorded on its own. */
+export const BILLS = ['electricity', 'gas', 'water', 'internet'] as const;
+export type Bill = (typeof BILLS)[number];
+
+/** Kind of outdoor space on a sale listing. A balcony alone does not count as `hasGarden`. */
+export const OUTDOOR_SPACES = ['private_garden', 'shared_garden', 'balcony', 'terrace'] as const;
+export type OutdoorSpace = (typeof OUTDOOR_SPACES)[number];
+
+/** Kind of parking on a sale listing. Permit/street parking alone does not count as `hasParking`. */
+export const PARKING_TYPES = ['driveway', 'garage', 'allocated', 'permit'] as const;
+export type ParkingType = (typeof PARKING_TYPES)[number];
 
 /**
  * Bedroom count. `0` means a studio. Filters treat `5` as "5+", so values
@@ -84,6 +104,7 @@ export interface Property {
   neighborhood: string;
   city: string;
   countryCode: CountryCode;
+  nation: Nation;
   type: PropertyType;
   bedrooms: Bedrooms;
   /** Full or shared bathrooms, at least 1. */
@@ -105,14 +126,60 @@ export interface Property {
   hasGarden: boolean;
   /** Dedicated parking (off-street, driveway or garage). */
   hasParking: boolean;
-  /** Freehold / leasehold / share of freehold. Sale listings only. */
-  tenure?: Tenure;
-  /** Newly built (within last 2 years) or off-plan. Sale listings only. */
-  newBuild?: boolean;
-  /** Landlord accepts pets. Rentals only. */
-  petsAllowed?: boolean;
-  /** Utilities (electricity/gas/water) included in the rent. Rentals only. */
-  billsIncluded?: boolean;
-  /** ISO date (YYYY-MM-DD) tenancy can start. Rentals only. */
+  /**
+   * Optional facts below follow one rule: `undefined` means the listing does not
+   * say, which is different from `false`, `0` or an empty list. Filters and the
+   * listing summary never treat a missing value as a yes or a no.
+   */
+
+  // --- Rentals only (`pricePeriod === 'monthly'`) ---
+  /** ISO date (YYYY-MM-DD) tenancy can start. */
   availableFrom?: string;
+  /** `true` pets accepted, `false` no pets, `undefined` policy not stated. */
+  petsAllowed?: boolean;
+  /** Student tenants accepted / student-focused home. */
+  studentFriendly?: boolean;
+  /** Let to sharers (unrelated housemates on one tenancy). */
+  sharersAccepted?: boolean;
+  /** Holds a council HMO licence. Only `true` when the listing says so. */
+  hmoLicensed?: boolean;
+  /** Short lets (under 6 months) considered. */
+  shortLetsAccepted?: boolean;
+  /**
+   * Tenancy deposit in weeks of rent; `0` = no deposit. England caps it at 5 weeks
+   * below £50k/yr rent (6 above); Scotland at two months' rent (~8.7 weeks).
+   */
+  depositWeeks?: number;
+  /** Bills included in the rent; `[]` = none included. */
+  includedBills?: Bill[];
+  /** Dedicated workspace or home office room. */
+  homeOffice?: boolean;
+  /** Step-free route from the street to the front door. */
+  stepFreeAccess?: boolean;
+  /** Building has a lift. */
+  hasLift?: boolean;
+  /** Wet room or adapted bathroom. */
+  accessibleBathroom?: boolean;
+
+  // --- Sale listings only (`pricePeriod === 'total'`) ---
+  /** Freehold / leasehold / share of freehold. */
+  tenure?: Tenure;
+  /** Newly built (within last 2 years) or off-plan. */
+  newBuild?: boolean;
+  /** New builds only: `true` not yet built, `false` completed. */
+  offPlan?: boolean;
+  /** New builds only: ISO date of completion (expected when off-plan). */
+  completionDate?: string;
+  /** Seller is not buying onward and there is no chain. */
+  chainFree?: boolean;
+  /** `LEASE_TENURES` only (never in Scotland): years left on the lease. */
+  leaseYearsRemaining?: number;
+  /** `LEASE_TENURES` only: annual service charge in `currency`. */
+  serviceChargePerYear?: number;
+  /** `LEASE_TENURES` only: annual ground rent in `currency`; `0` = none (peppercorn). */
+  groundRentPerYear?: number;
+  /** Types of outdoor space; `[]` = none. */
+  outdoorSpace?: OutdoorSpace[];
+  /** Types of parking; `[]` = none. */
+  parking?: ParkingType[];
 }

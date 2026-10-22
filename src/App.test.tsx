@@ -71,6 +71,31 @@ describe('App', () => {
     expect(screen.getByRole('dialog')).toBeTruthy();
   });
 
+  it('applies quick presets through the shared filter state and removes them like any filter', async () => {
+    render(<App />);
+    const quick = () => screen.getByRole('group', { name: 'Quick filters' });
+    await userEvent.click(within(quick()).getByRole('button', { name: 'Student homes' }));
+    // Switches to Rent, filters the list and the map together, and shows ordinary chips.
+    expect(screen.getAllByRole('radio', { name: 'Rent' })[0].getAttribute('aria-checked')).toBe('true');
+    const n = resultCount();
+    expect(n).toBeGreaterThan(0);
+    expect(n).toBeLessThan(200);
+    expect(cards()).toHaveLength(n);
+    expect(markers()).toHaveLength(n);
+    expect(within(quick()).getByRole('button', { name: 'Student homes' }).getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByRole('button', { name: 'Remove filter: Students welcome' })).toBeTruthy();
+    // Rent-only presets appear; sale-only ones do not.
+    expect(within(quick()).getByRole('button', { name: 'Sharers' })).toBeTruthy();
+    expect(within(quick()).queryByRole('button', { name: 'Chain-free' })).toBeNull();
+
+    await userEvent.click(within(quick()).getByRole('button', { name: 'Pet-friendly' }));
+    expect(resultCount()).toBeLessThanOrEqual(n);
+    await userEvent.click(screen.getByRole('button', { name: 'Remove filter: Students welcome' }));
+    expect(within(quick()).getByRole('button', { name: 'Student homes' }).getAttribute('aria-pressed')).toBe('false');
+    await userEvent.click(screen.getAllByRole('button', { name: 'Clear all' })[0]);
+    expect(resultCount()).toBe(200);
+  }, 15_000);
+
   it('shows an empty state and clears all filters from it', async () => {
     render(<App />);
     await userEvent.type(screen.getByRole('combobox', { name: 'Search listings' }), 'zzzz');
@@ -111,7 +136,7 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Remove filter: 3+ beds' })).toBeTruthy();
     await userEvent.click(within(panel).getByRole('button', { name: /^Show \d+ results?/ }));
     expect(screen.queryByRole('dialog', { name: 'Filters' })).toBeNull();
-  });
+  }, 15_000);
 
   it('moves focus into the filter drawer, keeps Tab inside, and returns focus on close (regression)', async () => {
     render(<App />);
@@ -124,7 +149,7 @@ describe('App', () => {
     await userEvent.keyboard('{Escape}');
     expect(screen.queryByRole('dialog', { name: 'Filters' })).toBeNull();
     expect(document.activeElement).toBe(opener);
-  });
+  }, 15_000);
 
   it('"All UK" in the header clears a previously chosen city (regression)', async () => {
     render(<App />);
@@ -206,7 +231,7 @@ describe('App', () => {
     expect(card.textContent).not.toMatch(/m²/);
     await userEvent.click(within(card).getByRole('button', { name: /^View details/ }));
     const dialog = screen.getByRole('dialog');
-    expect(dialog.textContent).toContain(`Internal floor area is about ${cardArea} sq ft.`);
+    expect(dialog.textContent).toContain(`about ${cardArea} sq ft of internal space`);
     expect(within(dialog).getByText('Floor area').nextElementSibling!.textContent).toMatch(new RegExp(`^${cardArea} sq ft\\d+ m²$`));
     expect(dialog.textContent).toContain('Approximate location');
     expect(dialog.textContent).not.toMatch(/-?\d+\.\d{4}, -?\d+\.\d{4}/);

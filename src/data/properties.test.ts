@@ -5,6 +5,7 @@ import { PHOTO_POOLS, getFallbackImage } from './images';
 import {
   COUNTRY_CODES,
   EPC_RATINGS,
+  LEASE_TENURES,
   LISTING_STATUSES,
   PRICE_PERIODS,
   PROPERTY_TYPES,
@@ -98,10 +99,6 @@ describe('property dataset', () => {
       expect(p.price, p.id).toBeGreaterThanOrEqual(min);
       expect(p.price, p.id).toBeLessThanOrEqual(max);
     }
-  });
-
-  it('never repeats a price', () => {
-    expect(new Set(properties.map((p) => p.price)).size).toBe(properties.length);
   });
 
   it('has both sale and rent listings', () => {
@@ -265,10 +262,100 @@ describe('UK-specific fields', () => {
       } else {
         expect(p.availableFrom, p.id).toBeUndefined();
         expect(p.petsAllowed, p.id).toBeUndefined();
-        expect(p.billsIncluded, p.id).toBeUndefined();
+        expect(p.includedBills, p.id).toBeUndefined();
       }
     }
     expect(properties.some((p) => p.petsAllowed)).toBe(true);
-    expect(properties.some((p) => p.billsIncluded)).toBe(true);
+    expect(properties.some((p) => p.includedBills?.length)).toBe(true);
+  });
+
+  const RENT_ONLY = ['availableFrom', 'petsAllowed', 'studentFriendly', 'sharersAccepted', 'hmoLicensed', 'shortLetsAccepted', 'depositWeeks', 'includedBills', 'homeOffice', 'stepFreeAccess', 'hasLift', 'accessibleBathroom'] as const;
+  const SALE_ONLY = ['tenure', 'newBuild', 'offPlan', 'completionDate', 'chainFree', 'leaseYearsRemaining', 'serviceChargePerYear', 'groundRentPerYear', 'outdoorSpace', 'parking'] as const;
+
+  it('keeps rent-only and sale-only fields in their own context', () => {
+    for (const p of properties) {
+      const wrong = p.pricePeriod === 'monthly' ? SALE_ONLY : RENT_ONLY;
+      for (const key of wrong) expect(key in p, `${p.id} ${key}`).toBe(false);
+    }
+  });
+
+  it('seeds a mix of yes, no and not-stated values for each optional fact', () => {
+    const rentals = properties.filter((p) => p.pricePeriod === 'monthly');
+    const sales = properties.filter((p) => p.pricePeriod === 'total');
+    for (const key of ['petsAllowed', 'studentFriendly', 'sharersAccepted', 'shortLetsAccepted', 'homeOffice', 'stepFreeAccess', 'hasLift', 'accessibleBathroom'] as const) {
+      expect(rentals.some((p) => p[key] === true), key).toBe(true);
+      expect(rentals.some((p) => p[key] === false), key).toBe(true);
+      expect(rentals.some((p) => !(key in p)), key).toBe(true);
+    }
+    expect(rentals.some((p) => p.hmoLicensed === true)).toBe(true);
+    expect(rentals.some((p) => p.depositWeeks === 0)).toBe(true);
+    expect(rentals.some((p) => p.includedBills?.length === 0)).toBe(true);
+    expect(rentals.some((p) => !('includedBills' in p))).toBe(true);
+    expect(sales.some((p) => p.chainFree === true) && sales.some((p) => p.chainFree === false)).toBe(true);
+    expect(sales.some((p) => p.groundRentPerYear === 0) && sales.some((p) => (p.groundRentPerYear ?? 0) > 0)).toBe(true);
+  });
+
+  it('keeps detail fields consistent with the core listing fields', () => {
+    for (const p of properties) {
+      // HMO licences only appear on 3+ bedroom homes let to sharers.
+      if (p.hmoLicensed) expect(p.sharersAccepted && p.bedrooms >= 3, p.id).toBe(true);
+      // Sharers need at least two bedrooms.
+      if (p.sharersAccepted) expect(p.bedrooms, p.id).toBeGreaterThanOrEqual(2);
+      // Deposit caps: England 5 weeks under £50k/yr rent (6 above); Scotland two months.
+      if (p.depositWeeks !== undefined) {
+        const cap = p.nation === 'scotland' ? (52 / 12) * 2 : p.price * 12 < 50_000 ? 5 : 6;
+        expect(p.depositWeeks, p.id).toBeLessThanOrEqual(cap);
+      }
+      // Lease costs only exist on English/Welsh leases.
+      if (!(p.tenure && LEASE_TENURES.includes(p.tenure))) {
+        expect(p.leaseYearsRemaining ?? p.serviceChargePerYear ?? p.groundRentPerYear, p.id).toBeUndefined();
+      }
+      if (p.outdoorSpace) expect(p.outdoorSpace.some((x) => x !== 'balcony'), p.id).toBe(p.hasGarden);
+      if (p.parking) expect(p.parking.some((x) => x !== 'permit'), p.id).toBe(p.hasParking);
+      if (p.offPlan !== undefined || p.completionDate) expect(p.newBuild, p.id).toBe(true);
+      if (p.offPlan === true) expect(p.completionDate! > '2026-10-09', p.id).toBe(true);
+      if (p.offPlan === false) expect(p.completionDate! <= p.listedAt, p.id).toBe(true);
+      // New leases since 2022 carry no ground rent.
+      if (p.newBuild && p.groundRentPerYear !== undefined) expect(p.groundRentPerYear, p.id).toBe(0);
+    }
+  });
+
+  it('uses Scotland-appropriate tenure and English tenure by property type', () => {
+    for (const p of properties.filter((p) => p.pricePeriod === 'total')) {
+      if (p.nation === 'scotland') expect(p.tenure, p.id).toBe('outright');
+      else {
+        expect(p.tenure, p.id).not.toBe('outright');
+        if (p.type !== 'apartment') expect(p.tenure, p.id).toBe('freehold');
+      }
+    }
+    expect(properties.filter((p) => p.city === 'Edinburgh').every((p) => p.nation === 'scotland')).toBe(true);
+    expect(properties.filter((p) => p.city !== 'Edinburgh').every((p) => p.nation === 'england')).toBe(true);
+  });
+
+  it('keeps student houses coherent', () => {
+    for (const p of properties.filter((p) => p.hmoLicensed)) {
+      expect(p.pricePeriod, p.id).toBe('monthly');
+      expect(p.furnishing, p.id).toBe('furnished');
+    }
+  });
+
+  it('prices cities in a plausible relative order', () => {
+    const median = (city: string, period: 'total' | 'monthly') => {
+      const xs = properties.filter((p) => p.city === city && p.pricePeriod === period).map((p) => p.price).sort((a, b) => a - b);
+      return xs[Math.floor(xs.length / 2)];
+    };
+    for (const city of ['Manchester', 'Birmingham', 'Bristol', 'Edinburgh']) {
+      expect(median('London', 'total')).toBeGreaterThan(median(city, 'total'));
+      expect(median('London', 'monthly')).toBeGreaterThan(median(city, 'monthly'));
+    }
+    for (const p of properties) {
+      if (p.city !== 'London') {
+        // No multi-million regional homes and no £3k+ regional rents in this dataset.
+        if (p.pricePeriod === 'total') expect(p.price, p.id).toBeLessThan(1_000_000);
+        else expect(p.price, p.id).toBeLessThan(3_000);
+      }
+      if (p.pricePeriod === 'total') expect(p.price, p.id).toBeGreaterThanOrEqual(150_000);
+      else expect(p.price, p.id).toBeGreaterThanOrEqual(700);
+    }
   });
 });

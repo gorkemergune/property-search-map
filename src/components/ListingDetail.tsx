@@ -3,6 +3,7 @@ import { MARKETS } from '../data/markets';
 import { useDialogFocus } from '../hooks/useDialogFocus';
 import { t } from '../i18n/en';
 import { formatAmount, formatListedDate, formatPropertyArea } from '../lib/format';
+import { buildListingSummary } from '../lib/summary';
 import type { AreaUnit, Property } from '../types/property';
 import { CloseIcon, MapIcon } from './icons';
 import { PropertyImage } from './PropertyImage';
@@ -29,6 +30,8 @@ export function ListingDetail({ property: p, areaUnit, onClose, onShowOnMap }: P
   const otherUnit: AreaUnit = areaUnit === 'sqm' ? 'sqft' : 'sqm';
   const market = MARKETS[p.countryCode];
   const titleId = `detail-title-${p.id}`;
+  const aboutId = `detail-about-${p.id}`;
+  const summary = buildListingSummary(p, areaUnit);
 
   return (
     <div className="fixed inset-0 z-1250 flex" role="dialog" aria-modal="true" aria-labelledby={titleId}>
@@ -97,6 +100,7 @@ export function ListingDetail({ property: p, areaUnit, onClose, onShowOnMap }: P
               <span className="block text-xs font-normal text-muted">{formatPropertyArea(p, otherUnit)}</span>
             </Fact>
             <Fact label={t.detail.type}>{t.propertyTypes[p.type]}</Fact>
+            <Fact label={t.detail.epc}>{p.epcRating}</Fact>
             <Fact label={t.detail.status}>{t.statuses[p.status]}</Fact>
             {p.furnishing && <Fact label={t.detail.furnishing}>{t.furnishing[p.furnishing]}</Fact>}
             <Fact label={t.detail.listed}>{formatListedDate(p.listedAt)}</Fact>
@@ -106,10 +110,39 @@ export function ListingDetail({ property: p, areaUnit, onClose, onShowOnMap }: P
             </Fact>
           </dl>
 
-          <h3 className="mt-8 text-[13px] font-semibold text-ink">{t.detail.about}</h3>
-          <p className="mt-2 max-w-prose text-[15px] leading-relaxed text-ink-soft">
-            {p.description} {t.detail.areaSentence(formatPropertyArea(p, areaUnit))}
-          </p>
+          <section aria-labelledby={aboutId} className="mt-8">
+            <h3 id={aboutId} className="text-[13px] font-semibold text-ink">
+              {t.detail.about}
+            </h3>
+            <p className="mt-3 text-xs font-medium uppercase tracking-[0.06em] text-muted">{t.summary.heading}</p>
+            <div className="mt-1.5 max-w-prose space-y-2 text-[15px] leading-relaxed text-ink-soft">
+              {summary.overview.map((s) => (
+                <p key={s}>{s}</p>
+              ))}
+            </div>
+
+            <h4 className="mt-6 text-xs font-medium uppercase tracking-[0.06em] text-muted">{t.details.heading}</h4>
+            <div className="mt-2 grid gap-x-8 gap-y-5 sm:grid-cols-2">
+              {summary.groups.map((group) => (
+                <div key={group.key} role="group" aria-labelledby={`${aboutId}-${group.key}`}>
+                  <p id={`${aboutId}-${group.key}`} className="text-[13px] font-semibold text-ink">
+                    {group.title}
+                  </p>
+                  <dl className="mt-1.5 divide-y divide-line border-y border-line">
+                    {group.rows.map((row) => (
+                      <div key={row.label} className="flex items-baseline justify-between gap-4 py-2 text-sm">
+                        <dt className="text-muted">{row.label}</dt>
+                        <dd className={`text-right tabular ${row.value === null ? 'text-faint' : 'font-medium text-ink'}`}>
+                          {row.value ?? t.details.notStated}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 max-w-prose text-xs text-muted">{t.summary.note}</p>
+          </section>
 
           <h3 className="mt-8 text-[13px] font-semibold text-ink">{t.detail.location}</h3>
           <p className="mt-2 text-[15px] text-ink-soft">

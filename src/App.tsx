@@ -19,7 +19,9 @@ import {
   effectiveSort,
   getActiveChips,
   getPriceContext,
+  presetsFor,
   sortProperties,
+  togglePreset,
   updateFilters,
   type Filters,
   type SortKey,
@@ -43,6 +45,7 @@ export default function App() {
   // The list and the map both render exactly this array, so counts and markers always agree.
   const results = useMemo(() => sortProperties(applyFilters(properties, filters), activeSort), [filters, activeSort]);
   const chips = useMemo(() => getActiveChips(filters), [filters]);
+  const presets = presetsFor(filters.pricePeriod).map((preset) => ({ preset, active: preset.isActive(filters) }));
   const selection = useListingSelection(results);
 
   const place = filters.city !== 'all' ? filters.city : t.results.everywhere;
@@ -78,6 +81,9 @@ export default function App() {
             chips={chips}
             onRemoveChip={(chip) => change(chip.remove)}
             onClearAll={clearAll}
+            presets={presets}
+            onTogglePreset={(preset) => change(togglePreset(preset, filters))}
+            onOpenFilters={() => setFiltersOpen(true)}
           />
           <PropertyList
             properties={results}

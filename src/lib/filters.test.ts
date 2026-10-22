@@ -12,6 +12,8 @@ import {
   getPriceContext,
   matchesRange,
   normalizeText,
+  presetsFor,
+  togglePreset,
   sortProperties,
   statusesFor,
   updateFilters,
@@ -324,17 +326,18 @@ describe('UK must-have features', () => {
   });
 
   it('applies pets, bills and availableBy only within the rent context', () => {
-    const pets = applyFilters(properties, f({ pricePeriod: 'monthly', petsAllowed: true }));
+    const pets = applyFilters(properties, f({ pricePeriod: 'monthly', petPolicy: 'allowed' }));
     expect(pets.every((p) => p.petsAllowed === true)).toBe(true);
 
-    const bills = applyFilters(properties, f({ pricePeriod: 'monthly', billsIncluded: true }));
-    expect(bills.every((p) => p.billsIncluded === true)).toBe(true);
+    const bills = applyFilters(properties, f({ pricePeriod: 'monthly', includedBills: ['gas'] }));
+    expect(bills.length).toBeGreaterThan(0);
+    expect(bills.every((p) => p.includedBills?.includes('gas'))).toBe(true);
 
     const soon = applyFilters(properties, f({ pricePeriod: 'monthly', availableBy: '2026-10-20' }));
     expect(soon.every((p) => p.availableFrom && p.availableFrom <= '2026-10-20')).toBe(true);
 
     // Without the rent context, these filters are inert.
-    expect(applyFilters(properties, f({ petsAllowed: true }))).toHaveLength(200);
+    expect(applyFilters(properties, f({ petPolicy: 'allowed' }))).toHaveLength(200);
     expect(applyFilters(properties, f({ availableBy: '2026-10-20' }))).toHaveLength(200);
   });
 
@@ -343,9 +346,134 @@ describe('UK must-have features', () => {
     const flipped = updateFilters(sale, { pricePeriod: 'monthly' }, CITY_INDEX);
     expect(flipped).toMatchObject({ tenure: [], newBuildOnly: false });
 
-    const rent = f({ pricePeriod: 'monthly', petsAllowed: true, billsIncluded: true, availableBy: '2026-11-01' });
+    const rent = f({ pricePeriod: 'monthly', petPolicy: 'allowed', includedBills: ['gas'], availableBy: '2026-11-01' });
     const flipped2 = updateFilters(rent, { pricePeriod: 'total' }, CITY_INDEX);
-    expect(flipped2).toMatchObject({ petsAllowed: false, billsIncluded: false, availableBy: null });
+    expect(flipped2).toMatchObject({ petPolicy: 'any', includedBills: [], availableBy: null });
+  });
+});
+
+describe('UK rental filters', () => {
+  const rent = (patch: Partial<Filters>) => applyFilters(properties, f({ pricePeriod: 'monthly', ...patch }));
+  const rentals = rent({});
+
+  it('treats an unstated pet policy as matching neither explicit policy', () => {
+    const allowed = rent({ petPolicy: 'allowed' });
+    const notAllowed = rent({ petPolicy: 'not_allowed' });
+    const unknown = rentals.filter((p) => p.petsAllowed === undefined);
+    expect(allowed.length).toBeGreaterThan(0);
+    expect(notAllowed.length).toBeGreaterThan(0);
+    expect(unknown.length).toBeGreaterThan(0);
+    expect(notAllowed.every((p) => p.petsAllowed === false)).toBe(true);
+    expect(allowed.length + notAllowed.length + unknown.length).toBe(rentals.length);
+  });
+
+  it.each(['studentFriendly', 'sharersAccepted', 'hmoLicensed', 'shortLetsAccepted', 'homeOffice', 'stepFreeAccess', 'hasLift', 'accessibleBathroom'] as const)(
+    'keeps only listings that explicitly state %s',
+    (key) => {
+      const r = rent({ [key]: true });
+      expect(r.length).toBeGreaterThan(0);
+      expect(r.length).toBeLessThan(rentals.length);
+      expect(r.every((p) => p[key] === true)).toBe(true);
+    },
+  );
+
+  it('requires every selected bill and never reads unknown bills as included', () => {
+    const r = rent({ includedBills: ['electricity', 'internet'] });
+    expect(r.length).toBeGreaterThan(0);
+    expect(r.every((p) => p.includedBills?.includes('electricity') && p.includedBills.includes('internet'))).toBe(true);
+    // Internet-only listings exist, so "internet included" is not the same as "all bills included".
+    const internet = rent({ includedBills: ['internet'] });
+    expect(internet.some((p) => !p.includedBills!.includes('gas'))).toBe(true);
+  });
+
+  it('filters by maximum deposit, keeping "no deposit" distinct from unknown', () => {
+    const none = rent({ maxDepositWeeks: 0 });
+    expect(none.length).toBeGreaterThan(0);
+    expect(none.every((p) => p.depositWeeks === 0)).toBe(true);
+    const upTo4 = rent({ maxDepositWeeks: 4 });
+    expect(upTo4.every((p) => p.depositWeeks !== undefined && p.depositWeeks <= 4)).toBe(true);
+    expect(rent({ maxDepositWeeks: 5 }).length).toBeLessThan(rentals.length);
+  });
+
+  it('clears every rent-only choice when leaving Rent, and shows a chip for each', () => {
+    const rentFilters = f({
+      pricePeriod: 'monthly',
+      petPolicy: 'not_allowed',
+      sharersAccepted: true,
+      hasLift: true,
+      includedBills: ['water'],
+      maxDepositWeeks: 5,
+    });
+    const keys = getActiveChips(rentFilters).map((c) => c.key);
+    expect(keys).toEqual(expect.arrayContaining(['pets', 'sharersAccepted', 'hasLift', 'bill-water', 'deposit']));
+    for (const chip of getActiveChips(rentFilters)) {
+      const removed = updateFilters(rentFilters, chip.remove, CITY_INDEX);
+      expect(getActiveChips(removed).some((c) => c.key === chip.key), chip.key).toBe(false);
+    }
+    for (const period of ['total', 'all'] as const) {
+      const next = updateFilters(rentFilters, { pricePeriod: period }, CITY_INDEX);
+      expect(next).toMatchObject({ petPolicy: 'any', sharersAccepted: false, hasLift: false, includedBills: [], maxDepositWeeks: null });
+    }
+  });
+});
+
+describe('UK sale filters', () => {
+  const sale = (patch: Partial<Filters>) => applyFilters(properties, f({ pricePeriod: 'total', ...patch }));
+  const sales = sale({});
+
+  it('filters chain-free sales and ignores unknown chain status', () => {
+    const r = sale({ chainFree: true });
+    expect(r.length).toBeGreaterThan(0);
+    expect(r.every((p) => p.chainFree === true)).toBe(true);
+    expect(sales.some((p) => p.chainFree === undefined)).toBe(true);
+  });
+
+  it('applies lease bounds to leaseholds only and drops leaseholds with unstated values', () => {
+    const r = sale({ minLeaseYears: 99 });
+    expect(r.some((p) => p.tenure === 'freehold')).toBe(true);
+    for (const p of r.filter((p) => p.tenure === 'leasehold' || p.tenure === 'share_of_freehold')) expect(p.leaseYearsRemaining!).toBeGreaterThanOrEqual(99);
+    expect(r.some((p) => p.tenure === 'leasehold')).toBe(true);
+    // Scottish homes have no lease, so lease bounds do not remove them.
+    expect(r.some((p) => p.tenure === 'outright')).toBe(true);
+    expect(sales.some((p) => p.tenure === 'leasehold' && (p.leaseYearsRemaining ?? 0) < 99)).toBe(true);
+
+    const noGround = sale({ maxGroundRent: 0, tenure: ['leasehold'] });
+    expect(noGround.length).toBeGreaterThan(0);
+    expect(noGround.every((p) => p.groundRentPerYear === 0)).toBe(true);
+
+    const cheap = sale({ maxServiceCharge: 2_000, tenure: ['leasehold', 'share_of_freehold'] });
+    expect(cheap.length).toBeGreaterThan(0);
+    expect(cheap.every((p) => p.serviceChargePerYear! <= 2_000)).toBe(true);
+  });
+
+  it('matches any selected outdoor space or parking type', () => {
+    const outdoor = sale({ outdoorSpace: ['balcony', 'terrace'] });
+    expect(outdoor.length).toBeGreaterThan(0);
+    expect(outdoor.every((p) => p.outdoorSpace?.some((x) => x === 'balcony' || x === 'terrace'))).toBe(true);
+    const garage = sale({ parkingTypes: ['garage'] });
+    expect(garage.length).toBeGreaterThan(0);
+    expect(garage.every((p) => p.parking?.includes('garage') && p.hasParking)).toBe(true);
+    // Compatible with the generic garden/parking must-haves.
+    expect(sale({ hasGarden: true, outdoorSpace: ['private_garden'] }).every((p) => p.hasGarden)).toBe(true);
+  });
+
+  it('separates completed new builds from off-plan ones', () => {
+    const ready = sale({ completion: 'ready' });
+    const offPlan = sale({ completion: 'off_plan' });
+    expect(ready.length).toBeGreaterThan(0);
+    expect(offPlan.length).toBeGreaterThan(0);
+    expect(ready.every((p) => p.newBuild && p.offPlan === false)).toBe(true);
+    expect(offPlan.every((p) => p.newBuild && p.offPlan === true)).toBe(true);
+  });
+
+  it('clears sale-only choices outside Buy', () => {
+    const saleFilters = f({ pricePeriod: 'total', chainFree: true, minLeaseYears: 99, outdoorSpace: ['balcony'], parkingTypes: ['garage'], completion: 'ready' });
+    expect(getActiveChips(saleFilters).map((c) => c.key)).toEqual(
+      expect.arrayContaining(['chainFree', 'lease', 'outdoor-balcony', 'parking-garage', 'completion']),
+    );
+    const next = updateFilters(saleFilters, { pricePeriod: 'monthly' }, CITY_INDEX);
+    expect(next).toMatchObject({ chainFree: false, minLeaseYears: null, outdoorSpace: [], parkingTypes: [], completion: 'any' });
+    expect(clearFilters(saleFilters)).toEqual(DEFAULT_FILTERS);
   });
 });
 
@@ -358,5 +486,47 @@ describe('date and size sorting', () => {
   it('sorts largest first', () => {
     const r = sortProperties(properties, 'area-desc');
     for (let i = 1; i < r.length; i++) expect(r[i - 1].areaSqm >= r[i].areaSqm).toBe(true);
+  });
+});
+
+describe('quick presets', () => {
+  const apply = (f0: Filters, key: string) => {
+    const preset = presetsFor(f0.pricePeriod).find((p) => p.key === key)!;
+    return updateFilters(f0, togglePreset(preset, f0), CITY_INDEX);
+  };
+
+  it('only offers presets that fit the Buy/Rent context', () => {
+    const keys = (period: Filters['pricePeriod']) => presetsFor(period).map((p) => p.key);
+    expect(keys('monthly')).toEqual(expect.arrayContaining(['students', 'pets', 'sharers', 'bills', 'accessible']));
+    expect(keys('monthly')).not.toContain('chainFree');
+    expect(keys('total')).toEqual(expect.arrayContaining(['chainFree', 'longLease']));
+    expect(keys('total')).not.toContain('students');
+  });
+
+  it('switches to the right context from "Any" and shows up as ordinary chips', () => {
+    const next = apply(DEFAULT_FILTERS, 'students');
+    expect(next).toMatchObject({ pricePeriod: 'monthly', studentFriendly: true });
+    expect(getActiveChips(next).map((c) => c.key)).toEqual(expect.arrayContaining(['period', 'studentFriendly']));
+    expect(applyFilters(properties, next).every((p) => p.pricePeriod === 'monthly' && p.studentFriendly === true)).toBe(true);
+  });
+
+  it('composes with other filters and toggles off without leaving the context', () => {
+    const base = f({ pricePeriod: 'monthly', city: 'London' });
+    const both = apply(apply(base, 'pets'), 'sharers');
+    const r = applyFilters(properties, both);
+    expect(r.length).toBeGreaterThan(0);
+    expect(r.every((p) => p.city === 'London' && p.petsAllowed === true && p.sharersAccepted === true)).toBe(true);
+    const off = apply(both, 'pets');
+    expect(off).toMatchObject({ pricePeriod: 'monthly', city: 'London', petPolicy: 'any', sharersAccepted: true });
+    expect(clearFilters(both)).toEqual(DEFAULT_FILTERS);
+  });
+
+  it('has matching listings for every preset', () => {
+    for (const period of ['monthly', 'total'] as const) {
+      for (const preset of presetsFor(period)) {
+        const r = applyFilters(properties, apply(f({ pricePeriod: period }), preset.key));
+        expect(r.length, `${period} ${preset.key}`).toBeGreaterThan(0);
+      }
+    }
   });
 });
