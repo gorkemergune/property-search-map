@@ -13,9 +13,9 @@ const firstCardButton = () => within(cards()[0] as HTMLElement).getAllByRole('bu
 describe('App', () => {
   it('renders one card and one marker per result, and keeps them in sync while filtering', async () => {
     render(<App />);
-    expect(cards()).toHaveLength(200);
-    expect(markers()).toHaveLength(200);
-    expect(resultCount()).toBe(200);
+    expect(cards()).toHaveLength(300);
+    expect(markers()).toHaveLength(300);
+    expect(resultCount()).toBe(300);
 
     await userEvent.click(screen.getAllByRole('radio', { name: 'Rent' })[0]);
     const n = resultCount();
@@ -93,7 +93,7 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Remove filter: Students welcome' }));
     expect(within(quick()).getByRole('button', { name: 'Student homes' }).getAttribute('aria-pressed')).toBe('false');
     await userEvent.click(screen.getAllByRole('button', { name: 'Clear all' })[0]);
-    expect(resultCount()).toBe(200);
+    expect(resultCount()).toBe(300);
   }, 15_000);
 
   it('shows an empty state and clears all filters from it', async () => {
@@ -102,7 +102,7 @@ describe('App', () => {
     expect(screen.getByText('No homes match these filters')).toBeTruthy();
     expect(markers()).toHaveLength(0);
     await userEvent.click(screen.getByRole('button', { name: 'Clear all filters' }));
-    expect(resultCount()).toBe(200);
+    expect(resultCount()).toBe(300);
   });
 
   it('removes chips one at a time and clears all', async () => {
@@ -116,7 +116,7 @@ describe('App', () => {
     expect(resultCount()).toBe(25);
     await userEvent.click(screen.getByRole('button', { name: 'Clear all' }));
     expect(chipNames()).toEqual([]);
-    expect(resultCount()).toBe(200);
+    expect(resultCount()).toBe(300);
   });
 
   it('switches between list and map on mobile and opens the filter panel', async () => {
@@ -156,7 +156,7 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Bristol' }));
     expect(resultCount()).toBe(20);
     await userEvent.click(screen.getByRole('button', { name: 'All UK' }));
-    expect(resultCount()).toBe(200);
+    expect(resultCount()).toBe(300);
   });
 
   it('does not reopen search suggestions when a detail opened from search closes (regression)', async () => {
@@ -180,7 +180,7 @@ describe('App', () => {
 
     it('puts a single marker in the Tab order, labelled for screen readers', () => {
       render(<App />);
-      expect(markers()).toHaveLength(200);
+      expect(markers()).toHaveLength(300);
       const [only] = tabbable();
       expect(tabbable()).toHaveLength(1);
       expect(only.dataset.listingId).toBe(cardIds()[0]);

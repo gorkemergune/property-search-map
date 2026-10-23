@@ -441,10 +441,253 @@ const edinburgh = city('GB', 'scotland', 'Edinburgh', 'gb-edi', [
   { neighborhood: 'Bruntsfield', address: 'Flat 8, 38 Placeholder Row', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 1_150, bathrooms: 1, areaSqm: 50, furnishing: 'unfurnished', status: 'let', lat: 55.9403, lng: -3.2025, listedAt: '2026-08-10', updatedAt: '2026-09-02', epcRating: 'B', hasGarden: false, hasParking: false, availableFrom: '2026-08-27', studentFriendly: true, sharersAccepted: false, depositWeeks: 8, hasLift: true, stepFreeAccess: true, couplesWelcome: true, regularIncomeRequired: true },
 ]);
 
+// ---------------------------------------------------------------------------
+// Leeds (GBP) — 14. Yorkshire capital; strong student let market around
+// Headingley and Hyde Park, family sales in the suburbs.
+// ---------------------------------------------------------------------------
+
+const leeds = city('GB', 'england', 'Leeds', 'gb-lds', [
+  // Headingley (4) — student-heavy
+  { neighborhood: 'Headingley', address: 'Flat 2, 48 Example Road', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_150, bathrooms: 1, areaSqm: 62, furnishing: 'furnished', status: 'available', lat: 53.8208, lng: -1.5750, listedAt: '2026-10-01', updatedAt: '2026-10-08', epcRating: 'C', hasGarden: false, hasParking: false, availableFrom: '2026-10-25', studentFriendly: true, sharersAccepted: true, includedBills: ['water', 'internet'], depositWeeks: 5, couplesWelcome: true },
+  { neighborhood: 'Headingley', address: 'Flat 5, 12 Sample Mews', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 825, bathrooms: 1, areaSqm: 48, furnishing: 'part_furnished', status: 'available', lat: 53.8206, lng: -1.5745, listedAt: '2026-10-03', updatedAt: '2026-10-07', epcRating: 'D', hasGarden: false, hasParking: false, availableFrom: '2026-10-28', studentFriendly: true, depositWeeks: 4, couplesWelcome: true },
+  { neighborhood: 'Headingley', address: '67 Demo Lane', type: 'house', bedrooms: 4, pricePeriod: 'monthly', price: 1_900, bathrooms: 2, areaSqm: 148, furnishing: 'furnished', status: 'let', lat: 53.8211, lng: -1.5755, listedAt: '2026-08-20', updatedAt: '2026-09-25', epcRating: 'D', hasGarden: true, hasParking: true, availableFrom: '2026-08-30', studentFriendly: true, sharersAccepted: true, hmoLicensed: true, includedBills: ['water'], depositWeeks: 5, couplesWelcome: false, regularIncomeRequired: false },
+  { neighborhood: 'Headingley', address: 'Flat 7, 33 Placeholder Row', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 215_000, bathrooms: 1, areaSqm: 68, status: 'available', lat: 53.8205, lng: -1.5758, listedAt: '2026-09-14', updatedAt: '2026-09-21', epcRating: 'C', hasGarden: false, hasParking: true, tenure: 'leasehold', leaseYearsRemaining: 95, serviceChargePerYear: 1_400, groundRentPerYear: 150, outdoorSpace: [], parking: ['allocated'] },
+
+  // City Centre (3)
+  { neighborhood: 'City Centre', address: 'Flat 12, 22 Mockup Place', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 1_075, bathrooms: 1, areaSqm: 54, furnishing: 'furnished', status: 'available', lat: 53.7996, lng: -1.5491, listedAt: '2026-10-02', updatedAt: '2026-10-06', epcRating: 'B', hasGarden: false, hasParking: true, availableFrom: '2026-11-01', petsAllowed: false, includedBills: [], depositWeeks: 5, hasLift: true, stepFreeAccess: true, couplesWelcome: true, regularIncomeRequired: true },
+  { neighborhood: 'City Centre', address: 'Flat 3, 71 Demo Boulevard', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 265_000, bathrooms: 2, areaSqm: 76, status: 'available', lat: 53.8001, lng: -1.5485, listedAt: '2026-09-05', updatedAt: '2026-09-05', epcRating: 'B', hasGarden: false, hasParking: true, tenure: 'leasehold', newBuild: true, leaseYearsRemaining: 999, serviceChargePerYear: 1_800, groundRentPerYear: 0, outdoorSpace: ['balcony'], parking: ['allocated'] },
+  { neighborhood: 'City Centre', address: 'Flat 8, 44 Example Avenue', type: 'apartment', bedrooms: 0, pricePeriod: 'monthly', price: 925, bathrooms: 1, areaSqm: 36, furnishing: 'furnished', status: 'available', lat: 53.7998, lng: -1.5495, listedAt: '2026-09-28', updatedAt: '2026-10-05', epcRating: 'C', hasGarden: false, hasParking: false, availableFrom: '2026-10-20', includedBills: ['electricity', 'water', 'internet'], depositWeeks: 4, hasLift: true },
+
+  // Hyde Park (2) — student
+  { neighborhood: 'Hyde Park', address: '51 Sample Street', type: 'house', bedrooms: 5, pricePeriod: 'monthly', price: 2_250, bathrooms: 2, areaSqm: 165, furnishing: 'furnished', status: 'available', lat: 53.8097, lng: -1.5681, listedAt: '2026-09-15', updatedAt: '2026-10-02', epcRating: 'D', hasGarden: true, hasParking: false, availableFrom: '2026-11-15', studentFriendly: true, sharersAccepted: true, hmoLicensed: true, includedBills: ['water', 'internet'], depositWeeks: 5, couplesWelcome: false, regularIncomeRequired: false },
+  { neighborhood: 'Hyde Park', address: 'Flat 2, 29 Example Road', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_050, bathrooms: 1, areaSqm: 60, furnishing: 'part_furnished', status: 'available', lat: 53.8094, lng: -1.5678, listedAt: '2026-10-04', updatedAt: '2026-10-08', epcRating: 'E', hasGarden: false, hasParking: false, availableFrom: '2026-11-20', studentFriendly: true, sharersAccepted: true, depositWeeks: 4 },
+
+  // Chapel Allerton (2) — residential sale
+  { neighborhood: 'Chapel Allerton', address: '34 Demo Lane', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 355_000, bathrooms: 2, areaSqm: 125, status: 'available', lat: 53.8323, lng: -1.5376, listedAt: '2026-09-08', updatedAt: '2026-09-19', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', chainFree: true, outdoorSpace: ['private_garden'], parking: ['driveway'] },
+  { neighborhood: 'Chapel Allerton', address: '17 Placeholder Lane', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 465_000, bathrooms: 3, areaSqm: 170, status: 'available', lat: 53.8318, lng: -1.5382, listedAt: '2026-08-28', updatedAt: '2026-09-10', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway'] },
+
+  // Roundhay (2) — family
+  { neighborhood: 'Roundhay', address: '82 Mockup Place', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 525_000, bathrooms: 3, areaSqm: 185, status: 'available', lat: 53.8363, lng: -1.5102, listedAt: '2026-09-02', updatedAt: '2026-09-02', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway', 'garage'] },
+  { neighborhood: 'Roundhay', address: 'Flat 4, 25 Sample Mews', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_225, bathrooms: 1, areaSqm: 72, furnishing: 'unfurnished', status: 'available', lat: 53.8360, lng: -1.5108, listedAt: '2026-10-01', updatedAt: '2026-10-07', epcRating: 'C', hasGarden: false, hasParking: true, availableFrom: '2026-11-05', petsAllowed: true, couplesWelcome: true, depositWeeks: 5 },
+
+  // Horsforth (1)
+  { neighborhood: 'Horsforth', address: '73 Example Avenue', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 325_000, bathrooms: 2, areaSqm: 118, status: 'under_offer', lat: 53.8477, lng: -1.6376, listedAt: '2026-08-14', updatedAt: '2026-09-28', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway'] },
+]);
+
+// ---------------------------------------------------------------------------
+// Liverpool (GBP) — 13.
+// ---------------------------------------------------------------------------
+
+const liverpool = city('GB', 'england', 'Liverpool', 'gb-liv', [
+  // Baltic Triangle (3)
+  { neighborhood: 'Baltic Triangle', address: 'Flat 5, 44 Sample Street', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 875, bathrooms: 1, areaSqm: 50, furnishing: 'furnished', status: 'available', lat: 53.3996, lng: -2.9823, listedAt: '2026-10-02', updatedAt: '2026-10-07', epcRating: 'B', hasGarden: false, hasParking: false, availableFrom: '2026-11-02', includedBills: [], depositWeeks: 5, hasLift: true, stepFreeAccess: true },
+  { neighborhood: 'Baltic Triangle', address: 'Flat 11, 18 Demo Boulevard', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_150, bathrooms: 2, areaSqm: 68, furnishing: 'part_furnished', status: 'available', lat: 53.3999, lng: -2.9820, listedAt: '2026-10-04', updatedAt: '2026-10-08', epcRating: 'B', hasGarden: false, hasParking: true, availableFrom: '2026-11-10', petsAllowed: false, sharersAccepted: true, includedBills: ['internet'], depositWeeks: 5, hasLift: true },
+  { neighborhood: 'Baltic Triangle', address: 'Flat 7, 29 Placeholder Row', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 185_000, bathrooms: 2, areaSqm: 72, status: 'available', lat: 53.3994, lng: -2.9826, listedAt: '2026-09-10', updatedAt: '2026-09-18', epcRating: 'B', hasGarden: false, hasParking: true, tenure: 'leasehold', newBuild: true, leaseYearsRemaining: 250, serviceChargePerYear: 1_650, groundRentPerYear: 0, outdoorSpace: ['balcony'], parking: ['allocated'] },
+
+  // Ropewalks (2)
+  { neighborhood: 'Ropewalks', address: 'Flat 3, 56 Example Avenue', type: 'apartment', bedrooms: 0, pricePeriod: 'monthly', price: 825, bathrooms: 1, areaSqm: 32, furnishing: 'furnished', status: 'available', lat: 53.4046, lng: -2.9789, listedAt: '2026-09-30', updatedAt: '2026-10-05', epcRating: 'C', hasGarden: false, hasParking: false, availableFrom: '2026-10-20', includedBills: ['electricity', 'water'], depositWeeks: 4 },
+  { neighborhood: 'Ropewalks', address: 'Flat 9, 14 Mockup Place', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_000, bathrooms: 1, areaSqm: 60, furnishing: 'part_furnished', status: 'available', lat: 53.4050, lng: -2.9792, listedAt: '2026-10-01', updatedAt: '2026-10-06', epcRating: 'C', hasGarden: false, hasParking: false, availableFrom: '2026-11-15', studentFriendly: true, sharersAccepted: true, depositWeeks: 5 },
+
+  // Georgian Quarter (3)
+  { neighborhood: 'Georgian Quarter', address: '42 Example Road', type: 'townhouse', bedrooms: 4, pricePeriod: 'total', price: 495_000, bathrooms: 2, areaSqm: 182, status: 'available', lat: 53.4017, lng: -2.9674, listedAt: '2026-09-04', updatedAt: '2026-09-16', epcRating: 'D', hasGarden: true, hasParking: false, tenure: 'freehold', chainFree: true, outdoorSpace: ['private_garden'], parking: ['permit'] },
+  { neighborhood: 'Georgian Quarter', address: '19 Demo Lane', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 345_000, bathrooms: 2, areaSqm: 135, status: 'available', lat: 53.4015, lng: -2.9678, listedAt: '2026-09-21', updatedAt: '2026-09-21', epcRating: 'D', hasGarden: true, hasParking: false, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['permit'] },
+  { neighborhood: 'Georgian Quarter', address: 'Flat 4, 61 Sample Street', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_050, bathrooms: 1, areaSqm: 68, furnishing: 'unfurnished', status: 'available', lat: 53.4020, lng: -2.9680, listedAt: '2026-10-03', updatedAt: '2026-10-08', epcRating: 'D', hasGarden: false, hasParking: false, availableFrom: '2026-11-01', petsAllowed: true, couplesWelcome: true, depositWeeks: 5 },
+
+  // Toxteth (2)
+  { neighborhood: 'Toxteth', address: '28 Placeholder Lane', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 165_000, bathrooms: 1, areaSqm: 112, status: 'available', lat: 53.3867, lng: -2.9540, listedAt: '2026-09-11', updatedAt: '2026-09-11', epcRating: 'D', hasGarden: true, hasParking: false, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['permit'] },
+  { neighborhood: 'Toxteth', address: '53 Example Avenue', type: 'house', bedrooms: 4, pricePeriod: 'monthly', price: 1_250, bathrooms: 2, areaSqm: 148, furnishing: 'unfurnished', status: 'available', lat: 53.3870, lng: -2.9545, listedAt: '2026-10-02', updatedAt: '2026-10-07', epcRating: 'D', hasGarden: true, hasParking: true, availableFrom: '2026-11-10', petsAllowed: true, sharersAccepted: true, depositWeeks: 5 },
+
+  // Allerton (3)
+  { neighborhood: 'Allerton', address: '41 Mockup Place', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 395_000, bathrooms: 2, areaSqm: 165, status: 'available', lat: 53.3774, lng: -2.9089, listedAt: '2026-09-07', updatedAt: '2026-09-19', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway', 'garage'] },
+  { neighborhood: 'Allerton', address: '26 Demo Boulevard', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 285_000, bathrooms: 2, areaSqm: 128, status: 'under_offer', lat: 53.3770, lng: -2.9094, listedAt: '2026-08-18', updatedAt: '2026-09-29', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', chainFree: true, outdoorSpace: ['private_garden'], parking: ['driveway'] },
+  { neighborhood: 'Allerton', address: 'Flat 3, 15 Sample Mews', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 925, bathrooms: 1, areaSqm: 72, furnishing: 'unfurnished', status: 'available', lat: 53.3777, lng: -2.9085, listedAt: '2026-10-01', updatedAt: '2026-10-07', epcRating: 'C', hasGarden: false, hasParking: true, availableFrom: '2026-11-05', couplesWelcome: true, depositWeeks: 5 },
+]);
+
+// ---------------------------------------------------------------------------
+// Newcastle (GBP) — 12.
+// ---------------------------------------------------------------------------
+
+const newcastle = city('GB', 'england', 'Newcastle', 'gb-ncl', [
+  // Jesmond (4) — upmarket, mix of pros + students
+  { neighborhood: 'Jesmond', address: '34 Example Road', type: 'townhouse', bedrooms: 4, pricePeriod: 'total', price: 465_000, bathrooms: 2, areaSqm: 175, status: 'available', lat: 54.9896, lng: -1.5906, listedAt: '2026-09-03', updatedAt: '2026-09-18', epcRating: 'D', hasGarden: true, hasParking: false, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['permit'] },
+  { neighborhood: 'Jesmond', address: 'Flat 5, 17 Demo Lane', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_150, bathrooms: 1, areaSqm: 72, furnishing: 'furnished', status: 'available', lat: 54.9899, lng: -1.5901, listedAt: '2026-10-03', updatedAt: '2026-10-08', epcRating: 'C', hasGarden: false, hasParking: false, availableFrom: '2026-11-01', petsAllowed: false, studentFriendly: true, sharersAccepted: true, includedBills: [], depositWeeks: 5, couplesWelcome: true },
+  { neighborhood: 'Jesmond', address: '55 Sample Street', type: 'house', bedrooms: 5, pricePeriod: 'monthly', price: 2_050, bathrooms: 2, areaSqm: 185, furnishing: 'furnished', status: 'let', lat: 54.9893, lng: -1.5912, listedAt: '2026-08-11', updatedAt: '2026-09-20', epcRating: 'D', hasGarden: true, hasParking: false, availableFrom: '2026-09-01', studentFriendly: true, sharersAccepted: true, hmoLicensed: true, includedBills: ['water', 'internet'], depositWeeks: 5, couplesWelcome: false, regularIncomeRequired: false },
+  { neighborhood: 'Jesmond', address: 'Flat 2, 63 Placeholder Row', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 825, bathrooms: 1, areaSqm: 48, furnishing: 'part_furnished', status: 'available', lat: 54.9900, lng: -1.5908, listedAt: '2026-10-04', updatedAt: '2026-10-07', epcRating: 'D', hasGarden: false, hasParking: false, availableFrom: '2026-10-25', studentFriendly: true, depositWeeks: 4 },
+
+  // Heaton (2)
+  { neighborhood: 'Heaton', address: '28 Demo Boulevard', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 215_000, bathrooms: 1, areaSqm: 120, status: 'available', lat: 54.9815, lng: -1.5756, listedAt: '2026-09-09', updatedAt: '2026-09-09', epcRating: 'D', hasGarden: true, hasParking: false, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['permit'] },
+  { neighborhood: 'Heaton', address: 'Flat 3, 46 Example Avenue', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 825, bathrooms: 1, areaSqm: 65, furnishing: 'unfurnished', status: 'available', lat: 54.9818, lng: -1.5752, listedAt: '2026-10-02', updatedAt: '2026-10-06', epcRating: 'D', hasGarden: false, hasParking: false, availableFrom: '2026-11-01', petsAllowed: true, sharersAccepted: true, couplesWelcome: true, depositWeeks: 5 },
+
+  // Gosforth (2) — commuter suburb
+  { neighborhood: 'Gosforth', address: '19 Mockup Place', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 395_000, bathrooms: 3, areaSqm: 165, status: 'available', lat: 55.0068, lng: -1.6160, listedAt: '2026-09-05', updatedAt: '2026-09-20', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway', 'garage'] },
+  { neighborhood: 'Gosforth', address: 'Flat 7, 32 Sample Mews', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 175_000, bathrooms: 1, areaSqm: 65, status: 'available', lat: 55.0070, lng: -1.6163, listedAt: '2026-09-14', updatedAt: '2026-09-14', epcRating: 'C', hasGarden: false, hasParking: true, tenure: 'leasehold', leaseYearsRemaining: 110, serviceChargePerYear: 1_200, groundRentPerYear: 150, outdoorSpace: [], parking: ['allocated'] },
+
+  // Ouseburn (2) — creative quarter
+  { neighborhood: 'Ouseburn', address: 'Flat 11, 24 Example Road', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 825, bathrooms: 1, areaSqm: 46, furnishing: 'furnished', status: 'available', lat: 54.9735, lng: -1.5934, listedAt: '2026-10-01', updatedAt: '2026-10-07', epcRating: 'C', hasGarden: false, hasParking: false, availableFrom: '2026-10-28', includedBills: [], depositWeeks: 5 },
+  { neighborhood: 'Ouseburn', address: 'Flat 4, 51 Demo Lane', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 165_000, bathrooms: 1, areaSqm: 68, status: 'available', lat: 54.9738, lng: -1.5938, listedAt: '2026-09-02', updatedAt: '2026-09-15', epcRating: 'C', hasGarden: false, hasParking: false, tenure: 'leasehold', leaseYearsRemaining: 92, serviceChargePerYear: 1_300, groundRentPerYear: 200, outdoorSpace: ['balcony'], parking: ['permit'] },
+
+  // City Centre (2)
+  { neighborhood: 'City Centre', address: 'Flat 9, 18 Placeholder Lane', type: 'apartment', bedrooms: 0, pricePeriod: 'monthly', price: 850, bathrooms: 1, areaSqm: 32, furnishing: 'furnished', status: 'available', lat: 54.9739, lng: -1.6131, listedAt: '2026-09-29', updatedAt: '2026-10-05', epcRating: 'B', hasGarden: false, hasParking: false, availableFrom: '2026-10-18', includedBills: ['electricity', 'water', 'internet'], depositWeeks: 4, hasLift: true, stepFreeAccess: true },
+  { neighborhood: 'City Centre', address: 'Flat 16, 72 Demo Boulevard', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 850, bathrooms: 1, areaSqm: 52, furnishing: 'furnished', status: 'available', lat: 54.9742, lng: -1.6128, listedAt: '2026-10-01', updatedAt: '2026-10-06', epcRating: 'B', hasGarden: false, hasParking: true, availableFrom: '2026-11-01', petsAllowed: false, depositWeeks: 5, hasLift: true, couplesWelcome: true },
+]);
+
+// ---------------------------------------------------------------------------
+// Nottingham (GBP) — 12.
+// ---------------------------------------------------------------------------
+
+const nottingham = city('GB', 'england', 'Nottingham', 'gb-ntm', [
+  // Lace Market (3)
+  { neighborhood: 'Lace Market', address: 'Flat 6, 24 Example Avenue', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 825, bathrooms: 1, areaSqm: 50, furnishing: 'furnished', status: 'available', lat: 52.9522, lng: -1.1434, listedAt: '2026-10-02', updatedAt: '2026-10-07', epcRating: 'C', hasGarden: false, hasParking: false, availableFrom: '2026-11-01', includedBills: [], depositWeeks: 5, hasLift: true, couplesWelcome: true },
+  { neighborhood: 'Lace Market', address: 'Flat 11, 48 Demo Lane', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_050, bathrooms: 2, areaSqm: 68, furnishing: 'part_furnished', status: 'available', lat: 52.9525, lng: -1.1430, listedAt: '2026-10-04', updatedAt: '2026-10-08', epcRating: 'C', hasGarden: false, hasParking: true, availableFrom: '2026-11-10', sharersAccepted: true, depositWeeks: 5, hasLift: true },
+  { neighborhood: 'Lace Market', address: 'Flat 3, 15 Sample Street', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 195_000, bathrooms: 2, areaSqm: 72, status: 'available', lat: 52.9519, lng: -1.1438, listedAt: '2026-09-11', updatedAt: '2026-09-19', epcRating: 'C', hasGarden: false, hasParking: true, tenure: 'leasehold', newBuild: true, leaseYearsRemaining: 250, serviceChargePerYear: 1_500, groundRentPerYear: 0, outdoorSpace: ['balcony'], parking: ['allocated'] },
+
+  // The Park (2) — exclusive estate
+  { neighborhood: 'The Park', address: '47 Example Road', type: 'house', bedrooms: 5, pricePeriod: 'total', price: 785_000, bathrooms: 3, areaSqm: 275, status: 'available', lat: 52.9524, lng: -1.1680, listedAt: '2026-09-01', updatedAt: '2026-09-15', epcRating: 'D', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway', 'garage'] },
+  { neighborhood: 'The Park', address: 'Flat 2, 22 Mockup Place', type: 'apartment', bedrooms: 3, pricePeriod: 'total', price: 425_000, bathrooms: 2, areaSqm: 128, status: 'available', lat: 52.9521, lng: -1.1685, listedAt: '2026-09-18', updatedAt: '2026-09-18', epcRating: 'C', hasGarden: false, hasParking: true, tenure: 'leasehold', leaseYearsRemaining: 125, serviceChargePerYear: 2_200, groundRentPerYear: 250, outdoorSpace: ['balcony'], parking: ['allocated'] },
+
+  // West Bridgford (2) — family suburb
+  { neighborhood: 'West Bridgford', address: '38 Demo Boulevard', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 445_000, bathrooms: 2, areaSqm: 165, status: 'available', lat: 52.9336, lng: -1.1310, listedAt: '2026-09-05', updatedAt: '2026-09-17', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', chainFree: true, outdoorSpace: ['private_garden'], parking: ['driveway', 'garage'] },
+  { neighborhood: 'West Bridgford', address: 'Flat 5, 19 Placeholder Row', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 975, bathrooms: 1, areaSqm: 65, furnishing: 'unfurnished', status: 'available', lat: 52.9340, lng: -1.1305, listedAt: '2026-10-01', updatedAt: '2026-10-06', epcRating: 'C', hasGarden: false, hasParking: true, availableFrom: '2026-11-05', petsAllowed: true, couplesWelcome: true, depositWeeks: 5 },
+
+  // Beeston (2) — student + professionals
+  { neighborhood: 'Beeston', address: '54 Sample Mews', type: 'house', bedrooms: 4, pricePeriod: 'monthly', price: 1_525, bathrooms: 2, areaSqm: 145, furnishing: 'furnished', status: 'available', lat: 52.9270, lng: -1.2140, listedAt: '2026-09-20', updatedAt: '2026-10-02', epcRating: 'D', hasGarden: true, hasParking: true, availableFrom: '2026-11-15', studentFriendly: true, sharersAccepted: true, hmoLicensed: true, includedBills: ['water', 'internet'], depositWeeks: 5, couplesWelcome: false, regularIncomeRequired: false },
+  { neighborhood: 'Beeston', address: '27 Example Avenue', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 245_000, bathrooms: 1, areaSqm: 118, status: 'available', lat: 52.9268, lng: -1.2145, listedAt: '2026-09-08', updatedAt: '2026-09-08', epcRating: 'D', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway'] },
+
+  // Mapperley (2)
+  { neighborhood: 'Mapperley', address: '18 Demo Lane', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 285_000, bathrooms: 2, areaSqm: 128, status: 'available', lat: 52.9830, lng: -1.1333, listedAt: '2026-09-12', updatedAt: '2026-09-24', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway'] },
+  { neighborhood: 'Mapperley', address: 'Flat 4, 65 Example Road', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 875, bathrooms: 1, areaSqm: 48, furnishing: 'furnished', status: 'available', lat: 52.9828, lng: -1.1336, listedAt: '2026-10-03', updatedAt: '2026-10-08', epcRating: 'D', hasGarden: false, hasParking: false, availableFrom: '2026-11-01', depositWeeks: 5 },
+
+  // Hockley (1) — creative quarter
+  { neighborhood: 'Hockley', address: 'Flat 8, 31 Mockup Place', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_125, bathrooms: 1, areaSqm: 70, furnishing: 'furnished', status: 'available', lat: 52.9558, lng: -1.1430, listedAt: '2026-10-02', updatedAt: '2026-10-07', epcRating: 'C', hasGarden: false, hasParking: false, availableFrom: '2026-11-15', sharersAccepted: true, depositWeeks: 5, hasLift: true },
+]);
+
+// ---------------------------------------------------------------------------
+// Sheffield (GBP) — 12.
+// ---------------------------------------------------------------------------
+
+const sheffield = city('GB', 'england', 'Sheffield', 'gb-shf', [
+  // Kelham Island (3)
+  { neighborhood: 'Kelham Island', address: 'Flat 2, 48 Example Road', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 850, bathrooms: 1, areaSqm: 52, furnishing: 'furnished', status: 'available', lat: 53.3889, lng: -1.4745, listedAt: '2026-10-02', updatedAt: '2026-10-08', epcRating: 'B', hasGarden: false, hasParking: true, availableFrom: '2026-11-01', includedBills: [], depositWeeks: 5, hasLift: true, stepFreeAccess: true, couplesWelcome: true },
+  { neighborhood: 'Kelham Island', address: 'Flat 9, 22 Demo Lane', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_075, bathrooms: 2, areaSqm: 70, furnishing: 'part_furnished', status: 'available', lat: 53.3891, lng: -1.4742, listedAt: '2026-10-04', updatedAt: '2026-10-08', epcRating: 'B', hasGarden: false, hasParking: true, availableFrom: '2026-11-10', petsAllowed: false, sharersAccepted: true, depositWeeks: 5, hasLift: true },
+  { neighborhood: 'Kelham Island', address: 'Flat 5, 71 Sample Street', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 205_000, bathrooms: 2, areaSqm: 75, status: 'available', lat: 53.3886, lng: -1.4748, listedAt: '2026-09-10', updatedAt: '2026-09-19', epcRating: 'B', hasGarden: false, hasParking: true, tenure: 'leasehold', newBuild: true, leaseYearsRemaining: 250, serviceChargePerYear: 1_600, groundRentPerYear: 0, outdoorSpace: ['balcony'], parking: ['allocated'] },
+
+  // Nether Edge (2)
+  { neighborhood: 'Nether Edge', address: '27 Placeholder Lane', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 395_000, bathrooms: 2, areaSqm: 170, status: 'available', lat: 53.3639, lng: -1.4906, listedAt: '2026-09-04', updatedAt: '2026-09-16', epcRating: 'D', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway'] },
+  { neighborhood: 'Nether Edge', address: '14 Mockup Place', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 285_000, bathrooms: 2, areaSqm: 130, status: 'available', lat: 53.3641, lng: -1.4903, listedAt: '2026-09-18', updatedAt: '2026-09-18', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway'] },
+
+  // Walkley (2) — student
+  { neighborhood: 'Walkley', address: '38 Sample Mews', type: 'house', bedrooms: 5, pricePeriod: 'monthly', price: 1_875, bathrooms: 2, areaSqm: 160, furnishing: 'furnished', status: 'let', lat: 53.3909, lng: -1.5061, listedAt: '2026-08-15', updatedAt: '2026-09-22', epcRating: 'D', hasGarden: true, hasParking: false, availableFrom: '2026-09-01', studentFriendly: true, sharersAccepted: true, hmoLicensed: true, includedBills: ['water', 'internet'], depositWeeks: 5, couplesWelcome: false, regularIncomeRequired: false },
+  { neighborhood: 'Walkley', address: 'Flat 3, 56 Example Avenue', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 875, bathrooms: 1, areaSqm: 60, furnishing: 'furnished', status: 'available', lat: 53.3912, lng: -1.5058, listedAt: '2026-10-01', updatedAt: '2026-10-07', epcRating: 'D', hasGarden: false, hasParking: false, availableFrom: '2026-11-05', studentFriendly: true, sharersAccepted: true, depositWeeks: 4 },
+
+  // Hillsborough (2)
+  { neighborhood: 'Hillsborough', address: '19 Demo Boulevard', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 185_000, bathrooms: 1, areaSqm: 108, status: 'available', lat: 53.4080, lng: -1.5075, listedAt: '2026-09-07', updatedAt: '2026-09-07', epcRating: 'D', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway'] },
+  { neighborhood: 'Hillsborough', address: 'Flat 6, 42 Placeholder Row', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 825, bathrooms: 1, areaSqm: 62, furnishing: 'unfurnished', status: 'available', lat: 53.4083, lng: -1.5078, listedAt: '2026-10-03', updatedAt: '2026-10-07', epcRating: 'D', hasGarden: false, hasParking: true, availableFrom: '2026-11-01', petsAllowed: true, couplesWelcome: true, depositWeeks: 5 },
+
+  // Ecclesall (2) — family suburb
+  { neighborhood: 'Ecclesall', address: '58 Demo Lane', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 465_000, bathrooms: 2, areaSqm: 175, status: 'under_offer', lat: 53.3461, lng: -1.5103, listedAt: '2026-08-25', updatedAt: '2026-09-30', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', chainFree: true, outdoorSpace: ['private_garden'], parking: ['driveway', 'garage'] },
+  { neighborhood: 'Ecclesall', address: '21 Example Road', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 325_000, bathrooms: 2, areaSqm: 135, status: 'available', lat: 53.3464, lng: -1.5100, listedAt: '2026-09-12', updatedAt: '2026-09-12', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway'] },
+
+  // Crookes (1)
+  { neighborhood: 'Crookes', address: 'Flat 4, 33 Sample Street', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 875, bathrooms: 1, areaSqm: 45, furnishing: 'furnished', status: 'available', lat: 53.3827, lng: -1.5101, listedAt: '2026-10-04', updatedAt: '2026-10-08', epcRating: 'D', hasGarden: false, hasParking: false, availableFrom: '2026-10-28', studentFriendly: true, depositWeeks: 4 },
+]);
+
+// ---------------------------------------------------------------------------
+// Brighton (GBP) — 12. South coast, pricier than northern cities.
+// ---------------------------------------------------------------------------
+
+const brighton = city('GB', 'england', 'Brighton', 'gb-bgh', [
+  // North Laine (3)
+  { neighborhood: 'North Laine', address: 'Flat 4, 38 Example Road', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 1_425, bathrooms: 1, areaSqm: 48, furnishing: 'furnished', status: 'available', lat: 50.8249, lng: -0.1385, listedAt: '2026-10-02', updatedAt: '2026-10-08', epcRating: 'C', hasGarden: false, hasParking: false, availableFrom: '2026-11-01', includedBills: [], depositWeeks: 5, couplesWelcome: true },
+  { neighborhood: 'North Laine', address: 'Flat 2, 11 Sample Mews', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_750, bathrooms: 1, areaSqm: 62, furnishing: 'part_furnished', status: 'available', lat: 50.8252, lng: -0.1388, listedAt: '2026-10-04', updatedAt: '2026-10-08', epcRating: 'D', hasGarden: false, hasParking: false, availableFrom: '2026-11-10', petsAllowed: true, sharersAccepted: true, depositWeeks: 5 },
+  { neighborhood: 'North Laine', address: 'Flat 7, 29 Demo Lane', type: 'apartment', bedrooms: 1, pricePeriod: 'total', price: 325_000, bathrooms: 1, areaSqm: 50, status: 'available', lat: 50.8246, lng: -0.1382, listedAt: '2026-09-11', updatedAt: '2026-09-19', epcRating: 'D', hasGarden: false, hasParking: false, tenure: 'leasehold', leaseYearsRemaining: 110, serviceChargePerYear: 1_650, groundRentPerYear: 200, outdoorSpace: [], parking: [] },
+
+  // Kemptown (3) — seafront
+  { neighborhood: 'Kemptown', address: 'Flat 5, 52 Placeholder Row', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 395_000, bathrooms: 1, areaSqm: 72, status: 'available', lat: 50.8205, lng: -0.1180, listedAt: '2026-09-05', updatedAt: '2026-09-16', epcRating: 'D', hasGarden: false, hasParking: false, tenure: 'leasehold', leaseYearsRemaining: 115, serviceChargePerYear: 1_875, groundRentPerYear: 150, outdoorSpace: ['balcony'], parking: [] },
+  { neighborhood: 'Kemptown', address: '28 Mockup Place', type: 'townhouse', bedrooms: 4, pricePeriod: 'total', price: 695_000, bathrooms: 3, areaSqm: 195, status: 'available', lat: 50.8208, lng: -0.1177, listedAt: '2026-08-28', updatedAt: '2026-09-11', epcRating: 'D', hasGarden: true, hasParking: false, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['permit'] },
+  { neighborhood: 'Kemptown', address: 'Flat 3, 17 Example Avenue', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 1_325, bathrooms: 1, areaSqm: 52, furnishing: 'furnished', status: 'available', lat: 50.8203, lng: -0.1183, listedAt: '2026-10-03', updatedAt: '2026-10-08', epcRating: 'D', hasGarden: false, hasParking: false, availableFrom: '2026-11-05', petsAllowed: false, depositWeeks: 5, couplesWelcome: true },
+
+  // Hove (3)
+  { neighborhood: 'Hove', address: 'Flat 6, 44 Demo Boulevard', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_650, bathrooms: 2, areaSqm: 78, furnishing: 'unfurnished', status: 'available', lat: 50.8268, lng: -0.1680, listedAt: '2026-10-01', updatedAt: '2026-10-07', epcRating: 'C', hasGarden: false, hasParking: true, availableFrom: '2026-11-01', petsAllowed: true, couplesWelcome: true, depositWeeks: 5, hasLift: true },
+  { neighborhood: 'Hove', address: '19 Sample Street', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 775_000, bathrooms: 2, areaSqm: 195, status: 'available', lat: 50.8271, lng: -0.1683, listedAt: '2026-09-03', updatedAt: '2026-09-18', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway'] },
+  { neighborhood: 'Hove', address: 'Flat 11, 56 Example Road', type: 'apartment', bedrooms: 3, pricePeriod: 'total', price: 525_000, bathrooms: 2, areaSqm: 108, status: 'under_offer', lat: 50.8265, lng: -0.1685, listedAt: '2026-08-20', updatedAt: '2026-09-29', epcRating: 'C', hasGarden: false, hasParking: true, tenure: 'share_of_freehold', leaseYearsRemaining: 985, serviceChargePerYear: 2_200, groundRentPerYear: 0, outdoorSpace: ['balcony'], parking: ['allocated'] },
+
+  // Seven Dials (2)
+  { neighborhood: 'Seven Dials', address: 'Flat 4, 23 Placeholder Lane', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 1_225, bathrooms: 1, areaSqm: 50, furnishing: 'furnished', status: 'available', lat: 50.8303, lng: -0.1527, listedAt: '2026-10-03', updatedAt: '2026-10-07', epcRating: 'D', hasGarden: false, hasParking: false, availableFrom: '2026-11-01', depositWeeks: 5 },
+  { neighborhood: 'Seven Dials', address: '47 Mockup Place', type: 'townhouse', bedrooms: 3, pricePeriod: 'total', price: 615_000, bathrooms: 2, areaSqm: 155, status: 'available', lat: 50.8306, lng: -0.1524, listedAt: '2026-09-09', updatedAt: '2026-09-22', epcRating: 'C', hasGarden: true, hasParking: false, tenure: 'freehold', chainFree: true, outdoorSpace: ['private_garden'], parking: ['permit'] },
+
+  // Preston Park (1)
+  { neighborhood: 'Preston Park', address: 'Flat 2, 68 Sample Mews', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_450, bathrooms: 1, areaSqm: 72, furnishing: 'unfurnished', status: 'available', lat: 50.8408, lng: -0.1472, listedAt: '2026-10-02', updatedAt: '2026-10-07', epcRating: 'C', hasGarden: true, hasParking: true, availableFrom: '2026-11-10', petsAllowed: true, couplesWelcome: true, depositWeeks: 5 },
+]);
+
+// ---------------------------------------------------------------------------
+// Oxford (GBP) — 13. Academic city, lots of student lets + professional pros.
+// ---------------------------------------------------------------------------
+
+const oxford = city('GB', 'england', 'Oxford', 'gb-oxf', [
+  // Jericho (3)
+  { neighborhood: 'Jericho', address: 'Flat 3, 22 Example Avenue', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_825, bathrooms: 1, areaSqm: 68, furnishing: 'furnished', status: 'available', lat: 51.7576, lng: -1.2680, listedAt: '2026-10-02', updatedAt: '2026-10-08', epcRating: 'C', hasGarden: false, hasParking: false, availableFrom: '2026-11-01', studentFriendly: true, sharersAccepted: true, includedBills: [], depositWeeks: 5, couplesWelcome: true },
+  { neighborhood: 'Jericho', address: '41 Demo Lane', type: 'townhouse', bedrooms: 4, pricePeriod: 'total', price: 895_000, bathrooms: 2, areaSqm: 195, status: 'available', lat: 51.7578, lng: -1.2683, listedAt: '2026-09-02', updatedAt: '2026-09-14', epcRating: 'D', hasGarden: true, hasParking: false, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['permit'] },
+  { neighborhood: 'Jericho', address: 'Flat 7, 19 Sample Mews', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 1_425, bathrooms: 1, areaSqm: 48, furnishing: 'furnished', status: 'available', lat: 51.7574, lng: -1.2677, listedAt: '2026-10-04', updatedAt: '2026-10-08', epcRating: 'D', hasGarden: false, hasParking: false, availableFrom: '2026-11-05', studentFriendly: true, depositWeeks: 5 },
+
+  // Summertown (3)
+  { neighborhood: 'Summertown', address: '38 Mockup Place', type: 'house', bedrooms: 5, pricePeriod: 'total', price: 995_000, bathrooms: 3, areaSqm: 245, status: 'available', lat: 51.7792, lng: -1.2644, listedAt: '2026-08-24', updatedAt: '2026-09-15', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway', 'garage'] },
+  { neighborhood: 'Summertown', address: '72 Example Road', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 795_000, bathrooms: 2, areaSqm: 185, status: 'under_offer', lat: 51.7795, lng: -1.2641, listedAt: '2026-08-19', updatedAt: '2026-09-28', epcRating: 'D', hasGarden: true, hasParking: true, tenure: 'freehold', chainFree: true, outdoorSpace: ['private_garden'], parking: ['driveway'] },
+  { neighborhood: 'Summertown', address: 'Flat 5, 24 Demo Boulevard', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_775, bathrooms: 1, areaSqm: 72, furnishing: 'unfurnished', status: 'available', lat: 51.7790, lng: -1.2647, listedAt: '2026-10-01', updatedAt: '2026-10-07', epcRating: 'C', hasGarden: false, hasParking: true, availableFrom: '2026-11-01', petsAllowed: true, couplesWelcome: true, depositWeeks: 5 },
+
+  // Headington (3) — hospital area, families + students
+  { neighborhood: 'Headington', address: '26 Placeholder Row', type: 'house', bedrooms: 4, pricePeriod: 'monthly', price: 2_250, bathrooms: 2, areaSqm: 165, furnishing: 'furnished', status: 'available', lat: 51.7592, lng: -1.2122, listedAt: '2026-09-18', updatedAt: '2026-10-02', epcRating: 'D', hasGarden: true, hasParking: true, availableFrom: '2026-11-15', studentFriendly: true, sharersAccepted: true, hmoLicensed: true, includedBills: ['water'], depositWeeks: 5, couplesWelcome: false, regularIncomeRequired: false },
+  { neighborhood: 'Headington', address: '53 Sample Street', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 585_000, bathrooms: 2, areaSqm: 148, status: 'available', lat: 51.7595, lng: -1.2119, listedAt: '2026-09-04', updatedAt: '2026-09-04', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway'] },
+  { neighborhood: 'Headington', address: 'Flat 2, 48 Example Avenue', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 385_000, bathrooms: 1, areaSqm: 72, status: 'available', lat: 51.7589, lng: -1.2125, listedAt: '2026-09-20', updatedAt: '2026-09-20', epcRating: 'C', hasGarden: false, hasParking: true, tenure: 'leasehold', leaseYearsRemaining: 125, serviceChargePerYear: 1_750, groundRentPerYear: 150, outdoorSpace: [], parking: ['allocated'] },
+
+  // Cowley (2)
+  { neighborhood: 'Cowley', address: 'Flat 8, 34 Demo Lane', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_495, bathrooms: 1, areaSqm: 65, furnishing: 'furnished', status: 'available', lat: 51.7430, lng: -1.2178, listedAt: '2026-10-03', updatedAt: '2026-10-08', epcRating: 'C', hasGarden: false, hasParking: true, availableFrom: '2026-11-01', studentFriendly: true, sharersAccepted: true, depositWeeks: 5 },
+  { neighborhood: 'Cowley', address: '19 Mockup Place', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 445_000, bathrooms: 2, areaSqm: 135, status: 'available', lat: 51.7432, lng: -1.2175, listedAt: '2026-09-07', updatedAt: '2026-09-19', epcRating: 'D', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway'] },
+
+  // Iffley (2)
+  { neighborhood: 'Iffley', address: '57 Example Road', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 725_000, bathrooms: 2, areaSqm: 175, status: 'available', lat: 51.7308, lng: -1.2342, listedAt: '2026-09-11', updatedAt: '2026-09-11', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway', 'garage'] },
+  { neighborhood: 'Iffley', address: 'Flat 3, 22 Sample Mews', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_525, bathrooms: 1, areaSqm: 68, furnishing: 'unfurnished', status: 'available', lat: 51.7311, lng: -1.2339, listedAt: '2026-10-01', updatedAt: '2026-10-07', epcRating: 'C', hasGarden: false, hasParking: true, availableFrom: '2026-11-10', petsAllowed: true, couplesWelcome: true, depositWeeks: 5 },
+]);
+
+// ---------------------------------------------------------------------------
+// Cambridge (GBP) — 12. Similar academic profile to Oxford.
+// ---------------------------------------------------------------------------
+
+const cambridge = city('GB', 'england', 'Cambridge', 'gb-cmb', [
+  // Mill Road (3) — eclectic student + professional
+  { neighborhood: 'Mill Road', address: 'Flat 5, 44 Example Road', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_650, bathrooms: 1, areaSqm: 68, furnishing: 'furnished', status: 'available', lat: 52.2004, lng: 0.1360, listedAt: '2026-10-02', updatedAt: '2026-10-08', epcRating: 'C', hasGarden: false, hasParking: false, availableFrom: '2026-11-01', studentFriendly: true, sharersAccepted: true, depositWeeks: 5, couplesWelcome: true },
+  { neighborhood: 'Mill Road', address: 'Flat 2, 19 Demo Lane', type: 'apartment', bedrooms: 1, pricePeriod: 'monthly', price: 1_350, bathrooms: 1, areaSqm: 48, furnishing: 'part_furnished', status: 'available', lat: 52.2007, lng: 0.1363, listedAt: '2026-10-04', updatedAt: '2026-10-08', epcRating: 'D', hasGarden: false, hasParking: false, availableFrom: '2026-11-05', studentFriendly: true, depositWeeks: 5 },
+  { neighborhood: 'Mill Road', address: '28 Sample Street', type: 'house', bedrooms: 4, pricePeriod: 'monthly', price: 2_425, bathrooms: 2, areaSqm: 158, furnishing: 'furnished', status: 'let', lat: 52.2001, lng: 0.1356, listedAt: '2026-08-18', updatedAt: '2026-09-25', epcRating: 'D', hasGarden: true, hasParking: false, availableFrom: '2026-09-01', studentFriendly: true, sharersAccepted: true, hmoLicensed: true, includedBills: ['water', 'internet'], depositWeeks: 5, couplesWelcome: false, regularIncomeRequired: false },
+
+  // Chesterton (3)
+  { neighborhood: 'Chesterton', address: '41 Example Avenue', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 785_000, bathrooms: 2, areaSqm: 185, status: 'available', lat: 52.2185, lng: 0.1308, listedAt: '2026-09-03', updatedAt: '2026-09-15', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway'] },
+  { neighborhood: 'Chesterton', address: '14 Mockup Place', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 575_000, bathrooms: 2, areaSqm: 148, status: 'available', lat: 52.2188, lng: 0.1311, listedAt: '2026-09-16', updatedAt: '2026-09-16', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', chainFree: true, outdoorSpace: ['private_garden'], parking: ['driveway'] },
+  { neighborhood: 'Chesterton', address: 'Flat 4, 56 Demo Boulevard', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_575, bathrooms: 1, areaSqm: 68, furnishing: 'unfurnished', status: 'available', lat: 52.2182, lng: 0.1305, listedAt: '2026-10-01', updatedAt: '2026-10-07', epcRating: 'C', hasGarden: false, hasParking: true, availableFrom: '2026-11-01', petsAllowed: true, couplesWelcome: true, depositWeeks: 5 },
+
+  // Trumpington (2)
+  { neighborhood: 'Trumpington', address: '27 Placeholder Lane', type: 'house', bedrooms: 4, pricePeriod: 'total', price: 695_000, bathrooms: 3, areaSqm: 175, status: 'available', lat: 52.1762, lng: 0.1180, listedAt: '2026-09-08', updatedAt: '2026-09-19', epcRating: 'B', hasGarden: true, hasParking: true, tenure: 'freehold', newBuild: true, outdoorSpace: ['private_garden'], parking: ['driveway', 'garage'] },
+  { neighborhood: 'Trumpington', address: 'Flat 6, 33 Sample Mews', type: 'apartment', bedrooms: 2, pricePeriod: 'total', price: 425_000, bathrooms: 2, areaSqm: 85, status: 'available', lat: 52.1765, lng: 0.1183, listedAt: '2026-09-21', updatedAt: '2026-09-21', epcRating: 'B', hasGarden: false, hasParking: true, tenure: 'leasehold', newBuild: true, leaseYearsRemaining: 250, serviceChargePerYear: 1_800, groundRentPerYear: 0, outdoorSpace: ['balcony'], parking: ['allocated'] },
+
+  // Newnham (2)
+  { neighborhood: 'Newnham', address: '48 Example Road', type: 'townhouse', bedrooms: 3, pricePeriod: 'total', price: 625_000, bathrooms: 2, areaSqm: 155, status: 'available', lat: 52.2008, lng: 0.1061, listedAt: '2026-09-05', updatedAt: '2026-09-19', epcRating: 'C', hasGarden: true, hasParking: false, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['permit'] },
+  { neighborhood: 'Newnham', address: 'Flat 2, 17 Demo Lane', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_725, bathrooms: 1, areaSqm: 72, furnishing: 'furnished', status: 'available', lat: 52.2011, lng: 0.1064, listedAt: '2026-10-03', updatedAt: '2026-10-08', epcRating: 'C', hasGarden: false, hasParking: false, availableFrom: '2026-11-10', petsAllowed: false, depositWeeks: 5, couplesWelcome: true },
+
+  // Cherry Hinton (2)
+  { neighborhood: 'Cherry Hinton', address: '34 Mockup Place', type: 'house', bedrooms: 3, pricePeriod: 'total', price: 445_000, bathrooms: 2, areaSqm: 128, status: 'available', lat: 52.1894, lng: 0.1570, listedAt: '2026-09-12', updatedAt: '2026-09-12', epcRating: 'C', hasGarden: true, hasParking: true, tenure: 'freehold', outdoorSpace: ['private_garden'], parking: ['driveway'] },
+  { neighborhood: 'Cherry Hinton', address: 'Flat 5, 72 Example Avenue', type: 'apartment', bedrooms: 2, pricePeriod: 'monthly', price: 1_395, bathrooms: 1, areaSqm: 68, furnishing: 'unfurnished', status: 'available', lat: 52.1897, lng: 0.1567, listedAt: '2026-10-02', updatedAt: '2026-10-07', epcRating: 'C', hasGarden: false, hasParking: true, availableFrom: '2026-11-01', petsAllowed: true, couplesWelcome: true, depositWeeks: 5 },
+]);
+
 export const properties: readonly Property[] = [
   ...london,
   ...manchester,
   ...birmingham,
   ...bristol,
   ...edinburgh,
+  ...leeds,
+  ...liverpool,
+  ...newcastle,
+  ...nottingham,
+  ...sheffield,
+  ...brighton,
+  ...oxford,
+  ...cambridge,
 ];

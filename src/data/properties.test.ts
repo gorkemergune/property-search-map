@@ -28,6 +28,14 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number; radiusKm: number 
   Birmingham: { lat: 52.4862, lng: -1.8904, radiusKm: 15 },
   Bristol: { lat: 51.4545, lng: -2.5879, radiusKm: 15 },
   Edinburgh: { lat: 55.9533, lng: -3.1883, radiusKm: 15 },
+  Leeds: { lat: 53.8008, lng: -1.5491, radiusKm: 15 },
+  Liverpool: { lat: 53.4084, lng: -2.9916, radiusKm: 15 },
+  Newcastle: { lat: 54.9783, lng: -1.6178, radiusKm: 15 },
+  Nottingham: { lat: 52.9548, lng: -1.1581, radiusKm: 15 },
+  Sheffield: { lat: 53.3811, lng: -1.4701, radiusKm: 15 },
+  Brighton: { lat: 50.8225, lng: -0.1372, radiusKm: 10 },
+  Oxford: { lat: 51.7520, lng: -1.2577, radiusKm: 10 },
+  Cambridge: { lat: 52.2053, lng: 0.1218, radiusKm: 10 },
 };
 
 function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -44,21 +52,29 @@ const PRICE_BANDS: Record<Currency, Record<PricePeriod, [number, number]>> = {
 };
 
 describe('property dataset', () => {
-  it('has exactly 200 listings', () => {
-    expect(properties).toHaveLength(200);
+  it('has exactly 300 listings', () => {
+    expect(properties).toHaveLength(300);
   });
 
   it('is a UK-only dataset', () => {
-    expect(countBy((p) => p.countryCode)).toEqual({ GB: 200 });
+    expect(countBy((p) => p.countryCode)).toEqual({ GB: 300 });
   });
 
-  it('clusters listings across the five expected UK cities', () => {
+  it('clusters listings across the expected UK cities', () => {
     expect(countBy((p) => p.city)).toEqual({
       London: 120,
       Manchester: 25,
       Birmingham: 20,
       Bristol: 20,
       Edinburgh: 15,
+      Leeds: 14,
+      Liverpool: 13,
+      Newcastle: 12,
+      Nottingham: 12,
+      Sheffield: 12,
+      Brighton: 12,
+      Oxford: 13,
+      Cambridge: 12,
     });
   });
 

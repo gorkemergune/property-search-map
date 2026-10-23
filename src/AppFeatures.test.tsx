@@ -118,11 +118,11 @@ describe('map heat layers', () => {
     expect(window.location.search).toContain('map=popular');
     expect(document.querySelector('.heat-layer')).not.toBeNull();
     // Markers stay (as quiet dots) so the map and list stay in sync.
-    expect(markers()).toHaveLength(200);
+    expect(markers()).toHaveLength(300);
     expect(document.querySelectorAll('.price-marker.is-muted').length).toBeGreaterThan(0);
 
     await userEvent.click(within(group).getByRole('radio', { name: 'Listing density' }));
-    expect(screen.getByRole('region', { name: 'Listing density' }).textContent).toContain('200 homes');
+    expect(screen.getByRole('region', { name: 'Listing density' }).textContent).toContain('300 homes');
     await userEvent.click(screen.getAllByRole('radio', { name: 'Rent' })[0]);
     expect(screen.getByRole('region', { name: 'Listing density' }).textContent).toContain(`${resultCount()} homes`);
 
@@ -160,7 +160,7 @@ describe('shareable search links', () => {
       window.history.pushState(null, '', '/');
       window.dispatchEvent(new PopStateEvent('popstate'));
     });
-    expect(resultCount()).toBe(200);
+    expect(resultCount()).toBe(300);
     act(() => {
       window.history.pushState(null, '', '/?for=rent');
       window.dispatchEvent(new PopStateEvent('popstate'));

@@ -37,6 +37,30 @@ body {
   scrollbar-color: var(--color-line-strong) transparent;
 }
 
+/*
+ * Visible horizontal scrollbar for the city tabs. Always shown (not just on
+ * overflow) so Windows mouse users can discover the scrollable area.
+ */
+.tabs-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) var(--color-canvas);
+  overflow-x: scroll;
+}
+.tabs-scroll::-webkit-scrollbar {
+  height: 5px;
+}
+.tabs-scroll::-webkit-scrollbar-track {
+  background: var(--color-canvas);
+  border-radius: 9999px;
+}
+.tabs-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 9999px;
+}
+.tabs-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-soft);
+}
+
 /* ---------------------------------------------------------------------------
  * Map
  * ------------------------------------------------------------------------ */

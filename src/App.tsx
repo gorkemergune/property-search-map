@@ -33,7 +33,21 @@ import {
 import { densityPoints, interestPoints, type MapMode } from './lib/heat';
 const CITY_INDEX = buildCityIndex(properties);
 /** Ordered city list; same order drives the Header tabs and the City dropdown. */
-const CITIES: readonly string[] = ['London', 'Manchester', 'Birmingham', 'Bristol', 'Edinburgh'];
+const CITIES: readonly string[] = [
+  'London',
+  'Manchester',
+  'Birmingham',
+  'Bristol',
+  'Edinburgh',
+  'Leeds',
+  'Liverpool',
+  'Newcastle',
+  'Nottingham',
+  'Sheffield',
+  'Brighton',
+  'Oxford',
+  'Cambridge',
+];
 const BY_ID: ReadonlyMap<string, (typeof properties)[number]> = new Map(properties.map((p) => [p.id, p]));
 
 export default function App() {

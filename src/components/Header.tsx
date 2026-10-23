@@ -25,12 +25,17 @@ export function Header({ city, cities, onCityChange, savedCount, onOpenSaved }: 
         </span>
       </a>
 
-      <nav aria-label={t.nav.markets} className="absolute left-1/2 hidden -translate-x-1/2 lg:block">
-        <ul className="flex items-center gap-0.5 rounded-full bg-canvas p-1">
+      <nav
+        aria-label={t.nav.markets}
+        className="hidden min-w-0 flex-1 justify-center lg:flex"
+      >
+        <ul
+          className="tabs-scroll flex w-full max-w-[760px] items-center gap-0.5 rounded-2xl bg-canvas px-1 pb-1 pt-1"
+        >
           {tabs.map((m) => {
             const active = city === m.value;
             return (
-              <li key={m.value}>
+              <li key={m.value} className="shrink-0">
                 <button
                   type="button"
                   onClick={() => onCityChange(m.value)}
