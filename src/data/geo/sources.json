@@ -1,0 +1,20 @@
+{
+  "population": {
+    "title": "Population estimates for the UK, England, Wales, Scotland and Northern Ireland: mid-2025, table MYE5",
+    "publisher": "Office for National Statistics (with National Records of Scotland and NISRA)",
+    "year": "mid-2025",
+    "published": "2026-10-01",
+    "url": "https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/populationestimatesforukenglandandwalesscotlandandnorthernireland"
+  },
+  "lad": {
+    "title": "Local Authority Districts (May 2024) Boundaries UK BUC",
+    "publisher": "ONS Open Geography Portal",
+    "url": "https://geoportal.statistics.gov.uk/"
+  },
+  "wards": {
+    "title": "Wards (May 2024) Boundaries UK BGC, with the WD24_LAD24_UK_LU lookup",
+    "publisher": "ONS Open Geography Portal",
+    "url": "https://geoportal.statistics.gov.uk/"
+  },
+  "licence": "Open Government Licence v3.0. Contains OS data © Crown copyright and database right 2024."
+}

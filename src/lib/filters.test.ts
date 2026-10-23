@@ -24,13 +24,13 @@ const CITY_INDEX = buildCityIndex(properties);
 const f = (patch: Partial<Filters>): Filters => ({ ...DEFAULT_FILTERS, ...patch });
 
 describe('applyFilters', () => {
-  it('returns all 200 listings with default filters', () => {
-    expect(applyFilters(properties, DEFAULT_FILTERS)).toHaveLength(300);
+  it('returns all listings with default filters', () => {
+    expect(applyFilters(properties, DEFAULT_FILTERS)).toHaveLength(properties.length);
   });
 
   it('filters by city and sale/rent', () => {
     expect(applyFilters(properties, f({ city: 'London' })).every((p) => p.city === 'London')).toBe(true);
-    expect(applyFilters(properties, f({ city: 'Manchester' }))).toHaveLength(25);
+    expect(applyFilters(properties, f({ city: 'Manchester' }))).toHaveLength(properties.filter((p) => p.city === 'Manchester').length);
     const rentals = applyFilters(properties, f({ pricePeriod: 'monthly' }));
     expect(rentals.length).toBeGreaterThan(0);
     expect(rentals.every((p) => p.pricePeriod === 'monthly')).toBe(true);
@@ -70,7 +70,7 @@ describe('applyFilters', () => {
     const r = applyFilters(properties, f({ query: 'shoreditch' }));
     expect(r.every((p) => p.neighborhood === 'Shoreditch')).toBe(true);
     expect(applyFilters(properties, f({ query: 'LONDON' })).length).toBe(120);
-    expect(applyFilters(properties, f({ query: 'united kingdom' }))).toHaveLength(300);
+    expect(applyFilters(properties, f({ query: 'united kingdom' }))).toHaveLength(properties.length);
     expect(normalizeText('  London ')).toBe('london');
   });
 });
@@ -114,7 +114,7 @@ describe('updateFilters', () => {
     const london = updateFilters(DEFAULT_FILTERS, { city: 'London' }, CITY_INDEX);
     expect(london).toMatchObject({ country: 'GB', city: 'London' });
     expect(updateFilters(london, { city: 'all' }, CITY_INDEX)).toMatchObject({ city: 'all' });
-    expect(applyFilters(properties, updateFilters(london, { city: 'all' }, CITY_INDEX))).toHaveLength(300);
+    expect(applyFilters(properties, updateFilters(london, { city: 'all' }, CITY_INDEX))).toHaveLength(properties.length);
   });
 
   it('keeps the sale range when switching to rent (ranges are independent per period)', () => {
@@ -209,7 +209,7 @@ describe('extended filters', () => {
     expect(r.length).toBeGreaterThan(0);
     expect(r.every((p) => p.pricePeriod === 'monthly' && p.furnishing === 'furnished')).toBe(true);
     expect(updateFilters(rent, { pricePeriod: 'total' }, CITY_INDEX).furnishing).toEqual([]);
-    expect(applyFilters(properties, f({ furnishing: ['furnished'] }))).toHaveLength(300);
+    expect(applyFilters(properties, f({ furnishing: ['furnished'] }))).toHaveLength(properties.length);
   });
 
   it('keeps the edited bound when bedroom or area ranges cross', () => {
@@ -268,7 +268,7 @@ describe('chips and clear all', () => {
 
   it('clear all resets every filter but keeps the area unit preference', () => {
     expect(clearFilters(busy)).toEqual({ ...DEFAULT_FILTERS, areaUnit: 'sqft' });
-    expect(applyFilters(properties, clearFilters(busy))).toHaveLength(300);
+    expect(applyFilters(properties, clearFilters(busy))).toHaveLength(properties.length);
   });
 
   it('labels bedroom ranges including studio and 5+', () => {
@@ -321,8 +321,8 @@ describe('UK must-have features', () => {
     expect(newBuild.every((p) => p.newBuild === true)).toBe(true);
 
     // Without the sale context, these filters are inert.
-    expect(applyFilters(properties, f({ tenure: ['freehold'] }))).toHaveLength(300);
-    expect(applyFilters(properties, f({ newBuildOnly: true }))).toHaveLength(300);
+    expect(applyFilters(properties, f({ tenure: ['freehold'] }))).toHaveLength(properties.length);
+    expect(applyFilters(properties, f({ newBuildOnly: true }))).toHaveLength(properties.length);
   });
 
   it('applies pets, bills and availableBy only within the rent context', () => {
@@ -337,8 +337,8 @@ describe('UK must-have features', () => {
     expect(soon.every((p) => p.availableFrom && p.availableFrom <= '2026-10-20')).toBe(true);
 
     // Without the rent context, these filters are inert.
-    expect(applyFilters(properties, f({ petPolicy: 'allowed' }))).toHaveLength(300);
-    expect(applyFilters(properties, f({ availableBy: '2026-10-20' }))).toHaveLength(300);
+    expect(applyFilters(properties, f({ petPolicy: 'allowed' }))).toHaveLength(properties.length);
+    expect(applyFilters(properties, f({ availableBy: '2026-10-20' }))).toHaveLength(properties.length);
   });
 
   it('clears sale-only or rent-only filters when the context flips', () => {
@@ -578,6 +578,6 @@ describe('rental suitability filters', () => {
       applicantsWelcome: [],
     });
     // Inert outside the Rent context.
-    expect(applyFilters(properties, f({ couplesWelcome: true, incomeCheck: 'required' }))).toHaveLength(300);
+    expect(applyFilters(properties, f({ couplesWelcome: true, incomeCheck: 'required' }))).toHaveLength(properties.length);
   });
 });

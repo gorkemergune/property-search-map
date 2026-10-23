@@ -5,12 +5,14 @@ import { CloseIcon, ListIcon, MapIcon } from './components/icons';
 import { ListingDetail } from './components/ListingDetail';
 import { PropertyCard } from './components/PropertyCard';
 import { PropertyList } from './components/PropertyList';
-import { HEAT_STYLES, HeatLegend, MapModeControl } from './components/MapLayers';
-import { MARKER_HELP_ID, PropertyMap } from './components/PropertyMap';
+import type { AreaFocus, AreaLevel } from './components/AreaLayer';
+import { ListingDensityLegend, MapModeControl, PopulationLegend, type AreaSummary } from './components/MapLayers';
+import { MARKER_HELP_ID, PropertyMap, type AreaOverlay } from './components/PropertyMap';
 import { ResultsBar } from './components/ResultsBar';
 import { SavedHomesPanel } from './components/SavedHomesPanel';
 import { Toolbar } from './components/Toolbar';
 import { properties } from './data/properties';
+import { useAreaData } from './hooks/useAreaData';
 import { useListingSelection } from './hooks/useListingSelection';
 import { useSavedHomes } from './hooks/useSavedHomes';
 import { useUrlSearchState } from './hooks/useUrlSearchState';
@@ -30,24 +32,11 @@ import {
   type Filters,
   type SortKey,
 } from './lib/filters';
-import { densityPoints, interestPoints, type MapMode } from './lib/heat';
+import { assignToAreas, countByArea } from './lib/areas';
+import type { MapMode } from './lib/heat';
 const CITY_INDEX = buildCityIndex(properties);
 /** Ordered city list; same order drives the Header tabs and the City dropdown. */
-const CITIES: readonly string[] = [
-  'London',
-  'Manchester',
-  'Birmingham',
-  'Bristol',
-  'Edinburgh',
-  'Leeds',
-  'Liverpool',
-  'Newcastle',
-  'Nottingham',
-  'Sheffield',
-  'Brighton',
-  'Oxford',
-  'Cambridge',
-];
+const CITIES: readonly string[] = [...new Set(properties.map((p) => p.city))];
 const BY_ID: ReadonlyMap<string, (typeof properties)[number]> = new Map(properties.map((p) => [p.id, p]));
 
 export default function App() {
@@ -83,11 +72,37 @@ export default function App() {
     if (detailId) recordView(detailId);
   }, [detailId, recordView]);
 
-  const heat = useMemo(() => {
-    if (mapMode === 'homes') return null;
-    const points = mapMode === 'density' ? densityPoints(results) : interestPoints(properties, filters).points;
-    return { points, style: HEAT_STYLES[mapMode] };
-  }, [mapMode, results, filters]);
+  // Shaded area views: boundaries load on first use; listings are matched to areas once.
+  const geo = useAreaData(mapMode !== 'homes');
+  const [areaLevel, setAreaLevel] = useState<AreaLevel>('lad');
+  const [areaFocus, setAreaFocus] = useState<AreaFocus | null>(null);
+  const focusArea = useCallback((code: string) => setAreaFocus((f) => ({ code, seq: (f?.seq ?? 0) + 1 })), []);
+  const assignment = useMemo(() => (geo.status === 'ready' ? assignToAreas(properties, geo.lads, geo.wards) : null), [geo]);
+  // Counts follow the same `results` array as the list and markers.
+  const areaCounts = useMemo(
+    () => (assignment && mapMode === 'density' ? countByArea(results, assignment) : null),
+    [assignment, mapMode, results],
+  );
+  const areaNames = useMemo(
+    () => (geo.status === 'ready' ? new Map([...geo.lads.features, ...geo.wards.features].map((f) => [f.properties.code, f.properties.name])) : null),
+    [geo],
+  );
+  const topAreas = useMemo<AreaSummary[]>(() => {
+    if (!areaCounts || !areaNames) return [];
+    const wardLads = new Set(geo.status === 'ready' ? geo.wards.features.map((f) => f.properties.lad) : []);
+    const visible = areaLevel === 'ward' ? [...areaCounts.ward, ...[...areaCounts.lad].filter(([code]) => !wardLads.has(code))] : [...areaCounts.lad];
+    return visible
+      .map(([code, count]) => ({ code, count, name: areaNames.get(code) ?? code }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+      .slice(0, 12);
+  }, [areaCounts, areaNames, areaLevel, geo]);
+  const areas = useMemo<AreaOverlay | null>(
+    () =>
+      mapMode !== 'homes' && geo.status === 'ready'
+        ? { mode: mapMode, lads: geo.lads, wards: geo.wards, counts: areaCounts, focus: areaFocus, onLevelChange: setAreaLevel }
+        : null,
+    [mapMode, geo, areaCounts, areaFocus],
+  );
 
   const place = filters.city !== 'all' ? filters.city : t.results.everywhere;
 
@@ -164,11 +179,29 @@ export default function App() {
               flyTarget={selection.flyTarget}
               onSelect={selection.selectFromMap}
               onHover={selection.setHoveredId}
-              heat={heat}
+              areas={areas}
             />
             <div className="absolute left-3 top-3 z-[1000] flex flex-col items-start gap-2 sm:left-4 sm:top-4">
               <MapModeControl mode={mapMode} onChange={setMapMode} />
-              {mapMode !== 'homes' && <HeatLegend mode={mapMode} resultCount={results.length} />}
+              {mapMode === 'popular' && (
+                <PopulationLegend
+                  status={geo.status}
+                  sources={geo.status === 'ready' ? geo.sources : null}
+                  onRetry={geo.status === 'error' ? geo.retry : undefined}
+                />
+              )}
+              {mapMode === 'density' && (
+                <ListingDensityLegend
+                  status={geo.status}
+                  sources={geo.status === 'ready' ? geo.sources : null}
+                  onRetry={geo.status === 'error' ? geo.retry : undefined}
+                  resultCount={results.length}
+                  counts={areaCounts}
+                  level={areaLevel}
+                  topAreas={topAreas}
+                  onFocusArea={focusArea}
+                />
+              )}
             </div>
             {selection.selected && (
               <div className="absolute bottom-20 left-3 right-3 z-[1000] sm:bottom-4 sm:left-4 sm:right-auto sm:w-[420px]">

@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
 import './test/dom';
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import App from './App';
+import { properties } from './data/properties';
 import { STORAGE_KEYS } from './lib/storage';
 
 const cards = () => [...document.querySelectorAll<HTMLElement>('article[id^="card-"]')];
@@ -113,21 +114,21 @@ describe('map heat layers', () => {
     expect(screen.queryByRole('region', { name: /Popular areas/ })).toBeNull();
 
     await userEvent.click(within(group).getByRole('radio', { name: 'Popular areas' }));
-    const popular = screen.getByRole('region', { name: 'Popular areas (demo interest)' });
-    expect(popular.textContent).toMatch(/fictional interest values, not real search/);
+    const popular = screen.getByRole('region', { name: 'Popular areas' });
+    await waitFor(() => expect(popular.textContent).toMatch(/ONS mid-year/), { timeout: 10_000 });
     expect(window.location.search).toContain('map=popular');
-    expect(document.querySelector('.heat-layer')).not.toBeNull();
+    expect(document.querySelector('.leaflet-areas-pane svg')).not.toBeNull();
     // Markers stay (as quiet dots) so the map and list stay in sync.
-    expect(markers()).toHaveLength(300);
+    expect(markers()).toHaveLength(properties.length);
     expect(document.querySelectorAll('.price-marker.is-muted').length).toBeGreaterThan(0);
 
     await userEvent.click(within(group).getByRole('radio', { name: 'Listing density' }));
-    expect(screen.getByRole('region', { name: 'Listing density' }).textContent).toContain('300 homes');
+    expect(screen.getByRole('region', { name: 'Listing density' }).textContent).toContain(`${properties.length} homes`);
     await userEvent.click(screen.getAllByRole('radio', { name: 'Rent' })[0]);
     expect(screen.getByRole('region', { name: 'Listing density' }).textContent).toContain(`${resultCount()} homes`);
 
     await userEvent.click(within(group).getByRole('radio', { name: 'Homes' }));
-    expect(document.querySelector('.heat-layer')).toBeNull();
+    expect(document.querySelector('.leaflet-areas-pane path')).toBeNull();
     expect(window.location.search).not.toContain('map=');
   }, 20_000);
 
@@ -135,7 +136,7 @@ describe('map heat layers', () => {
     window.history.replaceState(null, '', '/?map=density&q=zzzz');
     render(<App />);
     expect(resultCount()).toBe(0);
-    expect(screen.getByRole('region', { name: 'Listing density' }).textContent).toContain('nothing to map');
+    await waitFor(() => expect(screen.getByRole('region', { name: 'Listing density' }).textContent).toContain('every area shows zero'), { timeout: 10_000 });
   });
 });
 
@@ -160,7 +161,7 @@ describe('shareable search links', () => {
       window.history.pushState(null, '', '/');
       window.dispatchEvent(new PopStateEvent('popstate'));
     });
-    expect(resultCount()).toBe(300);
+    expect(resultCount()).toBe(properties.length);
     act(() => {
       window.history.pushState(null, '', '/?for=rent');
       window.dispatchEvent(new PopStateEvent('popstate'));

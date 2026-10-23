@@ -4,22 +4,23 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import App from './App';
+import { properties } from './data/properties';
 
 const cards = () => document.querySelectorAll('article[id^="card-"]');
 const markers = () => document.querySelectorAll('.leaflet-marker-icon');
 const resultCount = () => Number(screen.getByText(/homes? found$/).textContent!.match(/\d+/)![0]);
 const firstCardButton = () => within(cards()[0] as HTMLElement).getAllByRole('button')[0];
 
-describe('App', () => {
+describe('App', { timeout: 20_000 }, () => {
   it('renders one card and one marker per result, and keeps them in sync while filtering', async () => {
     render(<App />);
-    expect(cards()).toHaveLength(300);
-    expect(markers()).toHaveLength(300);
-    expect(resultCount()).toBe(300);
+    expect(cards()).toHaveLength(properties.length);
+    expect(markers()).toHaveLength(properties.length);
+    expect(resultCount()).toBe(properties.length);
 
     await userEvent.click(screen.getAllByRole('radio', { name: 'Rent' })[0]);
     const n = resultCount();
-    expect(n).toBeLessThan(200);
+    expect(n).toBeLessThan(properties.length);
     expect(cards()).toHaveLength(n);
     expect(markers()).toHaveLength(n);
   });
@@ -79,7 +80,7 @@ describe('App', () => {
     expect(screen.getAllByRole('radio', { name: 'Rent' })[0].getAttribute('aria-checked')).toBe('true');
     const n = resultCount();
     expect(n).toBeGreaterThan(0);
-    expect(n).toBeLessThan(200);
+    expect(n).toBeLessThan(properties.length);
     expect(cards()).toHaveLength(n);
     expect(markers()).toHaveLength(n);
     expect(within(quick()).getByRole('button', { name: 'Student homes' }).getAttribute('aria-pressed')).toBe('true');
@@ -93,7 +94,7 @@ describe('App', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Remove filter: Students welcome' }));
     expect(within(quick()).getByRole('button', { name: 'Student homes' }).getAttribute('aria-pressed')).toBe('false');
     await userEvent.click(screen.getAllByRole('button', { name: 'Clear all' })[0]);
-    expect(resultCount()).toBe(300);
+    expect(resultCount()).toBe(properties.length);
   }, 15_000);
 
   it('shows an empty state and clears all filters from it', async () => {
@@ -102,7 +103,7 @@ describe('App', () => {
     expect(screen.getByText('No homes match these filters')).toBeTruthy();
     expect(markers()).toHaveLength(0);
     await userEvent.click(screen.getByRole('button', { name: 'Clear all filters' }));
-    expect(resultCount()).toBe(300);
+    expect(resultCount()).toBe(properties.length);
   });
 
   it('removes chips one at a time and clears all', async () => {
@@ -113,10 +114,10 @@ describe('App', () => {
     expect(chipNames()).toEqual(['Manchester', 'For rent']);
     await userEvent.click(screen.getByRole('button', { name: 'Remove filter: For rent' }));
     expect(chipNames()).toEqual(['Manchester']);
-    expect(resultCount()).toBe(25);
+    expect(resultCount()).toBe(properties.filter((p) => p.city === 'Manchester').length);
     await userEvent.click(screen.getByRole('button', { name: 'Clear all' }));
     expect(chipNames()).toEqual([]);
-    expect(resultCount()).toBe(300);
+    expect(resultCount()).toBe(properties.length);
   });
 
   it('switches between list and map on mobile and opens the filter panel', async () => {
@@ -139,6 +140,7 @@ describe('App', () => {
   }, 15_000);
 
   it('moves focus into the filter drawer, keeps Tab inside, and returns focus on close (regression)', async () => {
+    window.history.replaceState(null, '', '/?city=Bristol');
     render(<App />);
     const opener = screen.getByRole('button', { name: /^(Filters|All filters)/ });
     await userEvent.click(opener);
@@ -154,9 +156,9 @@ describe('App', () => {
   it('"All UK" in the header clears a previously chosen city (regression)', async () => {
     render(<App />);
     await userEvent.click(screen.getByRole('button', { name: 'Bristol' }));
-    expect(resultCount()).toBe(20);
+    expect(resultCount()).toBe(properties.filter((p) => p.city === 'Bristol').length);
     await userEvent.click(screen.getByRole('button', { name: 'All UK' }));
-    expect(resultCount()).toBe(300);
+    expect(resultCount()).toBe(properties.length);
   });
 
   it('does not reopen search suggestions when a detail opened from search closes (regression)', async () => {
@@ -180,7 +182,7 @@ describe('App', () => {
 
     it('puts a single marker in the Tab order, labelled for screen readers', () => {
       render(<App />);
-      expect(markers()).toHaveLength(300);
+      expect(markers()).toHaveLength(properties.length);
       const [only] = tabbable();
       expect(tabbable()).toHaveLength(1);
       expect(only.dataset.listingId).toBe(cardIds()[0]);

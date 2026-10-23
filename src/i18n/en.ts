@@ -22,7 +22,7 @@ export const t = {
   brand: 'Iceberg X',
   brandSub: 'Property Search',
   demoBadge: 'Demo · mock data',
-  nav: { buy: 'Buy', rent: 'Rent', all: 'All', markets: 'Cities', allMarkets: 'All UK' },
+  nav: { buy: 'Buy', rent: 'Rent', all: 'All', markets: 'Cities', allMarkets: 'All UK', prevCities: 'Show previous cities', nextCities: 'Show more cities' },
   search: {
     placeholder: 'Search city, area or keyword',
     label: 'Search listings',
@@ -390,24 +390,54 @@ export const t = {
       'Map markers: Tab reaches one marker. Use the arrow keys to move between listings in result order, Home and End to jump, and Enter to select. The listing cards offer the same listings.',
     tilesFailed: 'Map tiles could not be loaded. Listings and price markers still work; try again later.',
     onMap: 'Selected',
+    clusterLabel: (n: number) => `${n} homes here. Zoom in to see them`,
   },
   mapLayers: {
     label: 'Map view',
     modes: { homes: 'Homes', popular: 'Popular areas', density: 'Listing density' },
-    legend: {
-      popular: {
-        title: 'Popular areas (demo interest)',
-        low: 'Less interest',
-        high: 'More interest',
-        caption: 'Illustrative only: fictional interest values, not real search or visitor data. Follows your city and Buy/Rent choice.',
-      },
-      density: {
-        title: 'Listing density',
-        low: 'Fewer homes',
-        high: 'More homes',
-        caption: (n: number) => `Where the ${n === 1 ? '1 home' : `${n} homes`} matching your filters are concentrated.`,
-        empty: 'No homes match your filters, so there is nothing to map.',
-      },
+    /** Short description under each mode button, so the two shaded views are never confused. */
+    hints: {
+      homes: 'Price markers',
+      popular: 'Population density (census proxy)',
+      density: 'Matching homes per area',
+    },
+    zoomToArea: 'Zoom to area',
+    loading: 'Loading area boundaries…',
+    failed: 'Area boundaries could not be loaded, so the shaded view is unavailable. Homes are still shown.',
+    retry: 'Try again',
+    source: 'Source',
+    aboutData: 'About this data',
+    popular: {
+      title: 'Popular areas',
+      subtitle: 'Population density (census proxy)',
+      unit: 'people per km²',
+      low: 'Fewer people',
+      high: 'More people',
+      noData: 'No data',
+      caveat:
+        'Shows where people live, as a stand-in for populated areas. It is not measured property-search interest or demand, and it does not change with your filters.',
+      level: 'Shaded by local authority (council area in Scotland).',
+      areaDensity: (density: number | null, population: number) =>
+        density === null
+          ? 'No population data'
+          : `${density.toLocaleString('en-GB')} people per km² · ${population.toLocaleString('en-GB')} residents (mid-2025)`,
+    },
+    density: {
+      title: 'Listing density',
+      subtitle: 'Matching homes per area',
+      zero: 'None',
+      ward: 'ward',
+      localAuthority: 'local authority',
+      caption: (n: number) => `Counts the ${n === 1 ? '1 home' : `${n} homes`} matching your filters in each area.`,
+      empty: 'No homes match your filters, so every area shows zero.',
+      byLad: 'Counted by local authority. Zoom in on a city to see wards.',
+      byWard: 'Counted by ward in the cities with listings; other areas stay whole.',
+      method:
+        'Each home is matched to the ONS ward or local authority boundary (May 2024) that contains it. Pale areas have no matching homes; they are not missing data.',
+      areaCount: (n: number) => (n === 0 ? 'No matching homes' : n === 1 ? '1 matching home' : `${n} matching homes`),
+      unassigned: (n: number) => `Not counted: ${n === 1 ? '1 home' : `${n} homes`} outside the mapped boundaries.`,
+      topAreas: 'Areas with the most matching homes',
+      zoomTo: (name: string, n: number) => `Zoom to ${name}, ${n === 1 ? '1 home' : `${n} homes`}`,
     },
   },
   saved: {

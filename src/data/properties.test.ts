@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { properties } from './properties';
+import { COVERAGE_LOCATIONS } from './coverage';
 import { MARKETS, isPriceComparable } from './markets';
 import { PHOTO_POOLS, getFallbackImage } from './images';
 import {
@@ -23,6 +24,7 @@ const countBy = <K extends string>(keyOf: (p: (typeof properties)[number]) => K)
 
 /** City centers; every listing must sit within `radiusKm` of its city. */
 const CITY_CENTERS: Record<string, { lat: number; lng: number; radiusKm: number }> = {
+  ...Object.fromEntries(COVERAGE_LOCATIONS.map((p) => [p.city, { lat: p.lat, lng: p.lng, radiusKm: 3 }])),
   London: { lat: 51.5072, lng: -0.1276, radiusKm: 20 },
   Manchester: { lat: 53.4808, lng: -2.2426, radiusKm: 15 },
   Birmingham: { lat: 52.4862, lng: -1.8904, radiusKm: 15 },
@@ -52,29 +54,30 @@ const PRICE_BANDS: Record<Currency, Record<PricePeriod, [number, number]>> = {
 };
 
 describe('property dataset', () => {
-  it('has exactly 300 listings', () => {
-    expect(properties).toHaveLength(300);
+  it('has 402 geographically distributed listings', () => {
+    expect(properties).toHaveLength(402);
   });
 
   it('is a UK-only dataset', () => {
-    expect(countBy((p) => p.countryCode)).toEqual({ GB: 300 });
+    expect(countBy((p) => p.countryCode)).toEqual({ GB: 402 });
   });
 
   it('clusters listings across the expected UK cities', () => {
     expect(countBy((p) => p.city)).toEqual({
+      ...Object.fromEntries(COVERAGE_LOCATIONS.map((p) => [p.city, 3])),
       London: 120,
-      Manchester: 25,
-      Birmingham: 20,
-      Bristol: 20,
-      Edinburgh: 15,
-      Leeds: 14,
-      Liverpool: 13,
-      Newcastle: 12,
-      Nottingham: 12,
-      Sheffield: 12,
-      Brighton: 12,
-      Oxford: 13,
-      Cambridge: 12,
+      Manchester: 31,
+      Birmingham: 24,
+      Bristol: 24,
+      Edinburgh: 18,
+      Leeds: 19,
+      Liverpool: 15,
+      Newcastle: 16,
+      Nottingham: 18,
+      Sheffield: 18,
+      Brighton: 15,
+      Oxford: 15,
+      Cambridge: 15,
     });
   });
 
@@ -345,7 +348,7 @@ describe('UK-specific fields', () => {
       }
     }
     expect(properties.filter((p) => p.city === 'Edinburgh').every((p) => p.nation === 'scotland')).toBe(true);
-    expect(properties.filter((p) => p.city !== 'Edinburgh').every((p) => p.nation === 'england')).toBe(true);
+    expect(properties.filter((p) => !COVERAGE_LOCATIONS.some((c) => c.city === p.city) && p.city !== 'Edinburgh').every((p) => p.nation === 'england')).toBe(true);
   });
 
   it('keeps suitability terms on rentals only, coherent with the listing', () => {

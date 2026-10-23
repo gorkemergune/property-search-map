@@ -54,7 +54,7 @@ describe('scoreText and matchesQuery', () => {
 
   it('searches title, type, country, address and description', () => {
     expect(properties.filter((p) => matchesQuery(p, 'villa')).every((p) => p.type === 'villa' || /villa/i.test(p.title))).toBe(true);
-    expect(properties.filter((p) => matchesQuery(p, 'united kingdom'))).toHaveLength(300);
+    expect(properties.filter((p) => matchesQuery(p, 'united kingdom'))).toHaveLength(properties.length);
     expect(properties.filter((p) => matchesQuery(p, 'part-furnished')).every((p) => p.furnishing === 'part_furnished')).toBe(true);
   });
 });
@@ -63,14 +63,14 @@ describe('filler and template words (regression)', () => {
   const count = (q: string) => properties.filter((p) => matchesQuery(p, q)).length;
 
   it('does not match every listing through the generated description wording', () => {
-    expect(count('demo')).toBe(300);
+    expect(count('demo')).toBe(properties.length);
     expect(count('bath')).toBe(0);
     expect(count('Bath')).toBe(0);
-    expect(count('fictional details')).toBe(300);
+    expect(count('fictional details')).toBe(properties.length);
   });
 
   it('ignores filler words but keeps meaningful ones', () => {
-    expect(count('in')).toBe(300);
+    expect(count('in')).toBe(properties.length);
     expect(count('homes in shoreditch')).toBe(0); // "homes" is not a stop word and matches nothing
     const shoreditch = count('apartment in shoreditch');
     expect(shoreditch).toBeGreaterThan(0);

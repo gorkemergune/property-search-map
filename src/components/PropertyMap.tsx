@@ -5,13 +5,17 @@ import 'leaflet/dist/leaflet.css';
 import { DEFAULT_CENTER, DEFAULT_ZOOM, MAP_MAX_ZOOM, TILE_ATTRIBUTION, TILE_URL } from '../config/map';
 import { t } from '../i18n/en';
 import { formatMarkerPrice, formatPrice } from '../lib/format';
-import type { HeatPoint } from '../lib/heat';
-import { HeatLayer, type HeatStyle } from './HeatLayer';
+import { clusterByDistance } from '../lib/cluster';
+import { AreaLayer, type AreaFocus, type AreaLevel, type AreaMode } from './AreaLayer';
+import type { AreaCounts, LadCollection, WardCollection } from '../lib/areas';
 import type { Property } from '../types/property';
 
 /** Below this zoom, price pills would pile up, so markers render as dots. */
 const PRICE_LABEL_MIN_ZOOM = 10;
 const FOCUS_ZOOM = 14;
+/** Below this zoom (UK and region views), nearby markers merge into numbered clusters. */
+const CLUSTER_MAX_ZOOM = 10;
+const CLUSTER_RADIUS_PX = 44;
 
 export interface FlyTarget {
   id: string;
@@ -25,8 +29,17 @@ interface Props {
   flyTarget: FlyTarget | null;
   onSelect: (id: string) => void;
   onHover: (id: string | null) => void;
-  /** Heat layer drawn under the markers; markers shrink to quiet dots while it is on. */
-  heat?: { points: HeatPoint[]; style: HeatStyle } | null;
+  /** Shaded areas drawn under the markers; markers shrink to quiet dots while they are on. */
+  areas?: AreaOverlay | null;
+}
+
+export interface AreaOverlay {
+  mode: AreaMode;
+  lads: LadCollection;
+  wards: WardCollection;
+  counts: AreaCounts | null;
+  focus: AreaFocus | null;
+  onLevelChange: (level: AreaLevel) => void;
 }
 
 type MarkerState = 'default' | 'hovered' | 'selected';
@@ -45,7 +58,7 @@ function markerIcon(p: Property, state: MarkerState, showPrice: boolean, muted: 
   });
 }
 
-export function PropertyMap({ properties, selectedId, hoveredId, flyTarget, onSelect, onHover, heat = null }: Props) {
+export function PropertyMap({ properties, selectedId, hoveredId, flyTarget, onSelect, onHover, areas = null }: Props) {
   // Show a notice when tiles fail and none have loaded (offline, blocked or provider down).
   const [tiles, setTiles] = useState({ loaded: 0, failed: 0 });
   const tileHandlers = useMemo<L.LeafletEventHandlerFnMap>(
@@ -70,14 +83,14 @@ export function PropertyMap({ properties, selectedId, hoveredId, flyTarget, onSe
       >
         <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} maxZoom={MAP_MAX_ZOOM} eventHandlers={tileHandlers} />
         <ZoomControl position="bottomright" />
-        {heat && <HeatLayer points={heat.points} style={heat.style} />}
+        {areas && <AreaLayer {...areas} />}
         <Markers
           properties={properties}
           selectedId={selectedId}
           hoveredId={hoveredId}
           onSelect={onSelect}
           onHover={onHover}
-          muted={heat !== null}
+          muted={areas !== null}
         />
         <ViewController properties={properties} target={flyTarget} />
       </MapContainer>
@@ -98,6 +111,10 @@ export const MARKER_HELP_ID = 'map-marker-keyboard-help';
  * selected listing, else the last one reached with the arrows, else the first
  * result). Arrow keys move between markers in result order, Home/End jump to
  * the ends, Enter/Space selects. The cards remain the full keyboard path.
+ *
+ * Zoomed out, nearby markers merge into numbered clusters (each a button that
+ * zooms in); the arrow keys then move between the markers still shown on
+ * their own. The selected listing is never folded into a cluster.
  */
 function Markers({
   properties,
@@ -108,16 +125,36 @@ function Markers({
   muted,
 }: Pick<Props, 'properties' | 'selectedId' | 'hoveredId' | 'onSelect' | 'onHover'> & { muted: boolean }) {
   const map = useMap();
-  const [zoom, setZoom] = useState(() => map.getZoom());
-  useMapEvents({ zoomend: () => setZoom(map.getZoom()) });
+  const [view, setView] = useState(() => ({ zoom: map.getZoom(), width: map.getSize().x }));
+  useMapEvents({
+    zoomend: () => setView({ zoom: map.getZoom(), width: map.getSize().x }),
+    resize: () => setView({ zoom: map.getZoom(), width: map.getSize().x }),
+  });
+  const { zoom } = view;
   const showPrice = zoom >= PRICE_LABEL_MIN_ZOOM && !muted;
 
-  const [focusId, setFocusId] = useState<string | null>(null);
-  const inResults = (id: string | null) => id !== null && properties.some((p) => p.id === id);
-  const tabbableId = inResults(selectedId) ? selectedId : inResults(focusId) ? focusId : (properties[0]?.id ?? null);
+  // A map with no size (hidden mobile map, tests) has no screen space to declutter.
+  const clustering = zoom < CLUSTER_MAX_ZOOM && view.width > 0;
+  const { singles, clusters } = useMemo(() => {
+    if (!clustering) return { singles: properties, clusters: [] };
+    const free = properties.filter((p) => p.id !== selectedId);
+    const groups = clusterByDistance(free, (p) => map.project([p.lat, p.lng], zoom), CLUSTER_RADIUS_PX);
+    const selected = properties.filter((p) => p.id === selectedId);
+    return {
+      singles: [...groups.filter((g) => g.items.length === 1).map((g) => g.items[0]), ...selected],
+      clusters: groups.filter((g) => g.items.length > 1),
+    };
+  }, [clustering, properties, selectedId, map, zoom]);
+  const singleIds = useMemo(() => new Set(singles.map((p) => p.id)), [singles]);
+  // Keyboard order follows the result order, limited to the markers on screen.
+  const navigable = useMemo(() => properties.filter((p) => singleIds.has(p.id)), [properties, singleIds]);
 
-  const latest = useRef({ properties, onSelect, onHover });
-  latest.current = { properties, onSelect, onHover };
+  const [focusId, setFocusId] = useState<string | null>(null);
+  const inView = (id: string | null) => id !== null && singleIds.has(id);
+  const tabbableId = inView(selectedId) ? selectedId : inView(focusId) ? focusId : (navigable[0]?.id ?? null);
+
+  const latest = useRef({ navigable, onSelect, onHover });
+  latest.current = { navigable, onSelect, onHover };
 
   useEffect(() => {
     const pane = map.getPane('markerPane');
@@ -125,9 +162,16 @@ function Markers({
     const markerOf = (target: EventTarget | null) => (target as HTMLElement | null)?.closest<HTMLElement>('[data-listing-id]') ?? null;
 
     const onKeyDown = (e: KeyboardEvent) => {
+      const cluster = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-cluster]');
+      if (cluster && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        e.stopPropagation();
+        cluster.click();
+        return;
+      }
       const el = markerOf(e.target);
       if (!el) return;
-      const { properties: list, onSelect: select } = latest.current;
+      const { navigable: list, onSelect: select } = latest.current;
       const index = list.findIndex((p) => p.id === el.dataset.listingId);
       if (index < 0) return;
       let next: number;
@@ -199,23 +243,73 @@ function Markers({
     };
   }, [map]);
 
-  return properties.map((p) => {
-    const state: MarkerState = p.id === selectedId ? 'selected' : p.id === hoveredId ? 'hovered' : 'default';
-    return (
-      <PriceMarker
-        key={p.id}
-        property={p}
-        state={state}
-        tabbable={p.id === tabbableId}
-        // Selected and hovered markers draw above neighbours.
-        zIndexOffset={state === 'selected' ? 1000 : state === 'hovered' ? 500 : 0}
-        showPrice={showPrice}
-        muted={muted && state === 'default'}
-        onSelect={onSelect}
-        onHover={onHover}
-      />
-    );
-  });
+  return (
+    <>
+      {clusters.map((c) => (
+        <ClusterMarker
+          key={c.items.map((p) => p.id).join(',')}
+          listings={c.items}
+          position={map.unproject([c.x, c.y], zoom)}
+          hovered={hoveredId !== null && c.items.some((p) => p.id === hoveredId)}
+          muted={muted}
+        />
+      ))}
+      {singles.map((p) => {
+        const state: MarkerState = p.id === selectedId ? 'selected' : p.id === hoveredId ? 'hovered' : 'default';
+        return (
+          <PriceMarker
+            key={p.id}
+            property={p}
+            state={state}
+            tabbable={p.id === tabbableId}
+            // Selected and hovered markers draw above neighbours.
+            zIndexOffset={state === 'selected' ? 1000 : state === 'hovered' ? 500 : 0}
+            showPrice={showPrice}
+            muted={muted && state === 'default'}
+            onSelect={onSelect}
+            onHover={onHover}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+/** A numbered bubble for several nearby listings; activating it zooms in until they separate. */
+function ClusterMarker({ listings, position, hovered, muted }: { listings: Property[]; position: L.LatLng; hovered: boolean; muted: boolean }) {
+  const map = useMap();
+  const marker = useRef<L.Marker>(null);
+  const n = listings.length;
+  const icon = useMemo(() => {
+    const size = muted ? 24 : Math.round(Math.min(40, 24 + Math.log2(n) * 2));
+    const classes = ['map-cluster', hovered ? 'is-hovered' : '', muted ? 'is-muted' : ''].filter(Boolean).join(' ');
+    return L.divIcon({
+      className: 'map-cluster-icon',
+      iconSize: [size, size],
+      html: `<span class="${classes}">${n}</span>`,
+    });
+  }, [n, hovered, muted]);
+  const handlers = useMemo<L.LeafletEventHandlerFnMap>(
+    () => ({
+      click: () => {
+        const bounds = L.latLngBounds(listings.map((p) => [p.lat, p.lng] as [number, number]));
+        map.fitBounds(bounds, { padding: [60, 60], maxZoom: Math.max(map.getZoom() + 2, PRICE_LABEL_MIN_ZOOM) });
+      },
+    }),
+    [listings, map],
+  );
+  const label = t.map.clusterLabel(n);
+
+  useEffect(() => {
+    const el = marker.current?.getElement();
+    if (!el) return;
+    el.dataset.cluster = String(n);
+    el.setAttribute('role', 'button');
+    el.setAttribute('aria-label', label);
+    el.tabIndex = 0;
+  }, [icon, label, n]);
+
+  return <Marker ref={marker} position={position} icon={icon} keyboard={false} title={label} eventHandlers={handlers} />;
 }
 
 function PriceMarker({

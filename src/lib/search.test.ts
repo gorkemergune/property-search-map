@@ -31,7 +31,7 @@ describe('getSuggestions', () => {
   });
 
   it('suggests countries and home types with counts', () => {
-    expect(suggest('united').places.find((s) => s.kind === 'country')).toMatchObject({ label: 'United Kingdom', count: 300 });
+    expect(suggest('united').places.find((s) => s.kind === 'country')).toMatchObject({ label: 'United Kingdom', count: properties.length });
     const apartment = suggest('apartmnet').types.find((s) => s.label === 'Apartment');
     expect(apartment).toMatchObject({ fuzzy: true });
     expect(apartment!.count).toBeGreaterThan(0);
