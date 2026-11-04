@@ -62,11 +62,10 @@ export function Home(props: Props) {
     <div className="flex w-full flex-col">
       {/* Hero */}
       <div className="relative -mt-16 w-full overflow-hidden pt-16 md:-mt-20 md:pt-20">
-        {/* Background photo (ev.png), washed out so the headline and search stay readable. */}
-        <img src={heroImage} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-[70%_center] opacity-45" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#fde7d6]/60 via-[#fdf3e6]/45 to-surface" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgb(253_246_236/0.75)_0%,rgb(253_246_236/0.25)_55%,transparent_80%)]" />
-        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-secondary-fixed-dim/40 blur-3xl" />
+        {/* Background photo (ev.png), semi-transparent; a soft light patch behind the text keeps it readable. */}
+        <img src={heroImage} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-[70%_center] opacity-75 saturate-[1.15] [mask-image:linear-gradient(to_bottom,black_65%,transparent)]" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#f7c08e]/25 to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_60%_at_center,rgb(255_244_228/0.82)_0%,rgb(255_236_210/0.45)_60%,transparent_100%)]" />
         <section className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-col items-center px-5 pb-14 pt-12 md:px-8 lg:px-16 lg:pb-20 lg:pt-16">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/70 px-3.5 py-1 shadow-sm ring-1 ring-primary-fixed-dim/60 backdrop-blur-md">
             <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary-container" />

@@ -82,7 +82,7 @@ describe('App', { timeout: 30_000 }, () => {
     expect(within(basket).getByText('You might also like')).toBeTruthy();
     await userEvent.keyboard('{Escape}');
 
-    await userEvent.click(screen.getByRole('button', { name: 'evara home' }));
+    await userEvent.click(screen.getByRole('button', { name: 'ICEBERG home' }));
     expect(screen.getByRole('heading', { name: 'Recommended for you' })).toBeTruthy();
   });
 

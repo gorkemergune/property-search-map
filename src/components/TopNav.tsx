@@ -15,13 +15,13 @@ export function TopNav({ screen, onHome, onBrowse, savedCount, onOpenSaved }: Pr
   const link = (active: boolean) =>
     `text-sm transition-colors ${active ? 'font-semibold text-primary' : 'font-semibold text-on-surface-variant hover:text-on-surface'}`;
   return (
-    <header className="fixed top-0 z-[1200] w-full bg-surface/75 shadow-[0_1px_12px_rgba(122,58,8,0.08)] backdrop-blur-xl">
+    <header className="fixed top-0 z-[1200] w-full bg-[#fbe6cc]/80 shadow-[0_1px_12px_rgba(122,58,8,0.08)] backdrop-blur-xl">
       <div className="flex h-16 w-full items-center justify-between px-5 md:h-20 md:px-8 lg:px-16">
-        <button type="button" onClick={onHome} className="flex items-center gap-2.5" aria-label="evara home">
+        <button type="button" onClick={onHome} className="flex items-center gap-2.5" aria-label="ICEBERG home">
           <span className="bg-garden grid h-8 w-8 place-items-center rounded-xl text-white shadow-sm">
             <Symbol name="roofing" size={20} />
           </span>
-          <span className="text-xl font-semibold tracking-tight text-on-surface">evara</span>
+          <span className="text-xl font-bold tracking-wide text-on-surface">ICEBERG</span>
           <span className="hidden rounded-full bg-surface-high px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant sm:inline">UK · demo</span>
         </button>
         <nav className="hidden items-center gap-8 md:flex" aria-label="Main">

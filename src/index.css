@@ -109,11 +109,12 @@
 body {
   font-family: var(--font-sans);
   color: var(--color-ink);
-  /* Golden-hour wash: peach sky at the top, warm stone in the middle, garden sage at the bottom. */
+  /* Golden-hour wash from ev.png: apricot sunset sky at the top, warm gold in the middle, garden green at the bottom. */
   background:
-    radial-gradient(1200px 600px at 85% -10%, rgb(248 181 106 / 0.35), transparent 70%),
-    radial-gradient(900px 500px at 0% 110%, rgb(140 170 80 / 0.22), transparent 70%),
-    linear-gradient(180deg, #fde7d6 0%, var(--color-surface) 38%, #f8f0de 70%, var(--color-sage) 100%);
+    radial-gradient(1100px 650px at 90% 0%, rgb(240 140 50 / 0.45), transparent 70%),
+    radial-gradient(900px 600px at 0% 35%, rgb(245 170 120 / 0.35), transparent 70%),
+    radial-gradient(1000px 700px at 100% 100%, rgb(110 150 50 / 0.4), transparent 70%),
+    linear-gradient(180deg, #f7c08e 0%, #f9d7ac 30%, #f1e2b4 55%, #d9e3a6 80%, #bfd48a 100%);
   background-attachment: fixed;
   background-color: var(--color-surface);
   -webkit-font-smoothing: antialiased;
