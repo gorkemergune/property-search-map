@@ -5,24 +5,92 @@
  * (active tab, status dots, marker anchors, selection). Serif for display type.
  */
 @theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
 
-  --color-ink: #1d1c1a;
-  --color-ink-soft: #3b3936;
-  --color-muted: #75716a;
+  /* Legacy tokens (map, filter drawer, saved panel) mapped onto the evara palette. */
+  --color-ink: #191c1e;
+  --color-ink-soft: #3c3f42;
+  --color-muted: #6b6560;
   --color-faint: #a29d95;
-  --color-line: #e9e5de;
-  --color-line-strong: #d7d1c7;
-  --color-canvas: #f7f5f1;
-  --color-accent: #b9492f;
-  --color-accent-soft: #f7e9e4;
+  --color-line: #e6e8ea;
+  --color-line-strong: #d8dadc;
+  --color-canvas: #f2f4f6;
+  --color-accent: #b45309;
+  --color-accent-soft: #ffdbca;
+
+  /* evara palette (from example.html). */
+  --color-primary: #903f00;
+  --color-primary-container: #b45309;
+  --color-primary-fixed: #ffdbca;
+  --color-primary-fixed-dim: #ffb68e;
+  --color-on-primary-fixed: #331200;
+  --color-on-primary-fixed-variant: #763300;
+  --color-secondary: #006a63;
+  --color-secondary-fixed: #9cf2e8;
+  --color-on-secondary-fixed: #00201d;
+  --color-tertiary: #4d586c;
+  --color-tertiary-fixed: #d8e3fb;
+  --color-on-tertiary-fixed: #111c2d;
+  --color-surface: #f7f9fb;
+  --color-surface-lowest: #ffffff;
+  --color-surface-low: #f2f4f6;
+  --color-surface-container: #eceef0;
+  --color-surface-high: #e6e8ea;
+  --color-surface-highest: #e0e3e5;
+  --color-on-surface: #191c1e;
+  --color-on-surface-variant: #564338;
+  --color-outline: #897267;
+  --color-outline-variant: #ddc1b3;
+  --color-inverse-surface: #2d3133;
+  --color-error: #ba1a1a;
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+}
+.material-symbols-outlined.is-filled {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.shadow-island {
+  box-shadow: 0 20px 48px -8px rgb(15 23 42 / 0.08), 0 8px 16px -4px rgb(180 83 9 / 0.04);
+}
+.shadow-card {
+  box-shadow: 0 4px 20px -2px rgb(15 23 42 / 0.04);
+}
+.shadow-card-hover {
+  box-shadow: 0 16px 36px -6px rgb(15 23 42 / 0.1);
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.animate-fade-up {
+  animation: fade-up 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up, .animate-pulse, .animate-spin { animation: none !important; }
 }
 
 body {
   font-family: var(--font-sans);
   color: var(--color-ink);
-  background: #fff;
+  background: var(--color-surface);
   -webkit-font-smoothing: antialiased;
   font-feature-settings: 'cv11', 'ss01';
 }

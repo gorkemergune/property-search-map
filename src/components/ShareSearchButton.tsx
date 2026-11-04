@@ -57,7 +57,7 @@ export function ShareSearchButton({ getUrl = () => window.location.href }: { get
       <button
         type="button"
         onClick={share}
-        className="flex items-center gap-1.5 text-[13px] font-medium text-accent hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        className="inline-flex items-center gap-1.5 rounded-xl bg-surface-container px-4 py-2 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-high focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
         <LinkIcon width={14} height={14} />
         {t.share.button}

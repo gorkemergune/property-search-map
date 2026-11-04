@@ -2,6 +2,28 @@
 
 A frontend proof of concept built for the Iceberg X R&D internship. It is a standalone property search page with a filter panel, a list of property cards and an interactive map, all running on mock data. Users can filter by location, price range, property type, bedroom count and listing status. Selecting a card highlights its marker on the map, and selecting a marker highlights its card in the list.
 
+## evara redesign (Nov 2026)
+
+The app now follows the `example.html` design (Plus Jakarta Sans, Material Symbols, warm terracotta + teal palette) and is search-first:
+
+- **Discover page** — one large natural-language search box, example searches (Tube, Outstanding schools, hospital, student house, garden & pets, home office), city chips with live counts, *Recommended for you* and *Most viewed this week*.
+- **Natural-language search** (`src/lib/nlSearch.ts`) — a sentence such as *"2 bed flat in Hackney near the tube with a garden under £2,500 pcm"* becomes hard filters (rent/buy, budget, bedrooms, city, type) plus ranking criteria (near Tube/school/hospital/GP/park/university, garden, pets, bills, quiet …). Results are split into full and close matches, each card says **why it matched** (or what it is missing), and an empty search offers relaxations with real counts. Runs in the browser; no model call.
+- **Listing keywords & insights** (`src/lib/insights.ts`) — every listing gets keyword tags, walking times to transport / schools (Ofsted in England) / GP / hospital / park, area scores, popularity, value vs. similar homes (computed from the dataset), a keyword-based summary and sample community comments.
+- **Personal recommendations** (`src/lib/recommend.ts`) — saved homes (×3) and viewed homes (×1) build a private, on-device profile. The basket shows what saved homes have in common and suggests similar homes; search results get a *For you* badge.
+- **Live data** (`src/lib/live.ts`) — the detail view checks postcodes.io (postcode, ward) and OpenStreetMap Overpass (named schools, hospitals, GPs, stations, parks). Both are free and need no key.
+
+### Demo vs. real data
+
+Walking times, school ratings, popularity counts and community comments are **deterministic demo estimates** and are labelled as such in the UI. Value comparisons are computed from the listing dataset. Live sections show real data when the free services answer.
+
+### Connecting HomeData (free API key)
+
+1. Create a free account at <https://homedata.co.uk> with the company email and create an API key.
+2. `cp .env.example .env.local` and set `HOMEDATA_API_KEY=…` and `VITE_HOMEDATA_ENABLED=true`.
+3. `npm run dev`. The Vite dev server proxies `/api/homedata/*` to `https://api.homedata.co.uk` and adds `Authorization: Api-Key …`, so the key never reaches the browser bundle. Schools with Ofsted ratings (`/schools/nearby?postcode=…`) then appear in each listing's *Live check*.
+
+For a deployed build the same `/api/homedata` path needs a tiny serverless proxy (e.g. Cloudflare Worker / Vercel function) holding the key.
+
 ## Mission deliverables
 
 - [ ] Mock property dataset (image, price, address, type, bedrooms, status, coordinates)

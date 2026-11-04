@@ -21,6 +21,8 @@ interface Props {
   onRating: (id: string, rating: number | null) => void;
   onOpenDetails: (id: string) => void;
   onClose: () => void;
+  /** Shown above the comparison: common traits of the saved homes and similar-home suggestions. */
+  insights?: ReactNode;
 }
 
 type Cell = string | null | undefined;
@@ -96,7 +98,7 @@ function rowsFor(areaUnit: AreaUnit): Row[] {
 }
 
 /** Saved homes side by side, with private notes and ratings. A dialog like the filter drawer. */
-export function SavedHomesPanel({ homes, lookup, inResults, areaUnit, onRemove, onClear, onNote, onRating, onOpenDetails, onClose }: Props) {
+export function SavedHomesPanel({ homes, lookup, inResults, areaUnit, onRemove, onClear, onNote, onRating, onOpenDetails, onClose, insights }: Props) {
   const panel = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   useDialogFocus(panel, closeButton, onClose, () => document.querySelector<HTMLElement>('[data-saved-trigger]'));
@@ -131,6 +133,7 @@ export function SavedHomesPanel({ homes, lookup, inResults, areaUnit, onRemove, 
 
         <div className="scroll-quiet flex-1 overflow-y-auto px-5 py-6 sm:px-8">
           <p className="max-w-prose text-xs leading-relaxed text-muted">{s.privacy}</p>
+          {insights}
 
           {homes.length === 0 ? (
             <div className="py-14">

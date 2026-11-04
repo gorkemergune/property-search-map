@@ -34,5 +34,5 @@ export function useViewedHistory() {
   }, []);
 
   const viewed = useMemo(() => new Set(ids), [ids]);
-  return { viewed, count: ids.length, record, clear };
+  return { ids, viewed, count: ids.length, record, clear };
 }
