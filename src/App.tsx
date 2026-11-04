@@ -219,10 +219,6 @@ export default function App() {
         screen={screen}
         onHome={goHome}
         onBrowse={browseAll}
-        onHowItWorks={() => {
-          if (screen !== 'home') goHome();
-          setTimeout(() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }), 50);
-        }}
         savedCount={saved.homes.length}
         onOpenSaved={() => setSavedOpen(true)}
       />

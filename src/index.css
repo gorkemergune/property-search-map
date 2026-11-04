@@ -16,20 +16,21 @@
   --color-line: #efdfca;
   --color-line-strong: #e3cbae;
   --color-canvas: #faf0e2;
-  --color-accent: #d2620f;
-  --color-accent-soft: #ffd9b0;
+  --color-accent: #55801f;
+  --color-accent-soft: #dce9b4;
 
-  /* Sunset amber (primary). */
-  --color-primary: #a4460a;
-  --color-primary-container: #d2620f;
-  --color-primary-fixed: #ffd9b0;
-  --color-primary-fixed-dim: #f8b56a;
-  --color-on-primary-fixed: #3a1600;
-  --color-on-primary-fixed-variant: #7f3500;
-  /* Garden green (secondary). */
-  --color-secondary: #4b6b1c;
-  --color-secondary-fixed: #dce9b4;
-  --color-on-secondary-fixed: #1b2a05;
+  /* Garden green (primary). */
+  --color-primary: #3f5e14;
+  --color-primary-container: #55801f;
+  --color-primary-fixed: #dce9b4;
+  --color-primary-fixed-dim: #b5d07a;
+  --color-on-primary-fixed: #1b2a05;
+  --color-on-primary-fixed-variant: #33500c;
+  /* Sunset amber (secondary). */
+  --color-secondary: #a4460a;
+  --color-secondary-fixed: #ffd9b0;
+  --color-secondary-fixed-dim: #f8b56a;
+  --color-on-secondary-fixed: #3a1600;
   /* Dusk sky lavender (tertiary). */
   --color-tertiary: #5d5a8c;
   --color-tertiary-fixed: #e4e0fb;
@@ -82,10 +83,11 @@
   box-shadow: 0 18px 40px -8px rgb(122 58 8 / 0.22);
 }
 
-/* Sunset gradient for the main call-to-action buttons and brand mark. */
-.bg-sunset {
-  background-image: linear-gradient(135deg, #f0a23a 0%, #d2620f 55%, #b8432a 100%);
+/* Garden-green gradient for the main call-to-action buttons and brand mark. */
+.bg-garden {
+  background-image: linear-gradient(135deg, #7da03a 0%, #55801f 50%, #3a5a12 100%);
 }
+/* Sunset accent (secondary) used for highlights such as the headline. */
 .text-sunset {
   background-image: linear-gradient(100deg, #e08a1e 0%, #d2620f 45%, #b8432a 100%);
   -webkit-background-clip: text;
@@ -259,7 +261,7 @@ body {
 .price-marker.is-selected {
   background: var(--color-accent);
   color: #fff;
-  box-shadow: 0 0 0 2px #fff, 0 0 0 5px rgb(210 98 15 / 0.3), 0 4px 12px rgb(29 28 26 / 0.3);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 5px rgb(85 128 31 / 0.3), 0 4px 12px rgb(29 28 26 / 0.3);
   transform: translate(-50%, calc(-100% - 12px)) scale(1.06);
 }
 .price-marker.is-selected::after {

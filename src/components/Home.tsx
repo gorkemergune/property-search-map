@@ -66,7 +66,7 @@ export function Home(props: Props) {
         <img src={heroImage} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-[70%_center] opacity-45" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#fde7d6]/60 via-[#fdf3e6]/45 to-surface" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgb(253_246_236/0.75)_0%,rgb(253_246_236/0.25)_55%,transparent_80%)]" />
-        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary-fixed-dim/40 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-secondary-fixed-dim/40 blur-3xl" />
         <section className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-col items-center px-5 pb-14 pt-12 md:px-8 lg:px-16 lg:pb-20 lg:pt-16">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/70 px-3.5 py-1 shadow-sm ring-1 ring-primary-fixed-dim/60 backdrop-blur-md">
             <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary-container" />
@@ -180,7 +180,7 @@ export function Home(props: Props) {
           title="Most viewed homes right now"
           body="Ranked by views, saves and enquiries this week. Popularity figures are demo estimates."
           action={
-            <button type="button" onClick={onBrowseAll} className="bg-sunset inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-[filter] hover:brightness-110">
+            <button type="button" onClick={onBrowseAll} className="bg-garden inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-[filter] hover:brightness-110">
               Browse all on the map <Symbol name="arrow_forward" size={16} />
             </button>
           }
@@ -191,27 +191,6 @@ export function Home(props: Props) {
             return <ResultCard key={p.id} {...cardProps(p)} compact why={`${pop.saves} saves · ${pop.enquiries} enquiries · views ${pop.trend >= 0 ? '+' : ''}${pop.trend}% vs last week`} />;
           })}
         </Carousel>
-      </section>
-
-      {/* How it works */}
-      <section id="how-it-works" className="w-full bg-gradient-to-br from-secondary-fixed/60 via-surface-low/70 to-primary-fixed/50 px-5 py-16 md:px-8 lg:px-16">
-        <div className="mx-auto max-w-[1440px]">
-          <div className="mb-12 max-w-2xl">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">Beyond traditional filters</div>
-            <h2 className="text-3xl font-bold tracking-tight text-on-surface sm:text-4xl">Why search in sentences instead of filling in forms?</h2>
-          </div>
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            <Bento icon="format_quote" tone="bg-secondary-fixed/50 text-secondary" title="Reads listing keywords" foot="Keyword index per listing" footTone="text-secondary" footIcon="check">
-              “Bills included”, “pets considered”, “chain free”, “EPC B” — details that hide in descriptions become searchable keywords on every listing.
-            </Bento>
-            <Bento icon="route" tone="bg-primary-fixed text-primary" title="Real walking distance to what matters" foot="Schools · hospitals · Tube" footTone="text-primary" footIcon="pin_drop">
-              For UK buyers, a good school catchment, a nearby hospital and the Tube matter as much as the flat itself. Every home is tagged with them; the detail view checks live OpenStreetMap data.
-            </Bento>
-            <Bento icon="person_heart" tone="bg-tertiary-fixed text-on-tertiary-fixed" title="Learns what you like" foot="Private, on this device" footTone="text-on-tertiary-fixed" footIcon="lock">
-              Your saved homes reveal patterns — same bedrooms, same area, always near a station. We surface them and recommend homes that share them, with the reason.
-            </Bento>
-          </div>
-        </div>
       </section>
     </div>
   );
@@ -250,22 +229,4 @@ function SectionHead({ eyebrow, id, title, body, action }: { eyebrow: { icon: st
 
 function Carousel({ children }: { children: ReactNode }) {
   return <div className="scroll-quiet -mx-5 flex snap-x gap-6 overflow-x-auto px-5 pb-4 md:mx-0 md:px-0">{children}</div>;
-}
-
-function Bento({ icon, tone, title, children, foot, footTone, footIcon }: { icon: string; tone: string; title: string; children: ReactNode; foot: string; footTone: string; footIcon: string }) {
-  return (
-    <div className="flex flex-col justify-between rounded-3xl bg-surface-lowest/90 p-8 shadow-card ring-1 ring-white/60 transition-shadow hover:shadow-card-hover">
-      <div>
-        <div className={`mb-6 grid h-12 w-12 place-items-center rounded-2xl ${tone}`}>
-          <Symbol name={icon} size={28} />
-        </div>
-        <h3 className="mb-3 text-xl font-semibold text-on-surface">{title}</h3>
-        <p className="text-sm leading-relaxed text-on-surface-variant">{children}</p>
-      </div>
-      <div className={`mt-8 flex items-center gap-2 pt-4 text-xs font-semibold ${footTone}`}>
-        <Symbol name={footIcon} size={16} />
-        <span>{foot}</span>
-      </div>
-    </div>
-  );
 }
