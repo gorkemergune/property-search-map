@@ -214,7 +214,7 @@ export default function App() {
   const place = filters.city !== 'all' ? filters.city : 'the UK';
 
   return (
-    <div className="min-h-dvh bg-surface text-on-surface">
+    <div className="min-h-dvh text-on-surface">
       <TopNav
         screen={screen}
         onHome={goHome}

@@ -1,49 +1,55 @@
 @import 'tailwindcss';
 
 /*
- * Palette: warm ink + warm neutrals with one terracotta accent used sparingly
- * (active tab, status dots, marker anchors, selection). Serif for display type.
+ * Palette taken from ev.png (golden-hour garden house): sunset amber and peach
+ * sky, forest/sage greens, dusk lavender and warm stone creams.
  */
 @theme {
   --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
 
-  /* Legacy tokens (map, filter drawer, saved panel) mapped onto the evara palette. */
-  --color-ink: #191c1e;
-  --color-ink-soft: #3c3f42;
-  --color-muted: #6b6560;
-  --color-faint: #a29d95;
-  --color-line: #e6e8ea;
-  --color-line-strong: #d8dadc;
-  --color-canvas: #f2f4f6;
-  --color-accent: #b45309;
-  --color-accent-soft: #ffdbca;
+  /* Legacy tokens (map, filter drawer, saved panel) mapped onto the palette. */
+  --color-ink: #2a2116;
+  --color-ink-soft: #4a3d2c;
+  --color-muted: #75624c;
+  --color-faint: #b3a088;
+  --color-line: #efdfca;
+  --color-line-strong: #e3cbae;
+  --color-canvas: #faf0e2;
+  --color-accent: #d2620f;
+  --color-accent-soft: #ffd9b0;
 
-  /* evara palette (from example.html). */
-  --color-primary: #903f00;
-  --color-primary-container: #b45309;
-  --color-primary-fixed: #ffdbca;
-  --color-primary-fixed-dim: #ffb68e;
-  --color-on-primary-fixed: #331200;
-  --color-on-primary-fixed-variant: #763300;
-  --color-secondary: #006a63;
-  --color-secondary-fixed: #9cf2e8;
-  --color-on-secondary-fixed: #00201d;
-  --color-tertiary: #4d586c;
-  --color-tertiary-fixed: #d8e3fb;
-  --color-on-tertiary-fixed: #111c2d;
-  --color-surface: #f7f9fb;
-  --color-surface-lowest: #ffffff;
-  --color-surface-low: #f2f4f6;
-  --color-surface-container: #eceef0;
-  --color-surface-high: #e6e8ea;
-  --color-surface-highest: #e0e3e5;
-  --color-on-surface: #191c1e;
-  --color-on-surface-variant: #564338;
-  --color-outline: #897267;
-  --color-outline-variant: #ddc1b3;
-  --color-inverse-surface: #2d3133;
+  /* Sunset amber (primary). */
+  --color-primary: #a4460a;
+  --color-primary-container: #d2620f;
+  --color-primary-fixed: #ffd9b0;
+  --color-primary-fixed-dim: #f8b56a;
+  --color-on-primary-fixed: #3a1600;
+  --color-on-primary-fixed-variant: #7f3500;
+  /* Garden green (secondary). */
+  --color-secondary: #4b6b1c;
+  --color-secondary-fixed: #dce9b4;
+  --color-on-secondary-fixed: #1b2a05;
+  /* Dusk sky lavender (tertiary). */
+  --color-tertiary: #5d5a8c;
+  --color-tertiary-fixed: #e4e0fb;
+  --color-on-tertiary-fixed: #1e1b45;
+  /* Warm stone surfaces. */
+  --color-surface: #fdf6ec;
+  --color-surface-lowest: #fffdf9;
+  --color-surface-low: #fbf1e3;
+  --color-surface-container: #f6e9d6;
+  --color-surface-high: #f0dfc8;
+  --color-surface-highest: #e9d6bb;
+  --color-on-surface: #2a2116;
+  --color-on-surface-variant: #5e4a35;
+  --color-outline: #8f7660;
+  --color-outline-variant: #e3cbae;
+  --color-inverse-surface: #2c2a1a;
   --color-error: #ba1a1a;
+
+  --color-sky-pink: #f9d6c4;
+  --color-sage: #e9eecf;
 }
 
 .material-symbols-outlined {
@@ -67,13 +73,24 @@
 }
 
 .shadow-island {
-  box-shadow: 0 20px 48px -8px rgb(15 23 42 / 0.08), 0 8px 16px -4px rgb(180 83 9 / 0.04);
+  box-shadow: 0 24px 56px -10px rgb(122 58 8 / 0.22), 0 8px 18px -6px rgb(210 98 15 / 0.14);
 }
 .shadow-card {
-  box-shadow: 0 4px 20px -2px rgb(15 23 42 / 0.04);
+  box-shadow: 0 6px 22px -4px rgb(122 58 8 / 0.1);
 }
 .shadow-card-hover {
-  box-shadow: 0 16px 36px -6px rgb(15 23 42 / 0.1);
+  box-shadow: 0 18px 40px -8px rgb(122 58 8 / 0.22);
+}
+
+/* Sunset gradient for the main call-to-action buttons and brand mark. */
+.bg-sunset {
+  background-image: linear-gradient(135deg, #f0a23a 0%, #d2620f 55%, #b8432a 100%);
+}
+.text-sunset {
+  background-image: linear-gradient(100deg, #e08a1e 0%, #d2620f 45%, #b8432a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 @keyframes fade-up {
@@ -90,7 +107,13 @@
 body {
   font-family: var(--font-sans);
   color: var(--color-ink);
-  background: var(--color-surface);
+  /* Golden-hour wash: peach sky at the top, warm stone in the middle, garden sage at the bottom. */
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgb(248 181 106 / 0.35), transparent 70%),
+    radial-gradient(900px 500px at 0% 110%, rgb(140 170 80 / 0.22), transparent 70%),
+    linear-gradient(180deg, #fde7d6 0%, var(--color-surface) 38%, #f8f0de 70%, var(--color-sage) 100%);
+  background-attachment: fixed;
+  background-color: var(--color-surface);
   -webkit-font-smoothing: antialiased;
   font-feature-settings: 'cv11', 'ss01';
 }
@@ -135,7 +158,7 @@ body {
 
 .leaflet-container {
   font-family: var(--font-sans);
-  background: #e8eef0;
+  background: #f3ecdd;
 }
 
 /*
@@ -236,7 +259,7 @@ body {
 .price-marker.is-selected {
   background: var(--color-accent);
   color: #fff;
-  box-shadow: 0 0 0 2px #fff, 0 0 0 5px rgb(185 73 47 / 0.28), 0 4px 12px rgb(29 28 26 / 0.3);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 5px rgb(210 98 15 / 0.3), 0 4px 12px rgb(29 28 26 / 0.3);
   transform: translate(-50%, calc(-100% - 12px)) scale(1.06);
 }
 .price-marker.is-selected::after {
@@ -367,7 +390,7 @@ body {
   font-size: 11px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: #134e5e;
+  color: var(--color-secondary);
   box-shadow: 0 1px 3px rgb(29 28 26 / 0.25);
 }
 .area-count-label::before {

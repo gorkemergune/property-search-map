@@ -137,7 +137,7 @@ function Actions({ value, onClear, voice, listening, compact = false }: { value:
       )}
       <button
         type="submit"
-        className={`inline-flex items-center gap-2 rounded-full bg-primary-container font-semibold text-white shadow-sm transition-all duration-200 hover:bg-primary active:scale-95 ${compact ? 'px-4 py-2 text-sm' : 'px-6 py-2.5 text-sm'}`}
+        className={`inline-flex items-center gap-2 bg-sunset rounded-full font-semibold text-white shadow-md transition-all duration-200 hover:brightness-110 active:scale-95 ${compact ? 'px-4 py-2 text-sm' : 'px-6 py-2.5 text-sm'}`}
       >
         <span>{compact ? 'Search' : 'Find homes'}</span>
         <Symbol name="arrow_forward" size={18} />

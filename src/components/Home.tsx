@@ -5,6 +5,7 @@ import type { AreaUnit, Property } from '../types/property';
 import { ResultCard } from './ResultCard';
 import { SearchIsland } from './SearchIsland';
 import { Symbol } from './ui/Symbol';
+import heroImage from '../assets/ev-hero.webp';
 
 interface Props {
   query: string;
@@ -60,18 +61,21 @@ export function Home(props: Props) {
   return (
     <div className="flex w-full flex-col">
       {/* Hero */}
-      <div className="relative w-full overflow-hidden">
-        <div className="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[980px] -translate-x-1/2 rounded-full bg-gradient-to-b from-primary-fixed/40 via-secondary-fixed/25 to-transparent blur-3xl" />
-        <div className="pointer-events-none absolute right-1/4 top-24 h-72 w-72 rounded-full bg-primary-fixed/25 blur-2xl" />
+      <div className="relative -mt-16 w-full overflow-hidden pt-16 md:-mt-20 md:pt-20">
+        {/* Background photo (ev.png), washed out so the headline and search stay readable. */}
+        <img src={heroImage} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-[70%_center] opacity-45" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#fde7d6]/60 via-[#fdf3e6]/45 to-surface" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgb(253_246_236/0.75)_0%,rgb(253_246_236/0.25)_55%,transparent_80%)]" />
+        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary-fixed-dim/40 blur-3xl" />
         <section className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-col items-center px-5 pb-14 pt-12 md:px-8 lg:px-16 lg:pb-20 lg:pt-16">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-surface-high/70 px-3.5 py-1 shadow-sm backdrop-blur-md">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/70 px-3.5 py-1 shadow-sm ring-1 ring-primary-fixed-dim/60 backdrop-blur-md">
             <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary-container" />
             <span className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Natural-language home search · UK</span>
           </div>
           <h1 className="max-w-4xl text-center text-4xl font-bold leading-tight tracking-tight text-on-surface sm:text-5xl lg:text-[56px] lg:leading-[64px]">
-            What kind of home <span className="font-serif font-normal italic text-primary">are you dreaming of?</span>
+            What kind of home <span className="text-sunset font-serif font-normal italic">are you dreaming of?</span>
           </h1>
-          <p className="mb-10 mt-4 max-w-2xl text-center text-lg leading-7 text-on-surface-variant">
+          <p className="mb-10 mt-4 max-w-2xl text-center text-lg font-medium leading-7 text-on-surface-variant">
             Describe it the way you'd tell a friend. We read every listing's keywords plus nearby schools, hospitals and transport, and explain why each home matches.
           </p>
 
@@ -87,7 +91,7 @@ export function Home(props: Props) {
                   <Symbol name="history" size={16} /> Recent:
                 </span>
                 {recentSearches.slice(0, 4).map((q) => (
-                  <button key={q} type="button" onClick={() => onSearch(q)} className="max-w-[260px] truncate rounded-full bg-surface-container px-3 py-1 text-xs font-medium text-on-surface hover:bg-surface-high">
+                  <button key={q} type="button" onClick={() => onSearch(q)} className="max-w-[260px] truncate rounded-full bg-white/70 px-3 py-1 text-xs font-medium text-on-surface backdrop-blur hover:bg-white">
                     {q}
                   </button>
                 ))}
@@ -140,7 +144,7 @@ export function Home(props: Props) {
           <div className="mb-6 flex flex-wrap items-center gap-2">
             <span className="text-xs font-semibold text-on-surface-variant">Your saved homes have in common:</span>
             {traits.map((t) => (
-              <span key={t.label} className="inline-flex items-center gap-1 rounded-full bg-secondary-fixed/40 px-3 py-1 text-xs font-semibold text-on-secondary-fixed">
+              <span key={t.label} className="inline-flex items-center gap-1 rounded-full bg-secondary-fixed/70 px-3 py-1 text-xs font-semibold text-on-secondary-fixed">
                 <Symbol name={t.icon} size={14} />
                 {t.label}
                 <span className="font-normal opacity-70">
@@ -157,7 +161,7 @@ export function Home(props: Props) {
             ))}
           </Carousel>
         ) : (
-          <div className="flex items-center gap-4 rounded-3xl bg-surface-lowest p-6 shadow-card">
+          <div className="flex items-center gap-4 rounded-3xl bg-gradient-to-r from-primary-fixed/60 via-surface-lowest to-secondary-fixed/50 p-6 shadow-card ring-1 ring-primary-fixed-dim/40">
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary-fixed/50 text-primary">
               <Symbol name="favorite" size={26} />
             </div>
@@ -176,7 +180,7 @@ export function Home(props: Props) {
           title="Most viewed homes right now"
           body="Ranked by views, saves and enquiries this week. Popularity figures are demo estimates."
           action={
-            <button type="button" onClick={onBrowseAll} className="inline-flex items-center gap-1.5 rounded-xl bg-surface-container px-4 py-2 text-sm font-semibold text-on-surface hover:bg-surface-high">
+            <button type="button" onClick={onBrowseAll} className="bg-sunset inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-md transition-[filter] hover:brightness-110">
               Browse all on the map <Symbol name="arrow_forward" size={16} />
             </button>
           }
@@ -190,7 +194,7 @@ export function Home(props: Props) {
       </section>
 
       {/* How it works */}
-      <section id="how-it-works" className="w-full bg-surface-low/60 px-5 py-16 md:px-8 lg:px-16">
+      <section id="how-it-works" className="w-full bg-gradient-to-br from-secondary-fixed/60 via-surface-low/70 to-primary-fixed/50 px-5 py-16 md:px-8 lg:px-16">
         <div className="mx-auto max-w-[1440px]">
           <div className="mb-12 max-w-2xl">
             <div className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">Beyond traditional filters</div>
@@ -219,7 +223,7 @@ function Chip({ children, onClick, title }: { children: ReactNode; onClick: () =
       type="button"
       onClick={onClick}
       title={title}
-      className="inline-flex items-center gap-1.5 rounded-full bg-surface-lowest px-4 py-1.5 text-xs font-semibold text-on-surface shadow-sm transition-all hover:bg-surface-high hover:shadow"
+      className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-4 py-1.5 text-xs font-semibold text-on-surface shadow-sm ring-1 ring-primary-fixed-dim/40 backdrop-blur transition-all hover:-translate-y-px hover:bg-white hover:shadow-md hover:ring-primary-fixed-dim"
     >
       {children}
     </button>
@@ -250,7 +254,7 @@ function Carousel({ children }: { children: ReactNode }) {
 
 function Bento({ icon, tone, title, children, foot, footTone, footIcon }: { icon: string; tone: string; title: string; children: ReactNode; foot: string; footTone: string; footIcon: string }) {
   return (
-    <div className="flex flex-col justify-between rounded-3xl bg-surface-lowest p-8 shadow-sm">
+    <div className="flex flex-col justify-between rounded-3xl bg-surface-lowest/90 p-8 shadow-card ring-1 ring-white/60 transition-shadow hover:shadow-card-hover">
       <div>
         <div className={`mb-6 grid h-12 w-12 place-items-center rounded-2xl ${tone}`}>
           <Symbol name={icon} size={28} />
