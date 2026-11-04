@@ -8,14 +8,15 @@ interface Props {
   onBrowse: () => void;
   savedCount: number;
   onOpenSaved: () => void;
+  onAddListing: () => void;
 }
 
 /** Fixed top bar from the evara design: brand, primary navigation and the saved-homes basket. */
-export function TopNav({ screen, onHome, onBrowse, savedCount, onOpenSaved }: Props) {
+export function TopNav({ screen, onHome, onBrowse, savedCount, onOpenSaved, onAddListing }: Props) {
   const link = (active: boolean) =>
     `text-sm transition-colors ${active ? 'font-semibold text-primary' : 'font-semibold text-on-surface-variant hover:text-on-surface'}`;
   return (
-    <header className="fixed top-0 z-[1200] w-full bg-[#fbe6cc]/80 shadow-[0_1px_12px_rgba(122,58,8,0.08)] backdrop-blur-xl">
+    <header className="fixed top-0 z-[1200] w-full bg-white/85 shadow-[0_1px_0_rgba(16,40,28,0.06)] backdrop-blur-xl">
       <div className="flex h-16 w-full items-center justify-between px-5 md:h-20 md:px-8 lg:px-16">
         <button type="button" onClick={onHome} className="flex items-center gap-2.5" aria-label="Home">
           <span className="bg-garden grid h-8 w-8 place-items-center rounded-xl text-white shadow-sm">
@@ -32,6 +33,15 @@ export function TopNav({ screen, onHome, onBrowse, savedCount, onOpenSaved }: Pr
           </button>
         </nav>
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            data-add-listing-trigger
+            onClick={onAddListing}
+            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-primary ring-1 ring-primary-container/40 transition-colors hover:bg-primary-fixed/60 sm:px-4"
+          >
+            <Symbol name="add_home" size={18} />
+            <span className="hidden sm:inline">Add listing</span>
+          </button>
           <button
             type="button"
             data-saved-trigger

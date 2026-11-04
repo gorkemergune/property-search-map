@@ -1,5 +1,6 @@
 import { formatAmount, formatListedDate, formatPropertyArea } from '../lib/format';
 import { getInsights, type Tag } from '../lib/insights';
+import { isUserListing } from '../lib/userListings';
 import type { AreaUnit, Property } from '../types/property';
 import { PropertyImage } from './PropertyImage';
 import { Symbol } from './ui/Symbol';
@@ -41,8 +42,9 @@ function relative(iso: string): string {
 }
 
 /** Listing card from the evara design: photo, price, place, matched keyword tags and a "Why it matched?" note. */
-export function ResultCard({ property: p, areaUnit, onOpen, saved, onToggleSave, why, whyTitle = 'Why it matched?', highlight = [], badge, viewed, selected, onHover, compact = false }: Props) {
+export function ResultCard({ property: p, areaUnit, onOpen, saved, onToggleSave, why, whyTitle = 'Why it matched?', highlight = [], badge: badgeProp, viewed, selected, onHover, compact = false }: Props) {
   const ins = getInsights(p);
+  const badge = badgeProp ?? (isUserListing(p.id) ? { label: 'Your listing', icon: 'add_home' } : null);
   const rank = (t: Tag) => (highlight.includes(t.key) ? 0 : t.tone === 'proximity' ? 1 : t.tone === 'feature' ? 2 : 3);
   const tags = [...ins.tags].sort((a, b) => rank(a) - rank(b)).slice(0, compact ? 2 : 3);
   const status = STATUS[p.status];

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AddListingDialog } from './components/AddListingDialog';
 import { FilterDrawer } from './components/FilterDrawer';
 import { Home } from './components/Home';
 import { ListingDetail } from './components/ListingDetail';
@@ -11,7 +12,7 @@ import { SavedHomesPanel } from './components/SavedHomesPanel';
 import { SavedInsights } from './components/SavedInsights';
 import { TopNav } from './components/TopNav';
 import { Symbol } from './components/ui/Symbol';
-import { properties } from './data/properties';
+import { properties as demoProperties } from './data/properties';
 import { useAreaData } from './hooks/useAreaData';
 import { useListingSelection } from './hooks/useListingSelection';
 import { useSavedHomes } from './hooks/useSavedHomes';
@@ -25,14 +26,14 @@ import { primeInsights } from './lib/insights';
 import { buildVocabulary, parseQuery, rankResults, removeCriterionFromQuery, suggestRelaxations, type Criterion, type Relaxation } from './lib/nlSearch';
 import { affinity, buildProfile, commonTraits, recommend, similarTo, traitsToQuery } from './lib/recommend';
 import { readJson, writeJson } from './lib/storage';
+import { buildPlaces, readUserListings, writeUserListings } from './lib/userListings';
 import { DEFAULT_SEARCH_STATE } from './lib/urlState';
 import type { Property } from './types/property';
 
-primeInsights(properties);
-const VOCAB = buildVocabulary(properties);
-const CITY_INDEX = buildCityIndex(properties);
-const CITIES: readonly string[] = [...new Set(properties.map((p) => p.city))];
-const BY_ID: ReadonlyMap<string, Property> = new Map(properties.map((p) => [p.id, p]));
+const VOCAB = buildVocabulary(demoProperties);
+const CITY_INDEX = buildCityIndex(demoProperties);
+const CITIES: readonly string[] = [...new Set(demoProperties.map((p) => p.city))];
+const PLACES = buildPlaces(demoProperties);
 
 const RECENT_KEY = 'evara.recentSearches.v1';
 const parseRecent = (raw: unknown) => (Array.isArray(raw) ? raw.filter((x): x is string => typeof x === 'string').slice(0, 8) : null);
@@ -59,6 +60,17 @@ export default function App() {
   const [recent, setRecent] = useState<string[]>(() => readJson(RECENT_KEY, parseRecent, []));
   const saved = useSavedHomes();
   const history = useViewedHistory();
+
+  // ---------------------------------------------------------------- listings (demo data + ones added in this browser)
+  const [userListings, setUserListings] = useState<Property[]>(readUserListings);
+  const [addOpen, setAddOpen] = useState(false);
+  const properties = useMemo(() => {
+    const list = [...demoProperties, ...userListings];
+    primeInsights(list);
+    return list;
+  }, [userListings]);
+  const BY_ID = useMemo<ReadonlyMap<string, Property>>(() => new Map(properties.map((p) => [p.id, p])), [properties]);
+  const [pendingOpen, setPendingOpen] = useState<string | null>(null);
 
   // ---------------------------------------------------------------- search
   const change = useCallback((patch: Partial<Filters>) => setSearch((prev) => ({ ...prev, filters: updateFilters(prev.filters, patch, CITY_INDEX) })), [setSearch]);
@@ -106,11 +118,11 @@ export default function App() {
 
   const parsed = useMemo(() => parseQuery(filters.query, VOCAB), [filters.query]);
   const chips = useMemo(() => getActiveChips(filters).filter((c) => c.key !== 'query'), [filters]);
-  const base = useMemo(() => applyFilters(properties, { ...filters, query: '' }), [filters]);
+  const base = useMemo(() => applyFilters(properties, { ...filters, query: '' }), [properties, filters]);
 
   // ---------------------------------------------------------------- personal profile
-  const savedProps = useMemo(() => saved.homes.map((h) => BY_ID.get(h.id)).filter((p): p is Property => Boolean(p)), [saved.homes]);
-  const viewedProps = useMemo(() => history.ids.map((id) => BY_ID.get(id)).filter((p): p is Property => Boolean(p)), [history.ids]);
+  const savedProps = useMemo(() => saved.homes.map((h) => BY_ID.get(h.id)).filter((p): p is Property => Boolean(p)), [BY_ID, saved.homes]);
+  const viewedProps = useMemo(() => history.ids.map((id) => BY_ID.get(id)).filter((p): p is Property => Boolean(p)), [BY_ID, history.ids]);
   const profile = useMemo(() => buildProfile({ saved: savedProps, viewed: viewedProps }), [savedProps, viewedProps]);
   const affinityOf = useMemo(() => {
     const cache = new Map<string, number>();
@@ -120,9 +132,9 @@ export default function App() {
       return v;
     };
   }, [profile]);
-  const recommendations = useMemo(() => recommend(properties, profile, 8), [profile]);
+  const recommendations = useMemo(() => recommend(properties, profile, 8), [properties, profile]);
   const traits = useMemo(() => commonTraits(savedProps), [savedProps]);
-  const basketRecs = useMemo(() => recommend(properties, buildProfile({ saved: savedProps, viewed: [] }), 3), [savedProps]);
+  const basketRecs = useMemo(() => recommend(properties, buildProfile({ saved: savedProps, viewed: [] }), 3), [properties, savedProps]);
 
   // ---------------------------------------------------------------- results
   const ranked = useMemo(() => {
@@ -139,7 +151,7 @@ export default function App() {
   const relaxations = useMemo(() => {
     if (full.length >= 3 || (!hasSoft && chips.length === 0)) return [];
     return suggestRelaxations(parsed, filters, (f, soft) => rankResults(applyFilters(properties, { ...f, query: '' }), soft).filter((r) => r.score >= 0.999).length);
-  }, [full.length, hasSoft, chips.length, parsed, filters]);
+  }, [full.length, hasSoft, chips.length, parsed, filters, properties]);
 
   const applyRelaxation = (r: Relaxation) => {
     setSearch((prev) => ({ ...prev, filters: updateFilters(prev.filters, { ...r.patch, query: r.query }, CITY_INDEX) }));
@@ -155,14 +167,20 @@ export default function App() {
     if (detailId) recordView(detailId);
   }, [detailId, recordView]);
   const openListing = useCallback((id: string) => (mapResults.some((p) => p.id === id) ? selection.openDetails(id) : selection.openSavedDetails(id)), [mapResults, selection]);
-  const similar = useMemo(() => (selection.detail ? similarTo(selection.detail, properties, 4) : []), [selection.detail]);
+  useEffect(() => {
+    if (!pendingOpen || !BY_ID.has(pendingOpen)) return;
+    if (mapResults.some((p) => p.id === pendingOpen)) selection.openDetails(pendingOpen);
+    else selection.openSavedDetails(pendingOpen);
+    setPendingOpen(null);
+  }, [pendingOpen, BY_ID, mapResults, selection]);
+  const similar = useMemo(() => (selection.detail ? similarTo(selection.detail, properties, 4) : []), [selection.detail, properties]);
 
   // ---------------------------------------------------------------- map areas (unchanged behaviour)
   const geo = useAreaData(mapMode !== 'homes');
   const [areaLevel, setAreaLevel] = useState<AreaLevel>('lad');
   const [areaFocus, setAreaFocus] = useState<AreaFocus | null>(null);
   const focusArea = useCallback((code: string) => setAreaFocus((f) => ({ code, seq: (f?.seq ?? 0) + 1 })), []);
-  const assignment = useMemo(() => (geo.status === 'ready' ? assignToAreas(properties, geo.lads, geo.wards) : null), [geo]);
+  const assignment = useMemo(() => (geo.status === 'ready' ? assignToAreas(properties, geo.lads, geo.wards) : null), [geo, properties]);
   const areaCounts = useMemo(() => (assignment && mapMode === 'density' ? countByArea(mapResults, assignment) : null), [assignment, mapMode, mapResults]);
   const areaNames = useMemo(() => (geo.status === 'ready' ? new Map([...geo.lads.features, ...geo.wards.features].map((f) => [f.properties.code, f.properties.name])) : null), [geo]);
   const topAreas = useMemo<AreaSummary[]>(() => {
@@ -221,6 +239,7 @@ export default function App() {
         onBrowse={browseAll}
         savedCount={saved.homes.length}
         onOpenSaved={() => setSavedOpen(true)}
+        onAddListing={() => setAddOpen(true)}
       />
       <main className="w-full pt-16 md:pt-20">
         {screen === 'home' ? (
@@ -308,6 +327,34 @@ export default function App() {
           onToggleSave={saved.toggle}
           similar={similar}
           onOpenListing={openListing}
+        />
+      )}
+
+      {addOpen && (
+        <AddListingDialog
+          places={PLACES}
+          myListingsCount={userListings.length}
+          areaUnit={filters.areaUnit}
+          onClose={() => setAddOpen(false)}
+          onClearMine={() => {
+            setUserListings([]);
+            writeUserListings([]);
+          }}
+          onSubmit={(p) => {
+            setUserListings((prev) => {
+              const next = [...prev, p];
+              writeUserListings(next);
+              return next;
+            });
+            setAddOpen(false);
+            // Show the new listing: results for its city, map on, detail open.
+            setSearch((prev) => ({ ...prev, filters: updateFilters(clearFilters(prev.filters), { city: p.city }, CITY_INDEX) }));
+            setDraft('');
+            setBrowse(true);
+            setShowMap(true);
+            setPendingOpen(p.id);
+            window.scrollTo?.({ top: 0 });
+          }}
         />
       )}
 

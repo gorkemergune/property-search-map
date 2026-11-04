@@ -1,56 +1,53 @@
 @import 'tailwindcss';
 
 /*
- * Palette taken from ev.png (golden-hour garden house): sunset amber and peach
- * sky, forest/sage greens, dusk lavender and warm stone creams.
+ * Palette: calm off-white surfaces, forest green as the main colour and a warm
+ * orange as the second colour, used only for small highlights.
  */
 @theme {
   --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
 
-  /* Legacy tokens (map, filter drawer, saved panel) mapped onto the palette. */
-  --color-ink: #2a2116;
-  --color-ink-soft: #4a3d2c;
-  --color-muted: #75624c;
-  --color-faint: #b3a088;
-  --color-line: #efdfca;
-  --color-line-strong: #e3cbae;
-  --color-canvas: #faf0e2;
-  --color-accent: #55801f;
-  --color-accent-soft: #dce9b4;
+  /* Legacy tokens (map, filter drawer, saved panel). */
+  --color-ink: #1b2420;
+  --color-ink-soft: #3a4640;
+  --color-muted: #5f6b65;
+  --color-faint: #a3aca7;
+  --color-line: #e7e9e6;
+  --color-line-strong: #d6dad6;
+  --color-canvas: #f2f4f1;
+  --color-accent: #237049;
+  --color-accent-soft: #d8eedf;
 
-  /* Garden green (primary). */
-  --color-primary: #3f5e14;
-  --color-primary-container: #55801f;
-  --color-primary-fixed: #dce9b4;
-  --color-primary-fixed-dim: #b5d07a;
-  --color-on-primary-fixed: #1b2a05;
-  --color-on-primary-fixed-variant: #33500c;
-  /* Sunset amber (secondary). */
-  --color-secondary: #a4460a;
-  --color-secondary-fixed: #ffd9b0;
-  --color-secondary-fixed-dim: #f8b56a;
+  /* Forest green (primary). */
+  --color-primary: #1c5c3b;
+  --color-primary-container: #237049;
+  --color-primary-fixed: #d8eedf;
+  --color-primary-fixed-dim: #a9d6b8;
+  --color-on-primary-fixed: #062614;
+  --color-on-primary-fixed-variant: #164a2f;
+  /* Warm orange (secondary). */
+  --color-secondary: #b8540d;
+  --color-secondary-fixed: #ffe4cc;
+  --color-secondary-fixed-dim: #f8bd86;
   --color-on-secondary-fixed: #3a1600;
-  /* Dusk sky lavender (tertiary). */
-  --color-tertiary: #5d5a8c;
-  --color-tertiary-fixed: #e4e0fb;
-  --color-on-tertiary-fixed: #1e1b45;
-  /* Warm stone surfaces. */
-  --color-surface: #fdf6ec;
-  --color-surface-lowest: #fffdf9;
-  --color-surface-low: #fbf1e3;
-  --color-surface-container: #f6e9d6;
-  --color-surface-high: #f0dfc8;
-  --color-surface-highest: #e9d6bb;
-  --color-on-surface: #2a2116;
-  --color-on-surface-variant: #5e4a35;
-  --color-outline: #8f7660;
-  --color-outline-variant: #e3cbae;
-  --color-inverse-surface: #2c2a1a;
+  /* Slate blue (tertiary). */
+  --color-tertiary: #4f5b75;
+  --color-tertiary-fixed: #e1e7f5;
+  --color-on-tertiary-fixed: #172036;
+  /* Neutral surfaces. */
+  --color-surface: #f7f8f6;
+  --color-surface-lowest: #ffffff;
+  --color-surface-low: #f1f3f0;
+  --color-surface-container: #eaedea;
+  --color-surface-high: #e2e6e2;
+  --color-surface-highest: #d9ded9;
+  --color-on-surface: #1b2420;
+  --color-on-surface-variant: #55615b;
+  --color-outline: #84908a;
+  --color-outline-variant: #d3d9d4;
+  --color-inverse-surface: #1f2a25;
   --color-error: #ba1a1a;
-
-  --color-sky-pink: #f9d6c4;
-  --color-sage: #e9eecf;
 }
 
 .material-symbols-outlined {
@@ -74,22 +71,22 @@
 }
 
 .shadow-island {
-  box-shadow: 0 24px 56px -10px rgb(122 58 8 / 0.22), 0 8px 18px -6px rgb(210 98 15 / 0.14);
+  box-shadow: 0 24px 56px -10px rgb(16 40 28 / 0.22), 0 8px 18px -6px rgb(16 40 28 / 0.1);
 }
 .shadow-card {
-  box-shadow: 0 6px 22px -4px rgb(122 58 8 / 0.1);
+  box-shadow: 0 4px 18px -4px rgb(16 40 28 / 0.08);
 }
 .shadow-card-hover {
-  box-shadow: 0 18px 40px -8px rgb(122 58 8 / 0.22);
+  box-shadow: 0 18px 40px -10px rgb(16 40 28 / 0.18);
 }
 
 /* Garden-green gradient for the main call-to-action buttons and brand mark. */
 .bg-garden {
-  background-image: linear-gradient(135deg, #7da03a 0%, #55801f 50%, #3a5a12 100%);
+  background-image: linear-gradient(135deg, #2c8a5a 0%, #237049 55%, #1c5c3b 100%);
 }
 /* Sunset accent (secondary) used for highlights such as the headline. */
 .text-sunset {
-  background-image: linear-gradient(100deg, #e08a1e 0%, #d2620f 45%, #b8432a 100%);
+  background-image: linear-gradient(100deg, #ffc07a 0%, #ff9f4a 50%, #f08236 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -109,14 +106,7 @@
 body {
   font-family: var(--font-sans);
   color: var(--color-ink);
-  /* Golden-hour wash from ev.png: apricot sunset sky at the top, warm gold in the middle, garden green at the bottom. */
-  background:
-    radial-gradient(1100px 650px at 90% 0%, rgb(240 140 50 / 0.45), transparent 70%),
-    radial-gradient(900px 600px at 0% 35%, rgb(245 170 120 / 0.35), transparent 70%),
-    radial-gradient(1000px 700px at 100% 100%, rgb(110 150 50 / 0.4), transparent 70%),
-    linear-gradient(180deg, #f7c08e 0%, #f9d7ac 30%, #f1e2b4 55%, #d9e3a6 80%, #bfd48a 100%);
-  background-attachment: fixed;
-  background-color: var(--color-surface);
+  background: var(--color-surface);
   -webkit-font-smoothing: antialiased;
   font-feature-settings: 'cv11', 'ss01';
 }
@@ -161,7 +151,7 @@ body {
 
 .leaflet-container {
   font-family: var(--font-sans);
-  background: #f3ecdd;
+  background: #e9eee9;
 }
 
 /*
@@ -262,7 +252,7 @@ body {
 .price-marker.is-selected {
   background: var(--color-accent);
   color: #fff;
-  box-shadow: 0 0 0 2px #fff, 0 0 0 5px rgb(85 128 31 / 0.3), 0 4px 12px rgb(29 28 26 / 0.3);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 5px rgb(35 112 73 / 0.3), 0 4px 12px rgb(29 28 26 / 0.3);
   transform: translate(-50%, calc(-100% - 12px)) scale(1.06);
 }
 .price-marker.is-selected::after {
@@ -398,4 +388,29 @@ body {
 }
 .area-count-label::before {
   display: none;
+}
+
+/* Add-listing map pin: a teardrop whose tip sits on the coordinate. */
+.picker-pin-icon {
+  background: none;
+  border: 0;
+}
+.picker-pin {
+  position: absolute;
+  left: -17px;
+  top: -41px;
+  width: 34px;
+  height: 34px;
+  transform: rotate(45deg);
+  border-radius: 50% 50% 0 50%;
+  background: var(--color-primary-container);
+  border: 3px solid #fff;
+  box-shadow: 0 6px 14px rgb(16 40 28 / 0.35);
+  cursor: grab;
+}
+.picker-pin span {
+  position: absolute;
+  inset: 8px;
+  border-radius: 9999px;
+  background: #fff;
 }

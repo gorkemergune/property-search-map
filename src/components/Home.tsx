@@ -62,46 +62,45 @@ export function Home(props: Props) {
     <div className="flex w-full flex-col">
       {/* Hero */}
       <div className="relative -mt-16 w-full overflow-hidden pt-16 md:-mt-20 md:pt-20">
-        {/* Background photo (ev.png), semi-transparent; a soft light patch behind the text keeps it readable. */}
-        <img src={heroImage} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-[70%_center] opacity-75 saturate-[1.15] [mask-image:linear-gradient(to_bottom,black_65%,transparent)]" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#f7c08e]/25 to-transparent" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_60%_at_center,rgb(255_244_228/0.82)_0%,rgb(255_236_210/0.45)_60%,transparent_100%)]" />
+        {/* Background photo (ev.png) under a dark, semi-transparent overlay so white text reads cleanly. */}
+        <img src={heroImage} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover object-[70%_center]" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#0d1a13]/70 via-[#0d1a13]/50 to-[#0d1a13]/75" />
         <section className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-col items-center px-5 pb-14 pt-12 md:px-8 lg:px-16 lg:pb-20 lg:pt-16">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/70 px-3.5 py-1 shadow-sm ring-1 ring-primary-fixed-dim/60 backdrop-blur-md">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1 ring-1 ring-white/25 backdrop-blur-md">
             <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-primary-container" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Natural-language home search · UK</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-white/90">Natural-language home search · UK</span>
           </div>
-          <h1 className="max-w-4xl text-center text-4xl font-bold leading-tight tracking-tight text-on-surface sm:text-5xl lg:text-[56px] lg:leading-[64px]">
+          <h1 className="max-w-4xl text-center text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-[56px] lg:leading-[64px]">
             What kind of home <span className="text-sunset font-serif font-normal italic">are you dreaming of?</span>
           </h1>
-          <p className="mb-10 mt-4 max-w-2xl text-center text-lg font-medium leading-7 text-on-surface-variant">
+          <p className="mb-10 mt-4 max-w-2xl text-center text-lg leading-7 text-white/85">
             Describe it the way you'd tell a friend. We read every listing's keywords plus nearby schools, hospitals and transport, and explain why each home matches.
           </p>
 
           <div className="relative w-full max-w-4xl">
             <SearchIsland value={query} onChange={onQueryChange} onSubmit={onSearch} autoFocus />
-            <p className="mt-3 text-center text-[11px] font-medium text-on-surface-variant">
+            <p className="mt-3 text-center text-[11px] font-medium text-white/75">
               Tip: mention a city or area, bedrooms, a budget ("under £450k" or "£1,800 pcm") and what matters — Tube, schools, hospital, garden, pets…
             </p>
 
             {recentSearches.length > 0 && (
               <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-                <span className="mr-1 flex items-center gap-1 text-xs font-semibold text-on-surface-variant">
+                <span className="mr-1 flex items-center gap-1 text-xs font-semibold text-white/85">
                   <Symbol name="history" size={16} /> Recent:
                 </span>
                 {recentSearches.slice(0, 4).map((q) => (
-                  <button key={q} type="button" onClick={() => onSearch(q)} className="max-w-[260px] truncate rounded-full bg-white/70 px-3 py-1 text-xs font-medium text-on-surface backdrop-blur hover:bg-white">
+                  <button key={q} type="button" onClick={() => onSearch(q)} className="max-w-[260px] truncate rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white ring-1 ring-white/25 backdrop-blur hover:bg-white/25">
                     {q}
                   </button>
                 ))}
-                <button type="button" onClick={onClearRecent} className="text-xs font-medium text-outline underline-offset-2 hover:underline">
+                <button type="button" onClick={onClearRecent} className="text-xs font-medium text-white/70 underline-offset-2 hover:underline">
                   Clear
                 </button>
               </div>
             )}
 
             <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
-              <span className="mr-1 text-xs font-semibold text-on-surface-variant">Example searches:</span>
+              <span className="mr-1 text-xs font-semibold text-white/85">Example searches:</span>
               {EXAMPLES.map((ex) => (
                 <Chip key={ex.label} onClick={() => onSearch(ex.query)} title={ex.query}>
                   <Symbol name={ex.icon} size={16} className={ex.tone} />
@@ -110,7 +109,7 @@ export function Home(props: Props) {
               ))}
             </div>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-2.5">
-              <span className="mr-1 text-xs font-semibold text-on-surface-variant">Explore cities:</span>
+              <span className="mr-1 text-xs font-semibold text-white/85">Explore cities:</span>
               {FEATURED_CITIES.filter((c) => cityCounts.has(c)).map((c) => (
                 <Chip key={c} onClick={() => onSearch(`Homes in ${c}`)}>
                   <Symbol name="location_city" size={16} className="text-secondary" />
@@ -160,7 +159,7 @@ export function Home(props: Props) {
             ))}
           </Carousel>
         ) : (
-          <div className="flex items-center gap-4 rounded-3xl bg-gradient-to-r from-primary-fixed/60 via-surface-lowest to-secondary-fixed/50 p-6 shadow-card ring-1 ring-primary-fixed-dim/40">
+          <div className="flex items-center gap-4 rounded-3xl bg-surface-lowest p-6 shadow-card">
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary-fixed/50 text-primary">
               <Symbol name="favorite" size={26} />
             </div>
@@ -201,7 +200,7 @@ function Chip({ children, onClick, title }: { children: ReactNode; onClick: () =
       type="button"
       onClick={onClick}
       title={title}
-      className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-4 py-1.5 text-xs font-semibold text-on-surface shadow-sm ring-1 ring-primary-fixed-dim/40 backdrop-blur transition-all hover:-translate-y-px hover:bg-white hover:shadow-md hover:ring-primary-fixed-dim"
+      className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-4 py-1.5 text-xs font-semibold text-on-surface shadow-sm backdrop-blur transition-all hover:-translate-y-px hover:bg-white hover:shadow-md"
     >
       {children}
     </button>
